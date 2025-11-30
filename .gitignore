@@ -1,0 +1,39 @@
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# 環境變數
+.env
+*.env
+.env.local
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Anaconda
+*.conda
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# 測試
+.coverage
+htmlcov/
+.pytest_cache/
