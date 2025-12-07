@@ -25,8 +25,8 @@ class FaceDiagnosis(models.Model):
 
     analysis_report = models.JSONField(
         "分析報告",
+        default=dict,
         blank=True,
-        null=True,
         help_text="存儲面診分析結果的JSON資料"
     )
 
