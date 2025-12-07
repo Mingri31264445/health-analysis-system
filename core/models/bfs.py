@@ -45,4 +45,5 @@ class BFSTestFile(models.Model):
         ordering = ['bfs_test', 'file_number']# 設定資料撈出來時的排序依據
 
     def __str__(self):
-        return f"BFS測試ID: {self.bfs_test.id} - 檔案編號: {self.file_number}"  
+        test_date = self.bfs_test.test_date.strftime('%Y-%m-%d')
+        return f"{self.bfs_test.patient_name} ({test_date}) - 檔案 {self.file_number}"  
