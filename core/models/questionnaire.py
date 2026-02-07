@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError #  用於跨欄位的邏輯驗證
 
 # AI 人工智慧臉部影像整併系統開發問卷模型
 class Questionnaire(models.Model):
@@ -98,9 +99,10 @@ class Questionnaire(models.Model):
     )
     exercise_frequency = models.PositiveSmallIntegerField(
         "每週運動頻率(幾天/週)",
-        choices=[(i, str(i)) for i in range(8)],
+        choices=[(i, f'{i}天') for i in range(1, 8)],
         null=True,
-        blank=True
+        blank=True,
+        help_text='請選擇每週運動 1-7 天'
     )
     menstruation = models.BooleanField("生理期(女性適用)", default=False)
 
@@ -114,6 +116,43 @@ class Questionnaire(models.Model):
 
     created_at = models.DateTimeField("填寫日期", auto_now_add=True)
     updated_at = models.DateTimeField("更新日期", auto_now=True)
+
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        #性別與生理期的邏輯驗證
+        if self.gender == 'M' and self.menstruation:
+            errors['menstruation'] = '男性不能勾選生理期選項'
+
+        #運動習慣與運動頻率的邏輯驗證
+        if not self.exercise:
+            if self.exercise_duration:
+                errors['exercise_duration'] = '您未勾選「有運動習慣」，請勿填寫運動時間'
+            if self.exercise_frequency:
+                errors['exercise_frequency'] = '您未勾選「有運動習慣」，請勿填寫運動頻率'
+        else:
+            if not self.exercise_duration:
+                errors['exercise_duration'] = '您勾選了「有運動習慣」，請填寫每次運動時間'
+            if not self.exercise_frequency:
+                errors['exercise_frequency'] = '您勾選了「有運動習慣」，請填寫每週運動頻率'
+
+        #手術史的邏輯驗證
+        details = [self.surgery_1, self.surgery_2]
+
+        if not self.surgery_history:
+            if any(details):
+                errors['surgery_1'] = '您未勾選「有手術史」，請勿填寫手術詳情'
+        else:
+            if not any(details):
+                errors['surgery_1'] = '您勾選了「有手術史」，請至少填寫一項手術詳情'
+
+        if errors:
+            raise ValidationError(errors)
+        
+    def save(self, *args, **kwargs):
+        self.full_clean()  # 在保存前進行驗證
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "問卷"

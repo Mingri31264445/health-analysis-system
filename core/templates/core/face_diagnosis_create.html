@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上傳面診照片 - 健康分析系統</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header bg-warning text-dark">
+              <h3 class="mb-0">上傳面診照片</h3>
+            </div>
+            <div class="card-body">
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >患者姓名 <span class="text-danger">*</span></label
+                  >
+                  {{ form.patient_name }} {% if form.patient_name.errors %}
+                  <div class="text-danger">{{ form.patient_name.errors }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >診斷日期 <span class="text-danger">*</span></label
+                  >
+                  {{ form.diagnosis_date }} {% if form.diagnosis_date.errors %}
+                  <div class="text-danger">
+                    {{ form.diagnosis_date.errors }}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="alert alert-info">
+                  <strong>拍攝說明：</strong><br />
+                  請上傳正面、右側面、左側面三張清晰照片
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label"
+                      >正臉照片 <span class="text-danger">*</span></label
+                    >
+                    {{ form.front_image }}
+                    <small class="form-text text-muted">正面清晰照片</small>
+                    {% if form.front_image.errors %}
+                    <div class="text-danger">{{ form.front_image.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label"
+                      >右臉照片 <span class="text-danger">*</span></label
+                    >
+                    {{ form.right_image }}
+                    <small class="form-text text-muted">右側面照片</small>
+                    {% if form.right_image.errors %}
+                    <div class="text-danger">{{ form.right_image.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label"
+                      >左臉照片 <span class="text-danger">*</span></label
+                    >
+                    {{ form.left_image }}
+                    <small class="form-text text-muted">左側面照片</small>
+                    {% if form.left_image.errors %}
+                    <div class="text-danger">{{ form.left_image.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">備註</label>
+                  {{ form.notes }}
+                </div>
+
+                <div class="d-flex justify-content-between">
+                  <a href="{% url 'index' %}" class="btn btn-secondary">取消</a>
+                  <button type="submit" class="btn btn-warning">上傳</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
