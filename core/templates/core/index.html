@@ -1,145 +1,260 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>健康分析系統</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background: linear-gradient(135deg, #85cddd 0%, #3d92cf 100%);
-        min-height: 100vh;
-      }
-      .hero {
-        padding: 80px 0;
-        color: rgb(11, 51, 77);
-        text-align: center;
-      }
-      .hero h1 {
-        font-size: 3rem;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-      .hero p {
-        font-size: 1.2rem;
-        opacity: 0.9;
-      }
-      .feature-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        height: 100%;
-        border: none;
-        border-radius: 15px;
-      }
-      .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
-      .feature-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-      }
-      .card-body {
-        padding: 30px;
-      }
-      .btn-feature {
-        width: 100%;
-        padding: 12px;
-        font-size: 1.1rem;
-        border-radius: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- 導航列 -->
-    <nav class="navbar navbar-dark bg-dark">
-      <div class="container">
-        <a class="navbar-brand" href="{% url 'index' %}">
-          <strong>健康分析系統</strong>
-        </a>
-        <a href="/sys-admin-31264445/" class="btn btn-outline-light btn-sm"
-          >管理後台</a
-        >
-      </div>
-    </nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-inner">
+            <a href="#home" class="logo">AI智慧面診健康平台</a>
 
-    <!-- Hero 區域 -->
-    <div class="hero">
-      <div class="container">
-        <h1>健康分析系統</h1>
-        <p>整合問卷、經絡儀、BFS、面診的全方位健康管理平台</p>
-      </div>
-    </div>
+            <nav class="nav-links">
+                <a href="#home">首頁</a>
+                <a href="#features">功能介紹</a>
+                <a href="#process">檢測流程</a>
+                <a href="#about">關於系統</a>
+            </nav>
 
-    <!-- 功能卡片 -->
-    <div class="container pb-5">
-      <div class="row g-4">
-        <!-- 問卷管理 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card feature-card">
-            <div class="card-body text-center">
-              <div class="feature-icon">📋</div>
-              <h4>問卷管理</h4>
-              <p class="text-muted">完整的健康問卷系統</p>
-              <a
-                href="{% url 'questionnaire_list' %}"
-                class="btn btn-success btn-feature"
-                >進入管理</a
-              >
-            </div>
-          </div>
+            <a href="#" class="login-btn">登入</a>
         </div>
+    </header>
 
-        <!-- 經絡儀測試 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card feature-card">
-            <div class="card-body text-center">
-              <div class="feature-icon">📊</div>
-              <h4>經絡儀測試</h4>
-              <p class="text-muted">上傳經絡儀檢測報告</p>
-              <a
-                href="{% url 'meridian_create' %}"
-                class="btn btn-primary btn-feature"
-                >上傳報告</a
-              >
-            </div>
-          </div>
-        </div>
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <div class="hero-text reveal">
+                <span class="tag">AI × 健康問卷 × 面診影像 × 健康數據分析</span>
+                <h1>打造智慧化<br>健康分析整合平台</h1>
+                <p class="desc">
+                    整合健康問卷、面診影像、BFS數據與經絡檢測，
+                    建構多模組智慧健康分析系統，提供更完整的個人健康評估與視覺化呈現。
+                </p>
 
-        <!-- BFS 測試 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card feature-card">
-            <div class="card-body text-center">
-              <div class="feature-icon">🔬</div>
-              <h4>BFS 測試</h4>
-              <p class="text-muted">生物反饋測試系統</p>
-              <a
-                href="{% url 'bfs_create' %}"
-                class="btn btn-info btn-feature text-white"
-                >建立測試</a
-              >
+                <div class="hero-actions">
+                    <a href="#results" class="btn btn-primary">立即開始分析</a>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 面診記錄 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card feature-card">
-            <div class="card-body text-center">
-              <div class="feature-icon">📸</div>
-              <h4>面診記錄</h4>
-              <p class="text-muted">AI 面部診斷分析</p>
-              <a
-                href="{% url 'face_diagnosis_create' %}"
-                class="btn btn-warning btn-feature"
-                >上傳照片</a
-              >
+            <div class="hero-visual reveal reveal-delay-1">
+                <img src="{% static 'images/health-hero.png' %}" alt="智慧健康平台整合示意圖" class="hero-main-img">
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </body>
+    </section>
+
+    <section class="about section" id="about">
+        <div class="container">
+            <div class="about-layout reveal">
+                <div class="about-text-block">
+                    <p class="about-tag">Platform Value</p>
+                    <h2>平台核心價值</h2>
+
+                    <p class="about-desc">
+                        本平台整合健康問卷、面診影像、BFS數據與經絡檢測資訊，
+                        建立多模組智慧健康分析架構，提供更完整的健康狀態觀察與分析參考。
+                    </p>
+
+                    <p class="about-desc secondary">
+                        透過資料整合、影像辨識與視覺化呈現，強化健康資訊的整體判讀，
+                        作為研究展示與智慧健康平台設計之概念介面。
+                    </p>
+                </div>
+
+                <div class="about-image-wrap">
+                    <div class="about-image-card">
+                        <img src="{% static 'images/face-clean.png' %}" alt="平台形象示意圖" class="about-face-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features section" id="features">
+        <div class="container">
+            <div class="section-title reveal">
+                <p>Core Features</p>
+                <h2>核心功能模組</h2>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">📋</div>
+                    <h3>健康問卷</h3>
+                    <p>蒐集個人基本資料、病史與生活習慣，作為健康評估與後續分析的重要基礎。</p>
+                    <a href="#" class="card-link">填寫健康問卷</a>
+                </div>
+
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">🪞</div>
+                    <h3>面診影像</h3>
+                    <p>透過面部影像擷取與辨識分析，提供初步健康狀態判讀與視覺化呈現。</p>
+                    <a href="#" class="card-link">進入面診分析</a>
+                </div>
+
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">📊</div>
+                    <h3>BFS檢測</h3>
+                    <p>透過頻率分析方式，提供個人生理狀態之參考資訊。</p>
+                    <a href="#" class="card-link">查看BFS資訊</a>
+                </div>
+
+                <div class="feature-card reveal reveal-delay-3">
+                    <div class="feature-icon">🫀</div>
+                    <h3>經絡檢測</h3>
+                    <p>量測手腳的十二經絡原穴，做為評估五臟六腑的健康狀態。</p>
+                    <a href="#" class="card-link">查看檢測模組</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="process section" id="process">
+        <div class="container">
+            <div class="section-title reveal">
+                <p>Analysis Flow</p>
+                <h2>檢測流程</h2>
+            </div>
+
+            <div class="glass-flow">
+                <div class="flow-line"></div>
+
+                <div class="flow-item left reveal">
+                    <div class="flow-content">
+                        <h3>建立基本資料</h3>
+                        <p>建立個人健康資料，作為後續分析基礎。</p>
+                    </div>
+                    <div class="flow-node node-1">
+                        <span>01</span>
+                    </div>
+                </div>
+
+                <div class="flow-item right reveal reveal-delay-1">
+                    <div class="flow-node node-2">
+                        <span>02</span>
+                    </div>
+                    <div class="flow-content">
+                        <h3>填寫健康問卷</h3>
+                        <p>蒐集病史、生活習慣與身體狀況資訊。</p>
+                    </div>
+                </div>
+
+                <div class="flow-item left reveal reveal-delay-2">
+                    <div class="flow-content">
+                        <h3>上傳面部照片</h3>
+                        <p>提供清晰正面影像，作為面診分析依據。</p>
+                    </div>
+                    <div class="flow-node node-3">
+                        <span>03</span>
+                    </div>
+                </div>
+
+                <div class="flow-item right reveal reveal-delay-3">
+                    <div class="flow-node node-4">
+                        <span>04</span>
+                    </div>
+                    <div class="flow-content">
+                        <h3>匯入 BFS 數據</h3>
+                        <p>整合生理檢測資訊，強化分析完整性。</p>
+                    </div>
+                </div>
+
+                <div class="flow-item left reveal reveal-delay-4">
+                    <div class="flow-content">
+                        <h3>進行經絡檢測</h3>
+                        <p>結合經絡量測結果，提供更全面健康參考。</p>
+                    </div>
+                    <div class="flow-node node-5">
+                        <span>05</span>
+                    </div>
+                </div>
+
+                <div class="flow-item right reveal reveal-delay-5">
+                    <div class="flow-node node-6">
+                        <span>06</span>
+                    </div>
+                    <div class="flow-content">
+                        <h3>產生健康報告</h3>
+                        <p>彙整資料後輸出視覺化分析結果與建議。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="results-preview section" id="results">
+        <div class="container">
+            <div class="section-title reveal">
+                <p>Result Preview</p>
+                <h2>健康分析結果預覽</h2>
+            </div>
+
+            <div class="results-layout">
+                <div class="results-summary-card reveal">
+                    <p class="results-tag">Personal Health Overview</p>
+                    <h3>個人健康評估總覽</h3>
+                    <p class="results-desc">
+                        系統整合問卷、影像與量測資訊後，可提供綜合性健康狀態參考，
+                        作為個人健康管理與專題研究展示之基礎。
+                    </p>
+
+                    <div class="score-ring">
+                        <div class="score-inner">
+                            <span id="health-score" data-target="82">0</span>
+                            <small>健康分數</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card result-reveal result-delay-1 reveal">
+                        <div class="result-top">
+                            <span class="result-label">QUESTIONNAIRE</span>
+                            <span class="result-badge good">穩定</span>
+                        </div>
+                        <h4>健康問卷分析</h4>
+                        <p>根據生活作息與病史填答結果，系統可初步整理使用者目前健康風險與基本狀態。</p>
+                    </div>
+
+                    <div class="result-card result-reveal result-delay-2 reveal">
+                        <div class="result-top">
+                            <span class="result-label">FACE IMAGE</span>
+                            <span class="result-badge warn">注意</span>
+                        </div>
+                        <h4>面診影像觀察</h4>
+                        <p>透過臉部影像特徵分析，輔助觀察個人狀態變化並作為視覺化展示依據。</p>
+                    </div>
+
+                    <div class="result-card result-reveal result-delay-3 reveal">
+                        <div class="result-top">
+                            <span class="result-label">BFS DATA</span>
+                            <span class="result-badge normal">一般</span>
+                        </div>
+                        <h4>BFS量測結果</h4>
+                        <p>整合相關檢測資料後，協助平台進一步建立多面向健康數據分析基礎。</p>
+                    </div>
+
+                    <div class="result-card result-reveal result-delay-4 reveal">
+                        <div class="result-top">
+                            <span class="result-label">MERIDIAN</span>
+                            <span class="result-badge good">良好</span>
+                        </div>
+                        <h4>經絡檢測分析</h4>
+                        <p>透過經絡檢測資訊補充健康分析維度，使平台呈現更完整的整合性健康評估概念。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <p>AI智慧面診健康平台｜整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+            <p>本頁面為專題展示介面設計示意</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
 </html>
