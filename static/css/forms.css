@@ -1,0 +1,79 @@
+/* ===== Upload / Form Pages ===== */
+
+.upload-form {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 0 64px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #46545a;
+    letter-spacing: 0.3px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="datetime-local"],
+.form-group input[type="file"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #ddd8ce;
+    border-radius: 10px;
+    background: #fff;
+    color: #2f3a3f;
+    font-family: inherit;
+    font-size: 15px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #6a807a;
+    box-shadow: 0 0 0 3px rgba(106, 128, 122, 0.12);
+}
+
+.form-group input[type="file"] {
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.field-error {
+    display: block;
+    font-size: 13px;
+    color: #c0392b;
+    margin-top: 2px;
+}
+
+.form-errors {
+    max-width: 640px;
+    margin: 0 auto 20px;
+    padding: 14px 18px;
+    background: #fdf0ee;
+    border: 1.5px solid #e8c5bf;
+    border-radius: 10px;
+    color: #aa3a2a;
+    font-size: 14px;
+}
+
+.form-errors p {
+    margin: 0;
+    line-height: 1.6;
+}

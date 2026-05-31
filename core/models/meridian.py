@@ -16,6 +16,13 @@ class MeridianTest(models.Model):
         upload_to='meridian_tests/%Y/%m/%d/'# 上傳路徑會依照上傳日期自動分類
     )
 
+    #儲存此報告的門檻值
+    threshold_toohigh = models.FloatField("過高值", null=True, blank=True)
+    threshold_high = models.FloatField("高值", null=True, blank=True)
+    threshold_average = models.FloatField("均值", null=True, blank=True)
+    threshold_low = models.FloatField("低值", null=True, blank=True)
+    threshold_toolow = models.FloatField("過低值", null=True, blank=True)
+
     notes = models.TextField("備註", blank=True)
 
     created_at = models.DateTimeField("建立日期", auto_now_add=True)
@@ -28,3 +35,21 @@ class MeridianTest(models.Model):
 
     def __str__(self):
         return f"{self.patient_name} - {self.test_date.strftime('%Y-%m-%d %H:%M')}"
+
+
+class MeridianReading(models.Model):
+    meridian_test = models.ForeignKey(MeridianTest, on_delete=models.CASCADE, related_name='readings')
+
+    meridian = models.CharField("經絡名稱", max_length=50)
+
+    left_org = models.FloatField("左側原始值")
+    left_cmp = models.FloatField("左側比較值")
+    right_org = models.FloatField("右側原始值")
+    right_cmp = models.FloatField("右側比較值")
+
+    class Meta:
+        verbose_name = "經絡測試讀數"
+        verbose_name_plural = "經絡測試讀數列表"
+
+    def __str__(self):
+        return f"{self.meridian_test.patient_name} - {self.meridian}"

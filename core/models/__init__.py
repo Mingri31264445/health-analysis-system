@@ -1,6 +1,6 @@
 from .questionnaire import Questionnaire
 from .bfs import BFSTest, BFSTestFile
-from .meridian import MeridianTest
+from .meridian import MeridianTest, MeridianReading
 from .face_diagnosis import FaceDiagnosis
 
 __all__ = [
@@ -8,5 +8,6 @@ __all__ = [
     'BFSTest',
     'BFSTestFile',
     'MeridianTest',
+    'MeridianReading',
     'FaceDiagnosis',
 ]
