@@ -1,0 +1,77 @@
+{
+  "bfs1": {
+    "左上": "脾-消化系統-胃前壁ANTERIOR WALL OF STOMACH",
+    "右上": "脾-消化系統-胃後壁POSTERIOR WALL OF STOMACH",
+    "左下": "脾-消化系統-胰腺和脾臟，前視圖PANCREAS AND SPLEEN, front view",
+    "右下": "肺-消化系統-腸INTESTINE",
+    "coords_file": "bfs1.json"
+  },
+  "bfs2": {
+    "左上": "肝-消化系統-肝臟;後視LIVER; back view",
+    "右上": "肝-消化系統-肝前視圖LIVER; front view",
+    "左下": "肝-消化系統-膽囊GALL BLADDER",
+    "右下": "肺-呼吸系統-氣管和支氣管TRACHEA AND BRONCHI",
+    "coords_file": "bfs2.json"
+  },
+  "bfs3": {
+    "左上": "肺-呼吸系統-右肺RIGHT LUNG",
+    "右上": "肺-呼吸系統-左肺LEFT LUNG",
+    "左下": "腎-泌尿生殖系統-右腎;縱切面LONGITUDINAL SECTION OF RIGHT KIDNEY",
+    "右下": "腎-泌尿生殖系統-左腎;縱切面LONGITUDINAL SECTION OF LEFT KIDNEY",
+    "coords_file": "bfs3.json"
+  },
+  "bfs4_M": {
+    "左上": "腎-泌尿生殖系統-輸尿管URETER",
+    "右上": "腎-泌尿生殖系統-男性膀胱;後視圖MALE URINARY BLADDER; rear view",
+    "左下": "腎-泌尿生殖系統-睾丸;左側TESTICLE; left",
+    "右下": "腎-泌尿生殖系統-睾丸;右側TESTICLE; right",
+    "coords_file": "bfs4_M.json"
+  },
+  "bfs4_F": {
+    "左上": "腎-泌尿生殖系統-腎小球動脈GLOMERULES AND INCOMING ARTERIES",
+    "右上": "腎-泌尿生殖系統-輸尿管URETER",
+    "左下": "腎-泌尿生殖系統-女性膀胱;後視圖FEMALE URINARY BLADDER; rear view",
+    "右下": "肝-泌尿生殖系統-子宮縱切面LONGITUDINAL SECTION OF UTERUS",
+    "coords_file": "bfs4_F.json"
+  },
+  "bfs5_M": {
+    "左上": "腎-泌尿生殖系統-精子SPERMATOZOON",
+    "右上": "腎-泌尿生殖系統-前列腺PROSTATE",
+    "左下": "心-心血管系統-主要血管的主幹MAIN VASSELS OF THE TRUNK",
+    "右下": "心-心血管系統-左側頭頸部動脈ARTERIES OF HEAD AND NECK; LEFT SIDE",
+    "coords_file": "bfs5_M.json"
+  },
+  "bfs5_F": {
+    "左上": "腎-泌尿生殖系統-輸卵管及卵巢;左Fallopian tubes and ovaries; Left",
+    "右上": "腎-泌尿生殖系統-輸卵管和卵巢，右Fallopian tubes and ovaries, the right",
+    "左下": "心-心血管系統-主要血管的主幹MAIN VASSELS OF THE TRUNK",
+    "右下": "心-心血管系統-左側頭頸部動脈ARTERIES OF HEAD AND NECK; LEFT SIDE",
+    "coords_file": "bfs5_F.json"
+  },
+  "bfs6": {
+    "左上": "心-心血管系統-頭頸部動脈;右側ARTERIES OF HEAD AND NECK; RIGHT SIDE",
+    "右上": "心-心血管系統-心臟;前視HEART; from the front",
+    "左下": "心-心血管系統-心臟;後視圖HEART; from the behind",
+    "右下": "心-心血管系統-心臟瓣膜VALVES OF HEART",
+    "coords_file": "bfs6.json"
+  },
+  "bfs7": {
+    "左上": "肝-免疫系統-主幹後壁淋巴管,前視圖LYMPHATIC VESSELS OF THE POSTERIOR WALL OF THE TRUNK. front view",
+    "右上": "腎-內分泌系統-甲狀腺;前視圖THYROID GLAND; front view",
+    "左下": "腎-內分泌系統-腎上腺ADRENAL",
+    "右下": "心-腦神經系統-椎脊神經;右視圖VERTEBRO-SPINAL NERVES; right view",
+    "coords_file": "bfs7.json"
+  },
+  "bfs8": {
+    "左上": "心-腦神經系統-椎脊神經;左視圖VERTEBRO-SPINAL NERVES; left view",
+    "右上": "心-腦神經系統-背部神經NERVES OF BACK",
+    "左下": "心-腦神經系統-大腦;頂視圖CEREBRUM, top view",
+    "右下": "心-腦神經系統-大腦，右側CEREBRUM, right side",
+    "coords_file": "bfs8.json"
+  },
+  "bfs9": {
+    "左上": "心-腦神經系統-大腦，左側CEREBRUM, left side",
+    "右上": "心-腦神經系統-交感神經系統VEGETATIVE NERVOUS SYSTEM",
+    "coords_file": "bfs9.json"
+  }
+}
