@@ -1,8 +1,6 @@
 """
 經絡儀 PDF 解析器
-用途:從 MEAD 經絡能量分析報表 PDF 擷取數值
-使用方式: py parse_meridian.py <PDF路徑>
-範例:    py parse_meridian.py xxx.pdf
+從經絡儀報告 PDF 擷取數值
 """
 
 import pdfplumber
