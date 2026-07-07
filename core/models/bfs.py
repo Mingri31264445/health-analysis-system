@@ -37,6 +37,19 @@ class BFSTestFile(models.Model):
     )
     file_description = models.CharField("檔案描述", max_length=200, blank=True)
 
+    detected_template = models.CharField("自動判斷模板", max_length=20, blank=True,)
+    
+    ANALYSIS_STATUS_CHOICES = [
+        ("pending", "待分析"),
+        ("success", "分析完成"),
+        ("needs_review", "需人工確認"),
+    ]
+    analysis_status = models.CharField(
+        "分析狀態", max_length=20,
+        choices=ANALYSIS_STATUS_CHOICES, default="pending"
+    )
+    analysis_result = models.JSONField("分析結果", null=True, blank=True,)
+
     uploaded_at = models.DateTimeField("上傳日期", auto_now_add=True)
 
     class Meta:
