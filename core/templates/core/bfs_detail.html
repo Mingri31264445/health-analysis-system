@@ -1,0 +1,127 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BFS測試結果 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <p>BFS Test Result</p>
+          <h2>{{ bfs_test.patient_name }} 的 BFS 測試結果</h2>
+        </div>
+
+        <p class="bfs-meta">
+          測試日期：{{ bfs_test.test_date|date:"Y-m-d H:i" }}
+          {% if bfs_test.notes %}
+          ｜備註：{{ bfs_test.notes }}
+          {% endif %}
+        </p>
+
+        {% for item in files_display %}
+        <div class="bfs-file-block">
+          <div class="bfs-file-header">
+            <h3>檔案 {{ item.file.file_number }}</h3>
+
+            {% if item.file.analysis_status == 'success' %}
+            <span class="result-badge good">
+              分析完成｜{{ item.file.detected_template }}
+            </span>
+            {% endif %}
+            {% if item.file.analysis_status == 'needs_review' %}
+            <span class="result-badge warn">需人工確認</span>
+            {% endif %}
+            {% if item.file.analysis_status == 'pending' %}
+            <span class="result-badge normal">待分析</span>
+            {% endif %}
+          </div>
+
+          {% if item.file.file_description %}
+          <p class="bfs-file-desc">{{ item.file.file_description }}</p>
+          {% endif %}
+
+          {% if item.display %}
+          <table class="bfs-result-table">
+            <thead>
+              <tr>
+                <th>部位</th>
+                {% for level in item.display.rows.0.levels %}
+                <th>{{ level.name }}</th>
+                {% endfor %}
+                <th>小計</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in item.display.rows %}
+              <tr>
+                <td>{{ row.caption }}</td>
+                {% for level in row.levels %}
+                <td>{{ level.count }}</td>
+                {% endfor %}
+                <td class="bfs-total-cell">{{ row.total }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="7">
+                  總點數：{{ item.display.total_all }}
+                  {% if item.display.suspicious_count > 0 %}
+                  ｜
+                  <span class="bfs-suspicious-warning">
+                    ⚠ {{ item.display.suspicious_count }} 個可疑點，建議人工複查
+                  </span>
+                  {% endif %}
+                  {% if item.display.suspicious_count == 0 %}
+                  ｜
+                  <span class="bfs-suspicious-ok">✓ 顏色判定信心度良好</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+          {% endif %}
+
+          {% if not item.display %}
+          {% if item.file.analysis_status == 'needs_review' %}
+          <p class="bfs-review-note">
+            系統無法自動判斷這份 PDF 屬於哪種報告版型，請人工確認後手動處理。
+          </p>
+          {% endif %}
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="bfs-actions">
+          <a href="{% url 'upload_bfs_test' %}" class="btn btn-primary">
+            上傳新的 BFS 測試
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+        <p>本頁面為專題展示介面設計示意</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

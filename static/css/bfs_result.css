@@ -1,0 +1,99 @@
+/* ===== BFS Result Page ===== */
+/* 配色延續 style.css 既有的主題色（米白底、深灰綠、赭紅點綴） */
+
+.bfs-meta {
+  text-align: center;
+  color: #6b767c;
+  font-size: 15px;
+  margin-bottom: 40px;
+}
+
+.bfs-file-block {
+  max-width: 900px;
+  margin: 0 auto 36px;
+  padding: 28px 32px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+}
+
+.bfs-file-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.bfs-file-header h3 {
+  font-size: 20px;
+  color: #24343b;
+  font-weight: 800;
+}
+
+.bfs-file-desc {
+  color: #6b767c;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.bfs-review-note {
+  color: #a26a2f;
+  background: rgba(193, 154, 109, 0.1);
+  border: 1px solid rgba(193, 154, 109, 0.28);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 14px;
+}
+
+.bfs-result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bfs-result-table th,
+.bfs-result-table td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #ede8de;
+}
+
+.bfs-result-table th {
+  color: #46545a;
+  font-weight: 700;
+  background: #f8f5f0;
+}
+
+.bfs-result-table td:first-child,
+.bfs-result-table th:first-child {
+  text-align: left;
+}
+
+.bfs-total-cell {
+  font-weight: 800;
+  color: #24343b;
+}
+
+.bfs-result-table tfoot td {
+  text-align: left;
+  padding-top: 14px;
+  border-bottom: none;
+  color: #6b767c;
+  font-size: 13px;
+}
+
+.bfs-suspicious-warning {
+  color: #a26a2f;
+  font-weight: 700;
+}
+
+.bfs-suspicious-ok {
+  color: #5d7e69;
+  font-weight: 700;
+}
+
+.bfs-actions {
+  text-align: center;
+  margin-top: 20px;
+}

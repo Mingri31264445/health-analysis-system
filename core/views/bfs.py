@@ -6,6 +6,8 @@ from ..models import BFSTest, BFSTestFile
 from ..services.bfs import analyze_bfs_pdf
 
 
+LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
+
 def upload_bfs_test(request):
     if request.method == 'POST':
         form = BFSTestForm(request.POST)
@@ -33,7 +35,50 @@ def upload_bfs_test(request):
         form = BFSTestForm() # 如果是 GET 請求，則建立一個空的表單
     return render(request, "core/upload_bfs_test.html", {'form': form})
 
+def _build_display_rows(analysis_result):
+    """
+    把 analysis_result 這份原始 JSON 整理成 Template 可以直接
+    迴圈渲染的結構，不需要在 Template 裡做字典查找或型別轉換。
+    """
+    if not analysis_result or 'color_analysis' not in analysis_result:
+        return None
+
+    color = analysis_result['color_analysis']
+
+    captions = analysis_result.get('detection', {}).get('detail', {}).get('captions', {})
+
+    rows = []
+    for region in color['regions_present']:
+        counts = color['quadrant_counts'][region]
+        levels = []
+        for level_num, level_name in LEVEL_NAMES.items():
+            # JSON 存進資料庫後，數字鍵會變成字串鍵，兩種都嘗試取值
+            count = counts.get(str(level_num), counts.get(level_num, 0))
+            levels.append({'name': level_name, 'count': count})
+        rows.append({
+            'region': region,
+            'caption': captions.get(region, region),
+            'levels': levels,
+            'total': color['quadrant_totals'][region],
+        })
+
+    return {
+        'rows': rows,
+        'total_all': color['total_all'],
+        'suspicious_count': len(color.get('suspicious', [])),
+    }
 
 def bfs_detail(request, pk):
     bfs_test = BFSTest.objects.prefetch_related('files').get(pk=pk)
-    return render(request, "core/bfs_detail.html", {'bfs_test': bfs_test})
+
+    files_display = []
+    for bfs_file in bfs_test.files.all():
+        files_display.append({
+            'file': bfs_file,
+            'display': _build_display_rows(bfs_file.analysis_result),
+        })
+
+    return render(request, "core/bfs_detail.html", {
+        'bfs_test': bfs_test,
+        'files_display': files_display,
+    })
