@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開始健康分析｜AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+</head>
+<body>
+    {% include "core/system_nav.html" %}
+    <main class="system-page analysis-page">
+        <section class="system-panel analysis-panel">
+            <div class="analysis-hero">
+                <div>
+                    <p class="system-eyebrow">START ANALYSIS</p>
+                    <h1>開始健康分析</h1>
+                    <p class="system-desc">你的健康問卷已完成，接下來可以選擇要進行的分析項目。</p>
+                </div>
+                <div class="analysis-profile">
+                    <span>受測者</span>
+                    <strong>{{ questionnaire.name }}</strong>
+                    <small>{{ questionnaire.updated_at|date:"Y/m/d H:i" }} 更新</small>
+                </div>
+            </div>
+
+            {% if messages %}
+                <div class="message-list">
+                    {% for message in messages %}
+                        <div class="message-item">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="analysis-flow">
+                <div class="flow-chip is-done">登入帳號</div>
+                <div class="flow-chip is-done">完成問卷</div>
+                <div class="flow-chip is-current">選擇分析</div>
+                <div class="flow-chip">查看結果</div>
+            </div>
+
+            <div class="analysis-module-grid">
+                {% for module in modules %}
+                    <a href="{{ module.url }}" class="analysis-module-card">
+                        <span>{{ module.eyebrow }}</span>
+                        <strong>{{ module.label }}</strong>
+                        <p>{{ module.description }}</p>
+                        <em>{{ module.action }} →</em>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=18"></script>
+</body>
+</html>

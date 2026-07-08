@@ -1,0 +1,13 @@
+<header class="system-nav">
+    <a href="{% url 'home' %}" class="system-nav-logo">AI智慧面診健康平台</a>
+    <nav class="system-nav-links" aria-label="系統導覽">
+        <a href="{% url 'home' %}">首頁</a>
+        <a href="{% url 'questionnaire' %}">健康問卷</a>
+        <a href="{% url 'start_analysis' %}">開始分析</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="system-nav-out">登出</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="system-nav-out">登入</a>
+        {% endif %}
+    </nav>
+</header>

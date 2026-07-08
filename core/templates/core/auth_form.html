@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}｜AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+</head>
+<body>
+    <main class="system-page">
+        <section class="system-panel auth-panel">
+            <a href="{% url 'home' %}" class="system-logo">AI智慧面診健康平台</a>
+            <div class="auth-heading">
+                <p class="system-eyebrow">{{ mode|upper }}</p>
+                <h1>{{ title }}</h1>
+                <p class="system-desc">{{ subtitle }}</p>
+                {% if method_note %}
+                    <p class="auth-method-note">{{ method_note }}</p>
+                {% endif %}
+            </div>
+
+            {% if messages %}
+                <div class="message-list">
+                    {% for message in messages %}
+                        <div class="message-item">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="system-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    {% if field.name == "remember_me" %}
+                        <div class="auth-options">
+                            <label class="remember-option">
+                                {{ field }}
+                                <span>{{ field.label }}</span>
+                            </label>
+                            <a href="{% url 'forgot_password' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="forgot-link">忘記密碼？</a>
+                        </div>
+                    {% else %}
+                        <label class="form-field">
+                            <span>{{ field.label }}</span>
+                            {% if field.field.widget.input_type == "password" %}
+                                <span class="password-input-wrap">
+                                    {{ field }}
+                                    <button type="button" class="password-toggle" aria-label="顯示密碼" aria-pressed="false">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M2.8 12s3.2-6 9.2-6 9.2 6 9.2 6-3.2 6-9.2 6-9.2-6-9.2-6Z"></path>
+                                            <circle cx="12" cy="12" r="2.8"></circle>
+                                        </svg>
+                                    </button>
+                                </span>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            {% if field.errors %}
+                                <small class="field-error">{{ field.errors|striptags }}</small>
+                            {% endif %}
+                        </label>
+                    {% endif %}
+                {% endfor %}
+
+                <button type="submit" class="system-submit">{{ submit_label }}</button>
+            </form>
+
+            <p class="system-switch">
+                {{ switch_text }}
+                <a href="{{ switch_url }}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}">{{ switch_label }}</a>
+            </p>
+        </section>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=18"></script>
+</body>
+</html>
