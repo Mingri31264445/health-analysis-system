@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康問卷｜AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+</head>
+<body>
+    {% include "core/system_nav.html" %}
+    <main class="system-page questionnaire-page">
+        <section class="system-panel questionnaire-panel">
+            <div class="questionnaire-hero">
+                <div>
+                    <p class="system-eyebrow">HEALTH QUESTIONNAIRE</p>
+                    <h1>{% if has_existing %}更新健康問卷{% else %}填寫健康問卷{% endif %}</h1>
+                    <p class="system-desc">請依照紙本健康問卷內容完成線上填寫，系統將依據資料開放面診、BFS與經絡檢測分析流程。</p>
+                </div>
+                <div class="questionnaire-status">
+                    <span>共 5 個區段</span>
+                    <strong>{% if has_existing %}已建立資料{% else %}首次填寫{% endif %}</strong>
+                    <small>完成後即可進入分析功能</small>
+                </div>
+            </div>
+
+            <div class="questionnaire-progress" aria-label="問卷填寫進度">
+                {% for section in form_sections %}
+                    <a href="#section-{{ section.step }}" class="progress-step">
+                        <span>{{ section.step }}</span>
+                        <strong>{{ section.title }}</strong>
+                    </a>
+                {% endfor %}
+            </div>
+
+            {% if messages %}
+                <div class="message-list">
+                    {% for message in messages %}
+                        <div class="message-item">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="system-form form-grid">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+
+                {% if form.non_field_errors %}
+                    <div class="form-error full-span">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for section in form_sections %}
+                    <section class="questionnaire-section full-span" id="section-{{ section.step }}">
+                        <div class="questionnaire-section-header">
+                            <span>{{ section.step }}</span>
+                            <div>
+                                <h2>{{ section.title }}</h2>
+                                <p>{{ section.description }}</p>
+                            </div>
+                        </div>
+
+                        <div class="questionnaire-fields">
+                            {% for field in section.fields %}
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    <div class="choice-field field-{{ field.name }}">
+                                        <label class="health-choice">
+                                            {{ field }}
+                                            <span>{{ field.label }}</span>
+                                        </label>
+                                        {% if field.errors %}
+                                            <small class="field-error">{{ field.errors|striptags }}</small>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <label class="form-field field-{{ field.name }}">
+                                        <span>{{ field.label }}</span>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <small class="field-error">{{ field.errors|striptags }}</small>
+                                        {% endif %}
+                                    </label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endfor %}
+
+                <div class="form-actions questionnaire-actions full-span">
+                    <a href="{% url 'home' %}" class="system-secondary">返回首頁</a>
+                    <button type="submit" class="system-submit">儲存問卷</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=18"></script>
+</body>
+</html>

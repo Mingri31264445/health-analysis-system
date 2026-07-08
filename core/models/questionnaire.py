@@ -1,9 +1,19 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError #  用於跨欄位的邏輯驗證
 
 # AI 人工智慧臉部影像整併系統開發問卷模型
 class Questionnaire(models.Model):
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="questionnaire",
+        null=True,
+        blank=True,
+        verbose_name="使用者",
+    )
 
     # 基本資料
     name  = models.CharField("姓名", max_length=100)
