@@ -12,6 +12,12 @@ class MeridianTestForm(forms.ModelForm):
             'result_pdf',
             'notes',
         ]
+        labels = {
+            "patient_name": "受測者姓名",
+            "test_date": "檢測時間",
+            "result_pdf": "檢測結果 PDF",
+            "notes": "備註",
+        }
         widgets = {
             'patient_name': forms.TextInput(attrs={
                 'class': 'form-control',

@@ -6,14 +6,15 @@ from ..models import FaceDiagnosis
 class FaceDiagnosisForm(forms.ModelForm):
     class Meta:
         model = FaceDiagnosis
-        fields = [
-            'patient_name',
-            'diagnosis_date',
-            'front_image',
-            'right_image', 
-            'left_image', 
-            'notes'
-        ]
+        fields = ['patient_name', 'diagnosis_date', 'front_image', 'right_image', 'left_image', 'notes']
+        labels = {
+            "patient_name": "受測者姓名",
+            "diagnosis_date": "拍攝時間",
+            "front_image": "正面影像",
+            "right_image": "右側影像",
+            "left_image": "左側影像",
+            "notes": "備註",
+        }
         widgets = {
             'patient_name': forms.TextInput(attrs={
                 'class': 'form-control',
