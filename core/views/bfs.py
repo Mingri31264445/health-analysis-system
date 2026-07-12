@@ -1,6 +1,7 @@
 from django.conf import settings
 from datetime import datetime, time as datetime_time
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.utils import timezone
 
 from ..forms import BFSTestForm
@@ -22,7 +23,7 @@ def _parse_bfs_date_string(date_str):
     return naive_dt
 
 
-def _resolve_test_date(per_file_date_detections, manual_date_provided):
+def _resolve_test_date(per_file_date_detections):
     """
     根據這次上傳的所有 PDF 各自的 date_detection 結果，
     判斷這筆 BFSTest 最終的測試日期，以及要不要標記人工確認。
@@ -33,7 +34,7 @@ def _resolve_test_date(per_file_date_detections, manual_date_provided):
     }
 
     if not ok_dates:
-        return {"test_date": None, "needs_date_review": not manual_date_provided}
+        return {"test_date": None, "needs_date_review": True}
 
     if len(ok_dates) > 1:
         return {"test_date": None, "needs_date_review": True}
@@ -51,8 +52,6 @@ def upload_bfs_test(request):
         pdf_files = request.FILES.getlist('pdf_files')
 
         if form.is_valid() and pdf_files:
-            manual_date_provided = bool(request.POST.get('test_date'))
-
             # 先給暫時值
             bfs_test = form.save(commit=False)
             if not bfs_test.test_date:
@@ -81,7 +80,7 @@ def upload_bfs_test(request):
                 )
 
             # 根據每個檔案的日期偵測結果，決定 BFSTest 的最終測試日期
-            date_resolution = _resolve_test_date(date_detections, manual_date_provided)
+            date_resolution = _resolve_test_date(date_detections)
             if date_resolution['test_date'] is not None:
                 bfs_test.test_date = date_resolution['test_date']
             bfs_test.needs_date_review = date_resolution['needs_date_review']
@@ -139,3 +138,16 @@ def bfs_detail(request, pk):
         'bfs_test': bfs_test,
         'files_display': files_display,
     })
+
+def bfs_confirm_date(request, pk):
+    bfs_test = get_object_or_404(BFSTest, pk=pk)
+
+    if request.method == 'POST':
+        new_date = request.POST.get('test_date')
+        if new_date:
+            bfs_test.test_date = new_date
+            bfs_test.needs_date_review = False
+            bfs_test.save()
+            messages.success(request, "測試日期已更新。")
+
+    return redirect('bfs_detail', pk=bfs_test.pk)

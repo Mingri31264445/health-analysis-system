@@ -11,6 +11,7 @@ from .views import (
     upload_meridian_result,
     upload_bfs_test,
     bfs_detail,
+    bfs_confirm_date,
 )
 
 urlpatterns = [
@@ -25,4 +26,5 @@ urlpatterns = [
     path("Meridian/upload/", upload_meridian_result, name="upload_meridian_result"),
     path('bfs/upload/', upload_bfs_test, name='upload_bfs_test'),
     path('bfs/<int:pk>/', bfs_detail, name='bfs_detail'),
+    path('bfs/<int:pk>/confirm-date/', bfs_confirm_date, name='bfs_confirm_date'),
 ]

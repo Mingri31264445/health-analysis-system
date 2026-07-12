@@ -33,6 +33,24 @@
           {% endif %}
         </p>
 
+        {% if bfs_test.needs_date_review %}
+        <div class="bfs-review-note">
+          <p class="bfs-review-title">⚠ 需要確認測試日期</p>
+          <p>
+            系統無法自動確認這次測試的日期（PDF 未提供日期，或多份 PDF 日期不一致），
+            目前顯示的是上傳當下的系統時間，請確認正確日期：
+          </p>
+          <form method="POST" action="{% url 'bfs_confirm_date' bfs_test.pk %}" class="bfs-date-confirm-form">
+            {% csrf_token %}
+            <div class="bfs-date-field">
+              <label for="confirm_test_date">正確測試日期</label>
+              <input type="datetime-local" id="confirm_test_date" name="test_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">確認日期</button>
+          </form>
+        </div>
+        {% endif %}
+
         {% for item in files_display %}
         <div class="bfs-file-block">
           <div class="bfs-file-header">
