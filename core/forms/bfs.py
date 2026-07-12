@@ -31,3 +31,12 @@ class BFSTestForm(forms.ModelForm):
                 'placeholder': '備註（選填）'
             }),
         }
+
+    # 修改表單初始化方法，管理者不填日期直接送出是合法的
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['test_date'].required = False
+        self.fields['test_date'].help_text = (
+            "若留空，系統將嘗試從上傳的 PDF 自動辨識日期；"
+            "PDF 無法辨識時才需要手動輸入。"
+        )

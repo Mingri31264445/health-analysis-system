@@ -11,6 +11,12 @@ class BFSTest(models.Model):
 
     notes = models.TextField("備註", blank=True)
 
+    needs_date_review = models.BooleanField(
+        "日期需人工確認",
+        default=False,
+        help_text="上傳的多份 PDF 偵測到的日期彼此不一致，或完全無法辨識時會標記為 True"
+    )
+
     created_at = models.DateTimeField("建立日期", auto_now_add=True)
     updated_at = models.DateTimeField("更新日期", auto_now=True)
 

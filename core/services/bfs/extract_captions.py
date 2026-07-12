@@ -27,10 +27,13 @@ def _cluster_into_two_groups(values):
 
 def extract_captions(pdf_path, page_index=0):
     """
-    回傳：{"左上": "脾-消化系統-胃前壁ANTERIOR WALL OF STOMACH", ...}
-    回傳實際存在說明文字的象限
+    回傳一組 tuple：(captions, dates)
+    captions 格式：{"左上": "脾-消化系統-胃前壁ANTERIOR WALL OF STOMACH", ...}
+    dates    格式：{"左上": "2025/7/25", ...}
+    兩者的 key（象限）完全一致，只回傳實際存在說明文字的象限。
     """
     captions = {}
+    dates = {}
 
     with pdfplumber.open(pdf_path) as pdf:
         page = pdf.pages[page_index]
@@ -84,5 +87,6 @@ def extract_captions(pdf_path, page_index=0):
                 quadrant = "右下"
 
             captions[quadrant] = clean_text
+            dates[quadrant] = anchor["text"]
 
-    return captions
+    return captions, dates

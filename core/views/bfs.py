@@ -1,5 +1,7 @@
 from django.conf import settings
+from datetime import datetime, time as datetime_time
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from ..forms import BFSTestForm
 from ..models import BFSTest, BFSTestFile
@@ -8,29 +10,84 @@ from ..services.bfs import analyze_bfs_pdf
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
+def _parse_bfs_date_string(date_str):
+    """把 PDF 抓到的日期字串轉成 timezone-aware 的 datetime(時間補 00:00)。"""
+    try:
+        parsed_date = datetime.strptime(date_str, "%Y/%m/%d").date()
+    except (ValueError, TypeError):
+        return None
+    naive_dt = datetime.combine(parsed_date, datetime_time.min)
+    if timezone.is_naive(naive_dt):
+        return timezone.make_aware(naive_dt)
+    return naive_dt
+
+
+def _resolve_test_date(per_file_date_detections, manual_date_provided):
+    """
+    根據這次上傳的所有 PDF 各自的 date_detection 結果，
+    判斷這筆 BFSTest 最終的測試日期，以及要不要標記人工確認。
+    """
+    ok_dates = {
+        d.get("date") for d in per_file_date_detections
+        if d.get("status") == "ok"
+    }
+
+    if not ok_dates:
+        return {"test_date": None, "needs_date_review": not manual_date_provided}
+
+    if len(ok_dates) > 1:
+        return {"test_date": None, "needs_date_review": True}
+
+    parsed = _parse_bfs_date_string(ok_dates.pop())
+    if parsed is None:
+        return {"test_date": None, "needs_date_review": True}
+
+    return {"test_date": parsed, "needs_date_review": False}
+
+
 def upload_bfs_test(request):
     if request.method == 'POST':
         form = BFSTestForm(request.POST)
         pdf_files = request.FILES.getlist('pdf_files')
 
         if form.is_valid() and pdf_files:
-            bfs_test = form.save()
+            manual_date_provided = bool(request.POST.get('test_date'))
 
-            # 分發流水號
+            # 先給暫時值
+            bfs_test = form.save(commit=False)
+            if not bfs_test.test_date:
+                bfs_test.test_date = timezone.now()
+            bfs_test.save()
+
+            date_detections = []
             for index, pdf_file in enumerate(pdf_files, start=1):
                 bfs_file = BFSTestFile.objects.create(
                     bfs_test=bfs_test,
                     file_number=index,
                     pdf_file=pdf_file,
                 )
-                # 存檔後才有實際路徑，接著馬上自動分析
+                 # 存檔後才有實際路徑，接著馬上自動分析
                 result = analyze_bfs_pdf(bfs_file.pdf_file.path)
                 bfs_file.detected_template = result['detected_template']
                 bfs_file.analysis_status = result['analysis_status']
                 bfs_file.analysis_result = result['analysis_result']
                 bfs_file.save()
 
-            return redirect('bfs_detail', pk=bfs_test.pk) # 跳轉至 BFS測試詳細頁面
+                # 收集每個檔案的日期偵測結果，方便後續彙整
+                date_detections.append(
+                    result['analysis_result'].get(
+                        'date_detection', {"date": None, "status": "not_found"}
+                    )
+                )
+
+            # 根據每個檔案的日期偵測結果，決定 BFSTest 的最終測試日期
+            date_resolution = _resolve_test_date(date_detections, manual_date_provided)
+            if date_resolution['test_date'] is not None:
+                bfs_test.test_date = date_resolution['test_date']
+            bfs_test.needs_date_review = date_resolution['needs_date_review']
+            bfs_test.save()
+
+            return redirect('bfs_detail', pk=bfs_test.pk)
     else:
         form = BFSTestForm() # 如果是 GET 請求，則建立一個空的表單
     return render(request, "core/upload_bfs_test.html", {'form': form})
