@@ -39,11 +39,6 @@
               <span class="bfs-list-name">{{ test.patient_name }}</span>
               <span class="bfs-list-date">{{ test.test_date|date:"Y-m-d H:i" }}</span>
             </div>
-            {% if test.needs_date_review %}
-            <span class="result-badge warn">日期待確認</span>
-            {% else %}
-            <span class="result-badge good">正常</span>
-            {% endif %}
           </a>
           {% endfor %}
         </div>
