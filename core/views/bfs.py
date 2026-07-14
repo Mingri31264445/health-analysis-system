@@ -11,6 +11,10 @@ from ..services.bfs import analyze_bfs_pdf
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
+def bfs_list(request):
+    bfs_tests = BFSTest.objects.all()
+    return render(request, "core/bfs_list.html", {"bfs_tests": bfs_tests})
+
 def _parse_bfs_date_string(date_str):
     """把 PDF 抓到的日期字串轉成 timezone-aware 的 datetime(時間補 00:00)。"""
     try:
