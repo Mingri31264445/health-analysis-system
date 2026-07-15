@@ -158,7 +158,10 @@ class QuestionnaireForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "請輸入姓名"}),
             "gender": forms.Select(attrs={"class": "form-select"}),
             "blood_type": forms.Select(attrs={"class": "form-select"}),
-            "birth_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "birth_date": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={"class": "form-control", "type": "date"},
+            ),
             "height": forms.NumberInput(attrs={"class": "form-control", "placeholder": "例如：165"}),
             "weight": forms.NumberInput(attrs={"class": "form-control", "placeholder": "例如：55"}),
             "other_chronic": forms.Textarea(attrs={"class": "form-control", "placeholder": "例如：甲狀腺疾病、高血壓等", "rows": 2}),
@@ -185,6 +188,7 @@ class QuestionnaireForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["gender"].choices = [("", "請選擇性別"), ("M", "男"), ("F", "女")]
         self.fields["blood_type"].choices = [("", "請選擇血型"), ("A", "A型"), ("B", "B型"), ("AB", "AB型"), ("O", "O型")]
+        self.fields["birth_date"].input_formats = ["%Y-%m-%d"]
         self.fields["exercise_frequency"].choices = [("", "請選擇頻率")] + list(
             self.fields["exercise_frequency"].choices
         )

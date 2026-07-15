@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=30">
 </head>
 <body>
     <header class="navbar">
@@ -14,7 +14,15 @@
 
             <nav class="nav-links">
                 <a href="#home">首頁</a>
-                <a href="#features">功能介紹</a>
+                <div class="nav-dropdown">
+                    <a href="#features" class="nav-dropdown-trigger" aria-haspopup="true">檢測項目</a>
+                    <div class="nav-dropdown-menu">
+                        <a href="{% url 'questionnaire' %}"><span>健康問卷</span></a>
+                        <a href="{% url 'feature_gate' 'face' %}"><span>面診影像</span></a>
+                        <a href="{% url 'feature_gate' 'bfs' %}"><span>BFS檢測</span></a>
+                        <a href="{% url 'feature_gate' 'meridian' %}"><span>經絡檢測</span></a>
+                    </div>
+                </div>
                 <a href="#process">檢測流程</a>
                 <a href="#about">關於系統</a>
             </nav>
@@ -78,8 +86,8 @@
     <section class="features section" id="features">
         <div class="container">
             <div class="section-title reveal">
-                <p>Core Features</p>
-                <h2>核心功能模組</h2>
+                <p>Test Items</p>
+                <h2>檢測項目</h2>
             </div>
 
             <div class="feature-grid">
@@ -104,7 +112,7 @@
                         <img src="{% static 'images/feature-bfs.png' %}" alt="BFS量測設備圖示">
                     </div>
                     <h3>BFS檢測</h3>
-                    <p>透過頻率分析方式，提供個人生理狀態之參考資訊。</p>
+                    <p>透過 BFS（生物頻譜回饋分析儀）頻率分析方式，提供個人生理狀態之參考資訊。</p>
                 </div>
 
                 <div class="feature-card reveal reveal-delay-3">
@@ -164,7 +172,7 @@
                     </div>
                     <div class="flow-content">
                         <h3>匯入 BFS 數據</h3>
-                        <p>整合生理檢測資訊，強化分析完整性。</p>
+                        <p>匯入 BFS（生物頻譜回饋分析儀）資料，強化分析完整性。</p>
                     </div>
                 </div>
 
@@ -240,7 +248,7 @@
                             <span class="result-badge normal">一般</span>
                         </div>
                         <h4>BFS量測結果</h4>
-                        <p>整合相關檢測資料後，協助平台進一步建立多面向健康數據分析基礎。</p>
+                        <p>整合 BFS（生物頻譜回饋分析儀）檢測資料後，協助平台建立多面向健康數據分析基礎。</p>
                     </div>
 
                     <div class="result-card result-reveal result-delay-4 reveal">
@@ -274,19 +282,19 @@
                     <a href="{% url 'feature_gate' 'face' %}" class="start-card reveal reveal-delay-1">
                         <span class="start-label">FACE IMAGE</span>
                         <strong>面診影像觀察</strong>
-                        <span class="start-action">立即測試 →</span>
+                        <span class="start-action">查看紀錄 →</span>
                     </a>
 
                     <a href="{% url 'feature_gate' 'bfs' %}" class="start-card reveal reveal-delay-2">
                         <span class="start-label">BFS DATA</span>
                         <strong>BFS量測結果</strong>
-                        <span class="start-action">查看分析 →</span>
+                        <span class="start-action">查看紀錄 →</span>
                     </a>
 
                     <a href="{% url 'feature_gate' 'meridian' %}" class="start-card reveal reveal-delay-3">
                         <span class="start-label">MERIDIAN</span>
                         <strong>經絡檢測分析</strong>
-                        <span class="start-action">查看分析 →</span>
+                        <span class="start-action">查看紀錄 →</span>
                     </a>
                 </div>
         </div>
@@ -299,6 +307,6 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/main.js' %}?v=18"></script>
+    <script src="{% static 'js/main.js' %}?v=30"></script>
 </body>
 </html>

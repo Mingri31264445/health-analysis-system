@@ -11,19 +11,19 @@ FEATURES = {
     "face": {
         "label": "面診影像觀察",
         "eyebrow": "FACE IMAGE",
-        "action": "立即測試",
+        "action": "查看紀錄",
         "description": "上傳或拍攝臉部影像，作為後續視覺化觀察與健康狀態參考。",
     },
     "bfs": {
         "label": "BFS量測結果",
         "eyebrow": "BFS DATA",
-        "action": "查看分析",
-        "description": "整理 BFS 量測資料，建立個人生理狀態的參考分析頁面。",
+        "action": "查看紀錄",
+        "description": "整理 BFS（生物頻譜回饋分析儀）量測資料，建立個人生理狀態的參考分析頁面。",
     },
     "meridian": {
         "label": "經絡檢測分析",
         "eyebrow": "MERIDIAN",
-        "action": "查看分析",
+        "action": "查看紀錄",
         "description": "整合經絡檢測資訊，呈現更完整的健康評估概念。",
     },
 }
@@ -55,14 +55,14 @@ def start_analysis_view(request):
             "label": FEATURES["bfs"]["label"],
             "description": FEATURES["bfs"]["description"],
             "action": FEATURES["bfs"]["action"],
-            "url": reverse("feature_gate", args=["bfs"]),
+            "url": reverse("upload_bfs_test"),
         },
         {
             "eyebrow": FEATURES["meridian"]["eyebrow"],
             "label": FEATURES["meridian"]["label"],
             "description": FEATURES["meridian"]["description"],
             "action": FEATURES["meridian"]["action"],
-            "url": reverse("feature_gate", args=["meridian"]),
+            "url": reverse("upload_meridian_result"),
         },
     ]
 
@@ -115,5 +115,11 @@ def feature_gate(request, feature_key):
         questionnaire_url = f"{reverse('questionnaire')}?next={request.path}"
         messages.info(request, "請先完成健康問卷，再進入分析功能。")
         return redirect(questionnaire_url)
+
+    if feature_key == "bfs":
+        return redirect("upload_bfs_test")
+
+    if feature_key == "meridian":
+        return redirect("upload_meridian_result")
 
     return render(request, "core/feature_page.html", {"feature": feature, "feature_key": feature_key})
