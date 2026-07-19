@@ -11,6 +11,10 @@ from ..services.bfs import analyze_bfs_pdf
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
+def bfs_list(request):
+    bfs_tests = BFSTest.objects.all()
+    return render(request, "core/bfs_list.html", {"bfs_tests": bfs_tests})
+
 def _parse_bfs_date_string(date_str):
     """把 PDF 抓到的日期字串轉成 timezone-aware 的 datetime(時間補 00:00)。"""
     try:
@@ -19,7 +23,7 @@ def _parse_bfs_date_string(date_str):
         return None
     naive_dt = datetime.combine(parsed_date, datetime_time.min)
     if timezone.is_naive(naive_dt):
-        return timezone.make_aware(naive_dt)
+        return timezone.make_aware(naive_dt) # 強制幫它貼上 Django 設定的本地時區標籤
     return naive_dt
 
 
@@ -93,8 +97,8 @@ def upload_bfs_test(request):
 
 def _build_display_rows(analysis_result):
     """
-    把 analysis_result 這份原始 JSON 整理成 Template 可以直接
-    迴圈渲染的結構，不需要在 Template 裡做字典查找或型別轉換。
+    把 analysis_result 這份原始 JSON 整理成陣列使 Template 可以直接
+    迴圈渲染，不需要在 Template 裡做字典查找或型別轉換。
     """
     if not analysis_result or 'color_analysis' not in analysis_result:
         return None
@@ -124,6 +128,7 @@ def _build_display_rows(analysis_result):
         'suspicious_count': len(color.get('suspicious', [])),
     }
 
+# 將多筆資料輸出結果統合成一個陣列送往 templates
 def bfs_detail(request, pk):
     bfs_test = BFSTest.objects.prefetch_related('files').get(pk=pk)
 
@@ -139,6 +144,7 @@ def bfs_detail(request, pk):
         'files_display': files_display,
     })
 
+# 在前端確認補填遺失的測試日期
 def bfs_confirm_date(request, pk):
     bfs_test = get_object_or_404(BFSTest, pk=pk)
 

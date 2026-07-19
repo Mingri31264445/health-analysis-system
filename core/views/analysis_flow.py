@@ -28,6 +28,10 @@ FEATURES = {
     },
 }
 
+FEATURE_REDIRECTS = {
+    "bfs": "bfs_list",
+}
+
 @login_required(login_url="login")
 def start_analysis_view(request):
     questionnaire = Questionnaire.objects.filter(user=request.user).first()
@@ -115,6 +119,9 @@ def feature_gate(request, feature_key):
         questionnaire_url = f"{reverse('questionnaire')}?next={request.path}"
         messages.info(request, "請先完成健康問卷，再進入分析功能。")
         return redirect(questionnaire_url)
+    
+    if feature_key in FEATURE_REDIRECTS:
+        return redirect(FEATURE_REDIRECTS[feature_key])
 
     if feature_key == "bfs":
         return redirect("upload_bfs_test")

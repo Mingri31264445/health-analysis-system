@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BFS測試列表 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <p>BFS Test List</p>
+          <h2>BFS 測試列表</h2>
+        </div>
+
+        <div class="bfs-list-header">
+          <a href="{% url 'upload_bfs_test' %}" class="btn btn-primary">
+            上傳新的 BFS 測試
+          </a>
+        </div>
+
+        {% if bfs_tests %}
+        <div class="bfs-list">
+          {% for test in bfs_tests %}
+          <a href="{% url 'bfs_detail' test.pk %}" class="bfs-list-item">
+            <div class="bfs-list-item-main">
+              <span class="bfs-list-name">{{ test.patient_name }}</span>
+              <span class="bfs-list-date">{{ test.test_date|date:"Y-m-d H:i" }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not bfs_tests %}
+        <p class="bfs-empty-note">目前還沒有任何 BFS 測試記錄，點上方按鈕開始第一筆上傳。</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

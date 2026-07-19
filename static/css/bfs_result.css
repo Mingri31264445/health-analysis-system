@@ -1,3 +1,5 @@
+/*  BFS Result Page  */
+
 .bfs-meta {
   text-align: center;
   color: #6b767c;
@@ -147,12 +149,70 @@
   font-weight: 700;
 }
 
-.bfs-suspicious-ok {
-  color: #5d7e69;
-  font-weight: 700;
-}
-
 .bfs-actions {
   text-align: center;
   margin-top: 20px;
+}
+
+/*  BFS List Page  */
+
+.bfs-list-header {
+  max-width: 900px;
+  margin: 0 auto 28px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bfs-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bfs-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 26px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bfs-list-item:hover {
+  border-color: #6a807a;
+  box-shadow: 0 4px 14px rgba(36, 52, 59, 0.08);
+}
+
+.bfs-list-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bfs-list-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #24343b;
+}
+
+.bfs-list-date {
+  font-size: 13px;
+  color: #6b767c;
+}
+
+.bfs-empty-note {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: #6b767c;
+  font-size: 14px;
+  padding: 40px 0;
 }
