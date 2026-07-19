@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const transitionDelay = 150;
 
   const actionLinks = document.querySelectorAll(
-    ".start-card, .analysis-module-card, .login-btn, .system-nav-links a, .system-secondary, a.system-submit, .system-switch a, .forgot-link",
+    ".start-card, .analysis-module-card, .login-btn, .nav-dropdown-menu a, .system-nav-links a, .system-secondary, a.system-submit, .system-switch a, .forgot-link",
   );
 
   const isInternalNavigation = (link) => {
