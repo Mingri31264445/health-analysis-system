@@ -30,6 +30,7 @@ FEATURES = {
 
 FEATURE_REDIRECTS = {
     "bfs": "bfs_list",
+    "meridian": "upload_meridian_result",
 }
 
 @login_required(login_url="login")
@@ -59,7 +60,7 @@ def start_analysis_view(request):
             "label": FEATURES["bfs"]["label"],
             "description": FEATURES["bfs"]["description"],
             "action": FEATURES["bfs"]["action"],
-            "url": reverse("upload_bfs_test"),
+            "url": reverse("feature_gate", args=["bfs"]),
         },
         {
             "eyebrow": FEATURES["meridian"]["eyebrow"],
@@ -122,11 +123,5 @@ def feature_gate(request, feature_key):
     
     if feature_key in FEATURE_REDIRECTS:
         return redirect(FEATURE_REDIRECTS[feature_key])
-
-    if feature_key == "bfs":
-        return redirect("upload_bfs_test")
-
-    if feature_key == "meridian":
-        return redirect("upload_meridian_result")
 
     return render(request, "core/feature_page.html", {"feature": feature, "feature_key": feature_key})
