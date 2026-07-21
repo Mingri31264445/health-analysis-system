@@ -164,3 +164,15 @@ def bfs_confirm_date(request, pk):
             messages.success(request, "測試日期已更新。")
 
     return redirect('bfs_detail', pk=bfs_test.pk)
+
+def bfs_delete(request, pk):
+    bfs_test = get_object_or_404(BFSTest, pk=pk)
+
+    if request.method == 'POST':
+        for bfs_file in bfs_test.files.all():
+            bfs_file.pdf_file.delete(save=False)  # 先刪實體檔案
+        bfs_test.delete()  # 再刪資料庫記錄（CASCADE 會連帶清掉 BFSTestFile）
+        messages.success(request, "測試記錄已刪除。")
+        return redirect('bfs_list')
+
+    return redirect('bfs_detail', pk=bfs_test.pk)

@@ -34,15 +34,22 @@
         {% if bfs_tests %}
         <div class="bfs-list">
           {% for test in bfs_tests %}
-          <a href="{% url 'bfs_detail' test.pk %}" class="bfs-list-item">
-            <div class="bfs-list-item-main">
-              <span class="bfs-list-name">{{ test.patient_name }}</span>
-              <span class="bfs-list-date">{{ test.test_date|date:"Y-m-d H:i" }}</span>
-            </div>
-            {% if test.has_issue %}
-            <span class="result-badge warn">需要確認</span>
-            {% endif %}
-          </a>
+          <div class="bfs-list-item">
+            <a href="{% url 'bfs_detail' test.pk %}" class="bfs-list-item-link">
+              <div class="bfs-list-item-main">
+                <span class="bfs-list-name">{{ test.patient_name }}</span>
+                <span class="bfs-list-date">{{ test.test_date|date:"Y-m-d H:i" }}</span>
+              </div>
+              {% if test.has_issue %}
+              <span class="result-badge warn">需要確認</span>
+              {% endif %}
+            </a>
+            <form method="POST" action="{% url 'bfs_delete' test.pk %}"
+                  onsubmit="return confirm('確定要刪除 {{ test.patient_name }} 的這筆測試記錄嗎？此操作無法復原。');">
+              {% csrf_token %}
+              <button type="submit" class="bfs-delete-btn" title="刪除">✕</button>
+            </form>
+          </div>
           {% endfor %}
         </div>
         {% endif %}
