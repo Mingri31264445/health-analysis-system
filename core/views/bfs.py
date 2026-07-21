@@ -12,7 +12,14 @@ from ..services.bfs import analyze_bfs_pdf
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
 def bfs_list(request):
-    bfs_tests = BFSTest.objects.all()
+    bfs_tests = BFSTest.objects.all().prefetch_related('files')
+
+    for bfs_test in bfs_tests:
+        has_file_issue = any(
+            f.analysis_status == 'needs_review' for f in bfs_test.files.all()
+        )
+        bfs_test.has_issue = bfs_test.needs_date_review or has_file_issue
+
     return render(request, "core/bfs_list.html", {"bfs_tests": bfs_tests})
 
 def _parse_bfs_date_string(date_str):

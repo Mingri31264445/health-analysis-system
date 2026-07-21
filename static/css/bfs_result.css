@@ -216,3 +216,9 @@
   font-size: 14px;
   padding: 40px 0;
 }
+
+.bfs-list-item .result-badge.warn,
+.bfs-file-header .result-badge.warn {
+  background: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
+}
