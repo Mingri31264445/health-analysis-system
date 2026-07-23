@@ -1,7 +1,8 @@
-@import url("./partials/_base.css?v=31");
-@import url("./partials/_navigation.css?v=31");
-@import url("./partials/_home.css?v=31");
-@import url("./partials/_system.css?v=31");
-@import url("./partials/_footer.css?v=31");
-@import url("./partials/_animations.css?v=31");
-@import url("./partials/_responsive.css?v=31");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap");
+@import url("./partials/_base.css?v=34");
+@import url("./partials/_navigation.css?v=34");
+@import url("./partials/_home.css?v=34");
+@import url("./partials/_system.css?v=34");
+@import url("./partials/_footer.css?v=34");
+@import url("./partials/_animations.css?v=34");
+@import url("./partials/_responsive.css?v=34");

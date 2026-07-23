@@ -4,16 +4,36 @@
   box-sizing: border-box;
 }
 
+:root {
+  --font-sans: "Noto Sans TC", "Microsoft JhengHei UI", "Microsoft JhengHei",
+    "PingFang TC", "Heiti TC", sans-serif;
+  --font-display: "Noto Serif TC", "Noto Sans TC", "Microsoft JhengHei UI",
+    "Microsoft JhengHei", "PingFang TC", "Heiti TC", serif;
+  --color-ink: #24343b;
+  --color-muted: #667379;
+  --color-primary: #6a807a;
+  --color-primary-soft: #8ba39d;
+  --color-accent: #aa6a5a;
+  --color-line: rgba(223, 216, 206, 0.78);
+  --radius-control: 10px;
+  --shadow-control: 0 14px 28px rgba(90, 102, 96, 0.12);
+  --shadow-control-hover: 0 20px 38px rgba(90, 102, 96, 0.16);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0;
   background: #f8f5f0;
   color: #2f3a3f;
-  line-height: 1.6;
+  line-height: 1.72;
   min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
   animation: page-enter 0.18s ease both;
   transition:
     opacity 0.15s ease,
@@ -59,6 +79,22 @@ body.page-transitioning::after {
 img {
   display: block;
   max-width: 100%;
+}
+
+h1,
+h2,
+.logo,
+.system-logo,
+.system-nav-logo {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 a {
