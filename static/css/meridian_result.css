@@ -46,3 +46,82 @@
     font-weight: 700;
     background: rgba(220, 53, 69, 0.08);
 }
+
+/* ===== Meridian List Page ===== */
+
+.meridian-list-header {
+    max-width: 900px;
+    margin: 0 auto 28px;
+    display: flex;
+    justify-content: center; /* 上傳按鈕置中（BFS List 是 flex-end 靠右，此處刻意不同） */
+}
+
+.meridian-list {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.meridian-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 26px;
+    background: #fff;
+    border: 1.5px solid #ddd8ce;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meridian-list-item:hover {
+    border-color: #6a807a;
+    box-shadow: 0 4px 14px rgba(36, 52, 59, 0.08);
+}
+
+.meridian-list-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.meridian-list-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: #24343b;
+}
+
+.meridian-list-date {
+    font-size: 13px;
+    color: #6b767c;
+}
+
+.meridian-empty-note {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    color: #6b767c;
+    font-size: 14px;
+    padding: 40px 0;
+}
+
+/* 次要按鈕（返回列表等導覽用）。與 bfs_result.css 同一份定義，
+   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
+.btn-secondary {
+    background: transparent;
+    color: #46545a;
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius-control);
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    border-color: #6a807a;
+    color: #24343b;
+    background: rgba(106, 128, 122, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
+}

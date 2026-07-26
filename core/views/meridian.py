@@ -85,6 +85,11 @@ def _classify_reading(value, thresholds):
     return 'good'
 
 
+def meridian_list(request):
+    meridian_tests = MeridianTest.objects.all()
+    return render(request, "core/meridian_list.html", {"meridian_tests": meridian_tests})
+
+
 def meridian_detail(request, pk):
     test = get_object_or_404(MeridianTest, pk=pk)
     readings_by_name = {r.meridian: r for r in test.readings.all()}
