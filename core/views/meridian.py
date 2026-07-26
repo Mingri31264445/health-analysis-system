@@ -3,12 +3,16 @@ import tempfile
 from datetime import datetime
 
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from pdfplumber.utils.exceptions import PdfminerException
 
 from ..forms import MeridianTestForm
+from ..models import MeridianTest
 from ..services import parse_meridian_pdf, save_meridian_result
+
+
+MERIDIANS_ORDER = ['肺經', '心包', '心經', '小腸', '三焦', '大腸', '脾經', '肝經', '腎經', '膀胱', '膽經', '胃經']
 
 
 def _parse_measure_datetime(raw):
@@ -55,7 +59,57 @@ def upload_meridian_result(request):
             instance.save()  # 這時候才真正存 PDF 檔案本身
 
             save_meridian_result(instance, data)
-            return redirect('home')  # 本輪先導回首頁，等 Detail 頁做完再改成 meridian_detail
+            return redirect('meridian_detail', pk=instance.pk)
     else:
         form = MeridianTestForm()
     return render(request, "core/upload_meridian_result.html", {'form': form})
+
+
+def _classify_reading(value, thresholds):
+    """依門檻值把單一數值分成三色：
+    'danger'（過高/過低）/ 'warn'（偏高/偏低）/ 'good'（正常）。
+    門檻值理論上 parse 成功一定有；但因欄位是 null=True，任一為 None（或值為 None）
+    時回傳 'unknown' 不做比較，避免 None > value 直接讓程式炸掉。"""
+    too_high = thresholds['toohigh']
+    high = thresholds['high']
+    low = thresholds['low']
+    too_low = thresholds['toolow']
+
+    if value is None or None in (too_high, high, low, too_low):
+        return 'unknown'
+
+    if value > too_high or value < too_low:
+        return 'danger'
+    if value > high or value < low:
+        return 'warn'
+    return 'good'
+
+
+def meridian_detail(request, pk):
+    test = get_object_or_404(MeridianTest, pk=pk)
+    readings_by_name = {r.meridian: r for r in test.readings.all()}
+
+    thresholds = {
+        'toohigh': test.threshold_toohigh,
+        'high': test.threshold_high,
+        'low': test.threshold_low,
+        'toolow': test.threshold_toolow,
+    }
+
+    rows = []
+    for name in MERIDIANS_ORDER:
+        reading = readings_by_name.get(name)
+        if reading is None:
+            continue  # 防呆：理論上一定有 12 條，但避免資料不齊全時直接炸掉
+        rows.append({
+            'name': name,
+            'left_org': {'value': reading.left_org, 'level': _classify_reading(reading.left_org, thresholds)},
+            'left_cmp': {'value': reading.left_cmp, 'level': _classify_reading(reading.left_cmp, thresholds)},
+            'right_org': {'value': reading.right_org, 'level': _classify_reading(reading.right_org, thresholds)},
+            'right_cmp': {'value': reading.right_cmp, 'level': _classify_reading(reading.right_cmp, thresholds)},
+        })
+
+    return render(request, "core/meridian_detail.html", {
+        'test': test,
+        'rows': rows,
+    })

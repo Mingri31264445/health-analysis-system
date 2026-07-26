@@ -1,0 +1,83 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>經絡檢測結果 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <p>Meridian Test Result</p>
+          <h2>{{ test.patient_name }} 的經絡檢測結果</h2>
+        </div>
+
+        <p class="meridian-meta">
+          測試日期：{{ test.test_date|date:"Y-m-d H:i" }}
+          ｜性別：{{ test.gender }}
+          ｜生日：{{ test.birth_date }}
+          ｜受測年齡：{{ test.age }}
+          {% if test.notes %}
+          ｜備註：{{ test.notes }}
+          {% endif %}
+        </p>
+
+        <table class="meridian-result-table">
+          <thead>
+            <tr>
+              <th>經絡</th>
+              <th colspan="2">左側</th>
+              <th colspan="2">右側</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th>原始值</th>
+              <th>比較值</th>
+              <th>原始值</th>
+              <th>比較值</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td>{{ row.name }}</td>
+              <td class="meridian-cell meridian-{{ row.left_org.level }}">{{ row.left_org.value }}</td>
+              <td class="meridian-cell meridian-{{ row.left_cmp.level }}">{{ row.left_cmp.value }}</td>
+              <td class="meridian-cell meridian-{{ row.right_org.level }}">{{ row.right_org.value }}</td>
+              <td class="meridian-cell meridian-{{ row.right_cmp.level }}">{{ row.right_cmp.value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="bfs-actions">
+          <a href="{% url 'upload_meridian_result' %}" class="btn btn-primary">
+            上傳新的經絡檢測
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+        <p>本頁面為專題展示介面設計示意</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>
