@@ -125,7 +125,7 @@
   color: #b06a5b;
   font-size: 14px;
   font-weight: 800;
-  letter-spacing: 1.2px;
+  letter-spacing: 0;
   margin-bottom: 10px;
   text-transform: uppercase;
 }
@@ -373,6 +373,37 @@ textarea.form-control {
   border: 1px solid rgba(223, 216, 206, 0.8);
 }
 
+.system-submit,
+.system-secondary {
+  border-radius: var(--radius-control);
+}
+
+.system-submit {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-soft));
+  box-shadow: var(--shadow-control);
+}
+
+.system-submit:hover {
+  box-shadow: var(--shadow-control-hover);
+  filter: saturate(1.04);
+}
+
+.system-secondary {
+  border-color: var(--color-line);
+}
+
+.system-secondary:hover {
+  box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
+}
+
+.system-submit:focus-visible,
+.system-secondary:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 4px rgba(106, 128, 122, 0.14),
+    var(--shadow-control);
+}
+
 .system-switch {
   margin-top: 22px;
   color: #69757b;
@@ -488,7 +519,7 @@ textarea.form-control {
   color: #aa6a5a;
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0;
 }
 
 .progress-step strong {
@@ -789,7 +820,7 @@ textarea.form-control {
   color: #738087;
   font-size: 13px;
   font-weight: 900;
-  letter-spacing: 1.1px;
+  letter-spacing: 0;
 }
 
 .analysis-module-card strong {
@@ -824,7 +855,7 @@ textarea.form-control {
   color: #738087;
   font-size: 13px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0;
   margin-bottom: 12px;
 }
 

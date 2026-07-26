@@ -99,7 +99,7 @@
 
     .nav-dropdown-menu {
         left: 0;
-        width: min(172px, calc(100vw - 40px));
+        width: min(184px, calc(100vw - 40px));
         transform: translate(0, -6px);
     }
 
@@ -133,7 +133,7 @@
   .section-title p,
   .about-tag {
     font-size: 14px;
-    letter-spacing: 1.2px;
+    letter-spacing: 0;
     margin-bottom: 10px;
   }
 
