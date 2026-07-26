@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 
-from ..forms import BFSTestForm
+from ..forms import BFSTestForm, BFSTestUpdateForm
 from ..models import BFSTest, BFSTestFile
 from ..services.bfs import analyze_bfs_pdf
 
@@ -164,6 +164,23 @@ def bfs_confirm_date(request, pk):
             messages.success(request, "測試日期已更新。")
 
     return redirect('bfs_detail', pk=bfs_test.pk)
+
+def bfs_update(request, pk):
+    bfs_test = get_object_or_404(BFSTest, pk=pk)
+
+    if request.method == 'POST':
+        form = BFSTestUpdateForm(request.POST, instance=bfs_test)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "測試記錄已更新。")
+            return redirect('bfs_detail', pk=bfs_test.pk)
+    else:
+        form = BFSTestUpdateForm(instance=bfs_test)
+
+    return render(request, "core/bfs_update.html", {
+        'form': form,
+        'bfs_test': bfs_test,
+    })
 
 def bfs_delete(request, pk):
     bfs_test = get_object_or_404(BFSTest, pk=pk)

@@ -13,6 +13,7 @@ from .views import (
     upload_bfs_test,
     bfs_detail,
     bfs_confirm_date,
+    bfs_update,
     bfs_delete,
 )
 
@@ -30,5 +31,6 @@ urlpatterns = [
     path('bfs/upload/', upload_bfs_test, name='upload_bfs_test'),
     path('bfs/<int:pk>/', bfs_detail, name='bfs_detail'),
     path('bfs/<int:pk>/confirm-date/', bfs_confirm_date, name='bfs_confirm_date'),
+    path('bfs/<int:pk>/update/', bfs_update, name='bfs_update'),
     path('bfs/<int:pk>/delete/', bfs_delete, name='bfs_delete'),
 ]
