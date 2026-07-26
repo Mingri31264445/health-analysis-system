@@ -30,7 +30,7 @@ FEATURES = {
 
 FEATURE_REDIRECTS = {
     "bfs": "bfs_list",
-    "meridian": "upload_meridian_result",
+    "meridian": "meridian_list",
 }
 
 @login_required(login_url="login")
@@ -67,7 +67,7 @@ def start_analysis_view(request):
             "label": FEATURES["meridian"]["label"],
             "description": FEATURES["meridian"]["description"],
             "action": FEATURES["meridian"]["action"],
-            "url": reverse("upload_meridian_result"),
+            "url": reverse("feature_gate", args=["meridian"]),
         },
     ]
 

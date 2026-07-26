@@ -108,6 +108,17 @@
     padding: 40px 0;
 }
 
+/* 動作按鈕區（置中排列）。與 bfs_result.css 同一份定義，
+   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
+.bfs-actions {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
 /* 次要按鈕（返回列表等導覽用）。與 bfs_result.css 同一份定義，
    放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
 .btn-secondary {
