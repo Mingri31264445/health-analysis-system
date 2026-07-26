@@ -10,6 +10,11 @@ class MeridianTest(models.Model):
         default = timezone.now
     )
 
+    # 以下三欄由 PDF 解析後填入（birth_date 直接存字串，僅供顯示，不做排序/比對）
+    gender = models.CharField("性別", max_length=10, blank=True)
+    birth_date = models.CharField("生日", max_length=20, blank=True)
+    age = models.FloatField("年齡", null=True, blank=True)
+
     # 測試結果PDF檔案
     result_pdf = models.FileField(
         "測試結果PDF",

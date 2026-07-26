@@ -6,27 +6,16 @@ from ..models import MeridianTest
 class MeridianTestForm(forms.ModelForm):
     class Meta:
         model = MeridianTest
+        # patient_name、test_date 改由 PDF 解析後填入，不再由使用者手動輸入
         fields = [
-            'patient_name',
-            'test_date',
             'result_pdf',
             'notes',
         ]
         labels = {
-            "patient_name": "受測者姓名",
-            "test_date": "檢測時間",
             "result_pdf": "檢測結果 PDF",
             "notes": "備註",
         }
         widgets = {
-            'patient_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '請輸入病患姓名'
-            }),
-            'test_date': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local'
-            }),
             'result_pdf': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': '.pdf'
