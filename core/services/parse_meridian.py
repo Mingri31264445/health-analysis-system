@@ -22,7 +22,10 @@ def parse_meridian_pdf(pdf_path: str) -> dict:
     result['性別']    = re.search(r'性別:\s*(\S+)', info_line).group(1)
     result['生日']    = re.search(r'生日:\s*([\d/]+)', info_line).group(1)
     result['年齡']    = float(re.search(r'\(([\d.]+)\)', info_line).group(1))
-    result['測量日期'] = re.search(r'測量日期:\s*([\d/]+)', lines[4]).group(1)
+    # 測量日期同時含日期與 12 小時制時間，例：'2025/7/25 : 下午 03:26:04'
+    # 三個 group 分別為 日期 / 上午下午 / 時:分:秒，組回成一個字串供上層轉 datetime
+    dt_match = re.search(r'測量日期:\s*([\d/]+)\s*:\s*([上下]午)\s*([\d:]+)', lines[4])
+    result['測量日期'] = f'{dt_match.group(1)} {dt_match.group(2)} {dt_match.group(3)}'
 
     left_org  = re.findall(r'[\d.]+', lines[9])
     left_cmp  = re.findall(r'[\d.]+', lines[11])
