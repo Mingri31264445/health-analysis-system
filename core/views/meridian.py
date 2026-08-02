@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from pdfplumber.utils.exceptions import PdfminerException
 
-from ..forms import MeridianTestForm
+from ..forms import MeridianTestForm, MeridianTestUpdateForm
 from ..models import MeridianTest
 from ..services import parse_meridian_pdf, save_meridian_result
 
@@ -118,3 +118,33 @@ def meridian_detail(request, pk):
         'test': test,
         'rows': rows,
     })
+
+
+def meridian_update(request, pk):
+    test = get_object_or_404(MeridianTest, pk=pk)
+
+    if request.method == 'POST':
+        form = MeridianTestUpdateForm(request.POST, instance=test)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "備註已更新。")
+            return redirect('meridian_detail', pk=test.pk)
+    else:
+        form = MeridianTestUpdateForm(instance=test)
+
+    return render(request, "core/meridian_update.html", {
+        'form': form,
+        'test': test,
+    })
+
+
+def meridian_delete(request, pk):
+    test = get_object_or_404(MeridianTest, pk=pk)
+
+    if request.method == 'POST':
+        test.result_pdf.delete(save=False)  # 先刪實體 PDF
+        test.delete()  # 再刪資料庫記錄（CASCADE 會連帶清掉 12 條 MeridianReading）
+        messages.success(request, "測試記錄已刪除。")
+        return redirect('meridian_list')
+
+    return redirect('meridian_detail', pk=test.pk)

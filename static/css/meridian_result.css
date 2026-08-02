@@ -67,6 +67,13 @@
 .meridian-list-item {
     display: flex;
     align-items: center;
+    gap: 12px;
+}
+
+.meridian-list-item-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
     padding: 20px 26px;
@@ -77,9 +84,31 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.meridian-list-item:hover {
+.meridian-list-item-link:hover {
     border-color: #6a807a;
     box-shadow: 0 4px 14px rgba(36, 52, 59, 0.08);
+}
+
+.meridian-delete-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd8ce;
+    background: #fff;
+    color: #a6a196;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+        box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.meridian-delete-btn:hover {
+    border-color: #dc3545;
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.06);
+    box-shadow: 0 10px 22px rgba(220, 53, 69, 0.1);
+    transform: translateY(-1px);
 }
 
 .meridian-list-item-main {
@@ -135,4 +164,21 @@
     background: rgba(106, 128, 122, 0.06);
     transform: translateY(-2px);
     box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
+}
+
+/* 危險按鈕（刪除）。與 bfs_result.css 同一份定義，
+   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
+.btn-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 1.5px solid rgba(220, 53, 69, 0.4);
+    border-radius: var(--radius-control);
+    box-shadow: none;
+}
+
+.btn-danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+    border-color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(220, 53, 69, 0.1);
 }
