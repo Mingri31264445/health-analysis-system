@@ -137,48 +137,4 @@
     padding: 40px 0;
 }
 
-/* 動作按鈕區（置中排列）。與 bfs_result.css 同一份定義，
-   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
-.bfs-actions {
-    text-align: center;
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-/* 次要按鈕（返回列表等導覽用）。與 bfs_result.css 同一份定義，
-   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
-.btn-secondary {
-    background: transparent;
-    color: #46545a;
-    border: 1.5px solid var(--color-line);
-    border-radius: var(--radius-control);
-    box-shadow: none;
-}
-
-.btn-secondary:hover {
-    border-color: #6a807a;
-    color: #24343b;
-    background: rgba(106, 128, 122, 0.06);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
-}
-
-/* 危險按鈕（刪除）。與 bfs_result.css 同一份定義，
-   放這裡讓經絡模組的 CSS 自足、不需依賴 bfs_result.css */
-.btn-danger {
-    background: transparent;
-    color: #dc3545;
-    border: 1.5px solid rgba(220, 53, 69, 0.4);
-    border-radius: var(--radius-control);
-    box-shadow: none;
-}
-
-.btn-danger:hover {
-    background: rgba(220, 53, 69, 0.08);
-    border-color: #dc3545;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgba(220, 53, 69, 0.1);
-}
+/* .bfs-actions / .btn-secondary / .btn-danger 已移至 partials/_buttons.css（跨模組共用） */

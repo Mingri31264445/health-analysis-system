@@ -152,14 +152,7 @@
   font-weight: 700;
 }
 
-.bfs-actions {
-  text-align: center;
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+/* .bfs-actions 已移至 partials/_buttons.css（跨模組共用） */
 
 /* ===== BFS List Page ===== */
 
@@ -204,22 +197,7 @@
   padding: 40px 0;
 }
 
-/* 用於「返回列表」這類導覽性質、非主要動作的按鈕 */
-.btn-secondary {
-  background: transparent;
-  color: #46545a;
-  border: 1.5px solid var(--color-line);
-  border-radius: var(--radius-control);
-  box-shadow: none;
-}
-
-.btn-secondary:hover {
-  border-color: #6a807a;
-  color: #24343b;
-  background: rgba(106, 128, 122, 0.06);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
-}
+/* .btn-secondary 已移至 partials/_buttons.css（跨模組共用） */
 
 /* 在 BFS 頁面範圍內，把「需要確認」的警示色改成紅色，
    透過指定父層容器讓選擇器優先權更高，達到覆蓋效果。 */
@@ -284,17 +262,4 @@
   transform: translateY(-1px);
 }
 
-.btn-danger {
-  background: transparent;
-  color: #dc3545;
-  border: 1.5px solid rgba(220, 53, 69, 0.4);
-  border-radius: var(--radius-control);
-  box-shadow: none;
-}
-
-.btn-danger:hover {
-  background: rgba(220, 53, 69, 0.08);
-  border-color: #dc3545;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(220, 53, 69, 0.1);
-}
+/* .btn-danger 已移至 partials/_buttons.css（跨模組共用） */

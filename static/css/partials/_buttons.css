@@ -1,0 +1,49 @@
+/* 通用按鈕樣式（跨模組共用）
+   原本 .btn-secondary / .btn-danger / .bfs-actions 重複定義在 bfs_result.css
+   與 meridian_result.css，這裡集中一份，兩邊改為共用。
+   注意：.btn-secondary / .btn-danger 需覆蓋 _home.css 的 .btn { border: 0 }，
+   同優先權下靠載入順序決勝，因此本檔在 style.css 中必須 @import 於 _home.css 之後。
+   （.btn / .btn-primary 仍留在 _home.css，未搬移。） */
+
+/* 動作按鈕區（置中排列） */
+.bfs-actions {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* 次要按鈕（返回列表這類導覽性質、非主要動作） */
+.btn-secondary {
+    background: transparent;
+    color: #46545a;
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius-control);
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    border-color: #6a807a;
+    color: #24343b;
+    background: rgba(106, 128, 122, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(90, 102, 96, 0.08);
+}
+
+/* 危險按鈕（刪除） */
+.btn-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 1.5px solid rgba(220, 53, 69, 0.4);
+    border-radius: var(--radius-control);
+    box-shadow: none;
+}
+
+.btn-danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+    border-color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(220, 53, 69, 0.1);
+}
