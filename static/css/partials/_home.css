@@ -163,7 +163,7 @@
   padding: 0 30px;
   border: 0;
   border-radius: var(--radius-control);
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   outline: none;
@@ -276,7 +276,7 @@
 .section-title p,
 .about-tag {
   color: #b06a5b;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   margin-bottom: 14px;
   font-size: 16px;
@@ -308,7 +308,7 @@
   line-height: 1.15;
   color: #24343b;
   margin-bottom: 20px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .about-desc {
@@ -504,7 +504,7 @@
   line-height: 1.25;
   color: #24343b;
   margin-bottom: 14px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .feature-card p {
@@ -518,7 +518,7 @@
 .card-link {
   margin-top: auto;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: #aa6a5a;
   position: relative;
   transition: color 0.25s ease;
@@ -678,7 +678,7 @@
   line-height: 1.25;
   color: #24343b;
   margin-bottom: 10px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .flow-content p {
@@ -785,7 +785,7 @@
   position: relative;
   z-index: 2;
   font-size: 30px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   color: #b06a5b;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
@@ -915,7 +915,7 @@
 
 .results-tag {
   color: #b06a5b;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -926,7 +926,7 @@
   font-size: 34px;
   color: #24343b;
   margin-bottom: 18px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -969,7 +969,7 @@
 
 #health-score {
   font-size: 46px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -1025,7 +1025,7 @@
 
 .result-label {
   color: #738087;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 13px;
   letter-spacing: 0;
 }
@@ -1034,7 +1034,7 @@
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.42);
@@ -1060,7 +1060,7 @@
   color: #24343b;
   margin-bottom: 12px;
   line-height: 1.35;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .result-card p {
@@ -1184,7 +1184,7 @@
   grid-column: 1 / -1;
   color: #738087;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
 }
 
@@ -1199,7 +1199,7 @@
   justify-self: end;
   color: #aa6a5a;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   white-space: nowrap;
   transition:
     color 0.25s ease,

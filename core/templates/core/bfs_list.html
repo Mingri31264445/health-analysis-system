@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BFS測試列表 AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=35" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
   </head>
   <body>
@@ -21,14 +21,25 @@
     <section class="section">
       <div class="container">
         <div class="section-title">
-          <p>BFS Test List</p>
-          <h2>BFS 測試列表</h2>
+          <p>{% if target_subject %}Subject BFS History{% elif can_view_all_records %}All BFS Records{% else %}My BFS Records{% endif %}</p>
+          <h2>
+            {% if target_subject %}
+              {{ target_subject_name }} 的 BFS 測試紀錄
+            {% elif can_view_all_records %}
+              全部 BFS 測試紀錄
+            {% else %}
+              我的 BFS 測試紀錄
+            {% endif %}
+          </h2>
         </div>
 
         <div class="bfs-list-header">
-          <a href="{% url 'upload_bfs_test' %}" class="btn btn-primary">
+          <a href="{{ upload_url }}" class="btn btn-primary">
             上傳新的 BFS 測試
           </a>
+          {% if target_subject %}
+            <a href="{% url 'bfs_list' %}" class="btn btn-secondary">返回全部紀錄</a>
+          {% endif %}
         </div>
 
         {% if bfs_tests %}
@@ -39,16 +50,21 @@
               <div class="bfs-list-item-main">
                 <span class="bfs-list-name">{{ test.patient_name }}</span>
                 <span class="bfs-list-date">{{ test.test_date|date:"Y-m-d H:i" }}</span>
+                {% if can_view_all_records %}
+                  <span class="bfs-list-date">受測者：{{ test.subject_display_name }}</span>
+                {% endif %}
               </div>
               {% if test.has_issue %}
               <span class="result-badge warn">需要確認</span>
               {% endif %}
             </a>
-            <form method="POST" action="{% url 'bfs_delete' test.pk %}"
-                  onsubmit="return confirm('確定要刪除 {{ test.patient_name }} 的這筆測試記錄嗎？此操作無法復原。');">
-              {% csrf_token %}
-              <button type="submit" class="bfs-delete-btn" title="刪除">✕</button>
-            </form>
+            {% if can_manage_all_records or test.user_id == user.id %}
+              <form method="POST" action="{% url 'bfs_delete' test.pk %}"
+                    onsubmit="return confirm('確定要刪除 {{ test.patient_name }} 的這筆測試記錄嗎？此操作無法復原。');">
+                {% csrf_token %}
+                <button type="submit" class="bfs-delete-btn" title="刪除">✕</button>
+              </form>
+            {% endif %}
           </div>
           {% endfor %}
         </div>

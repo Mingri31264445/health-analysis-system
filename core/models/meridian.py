@@ -1,9 +1,18 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 # 經絡測試模型
 class MeridianTest(models.Model):
-    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="meridian_tests",
+        null=True,
+        blank=True,
+        verbose_name="使用者",
+    )
+
     patient_name = models.CharField("患者姓名", max_length=100)
     test_date = models.DateTimeField(
         "測試日期",

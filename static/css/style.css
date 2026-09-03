@@ -1,10 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap");
-@import url("./partials/_base.css?v=35");
-@import url("./partials/_navigation.css?v=35");
-@import url("./partials/_home.css?v=35");
-@import url("./partials/_system.css?v=35");
-@import url("./partials/_footer.css?v=35");
-@import url("./partials/_animations.css?v=35");
-@import url("./partials/_responsive.css?v=35");
-/* 放最後：.btn-secondary / .btn-danger 需覆蓋 _home.css 的 .btn { border: 0 } */
-@import url("./partials/_buttons.css?v=35");
+@import url("./partials/_base.css?v=74");
+@import url("./partials/_navigation.css?v=74");
+@import url("./partials/_home.css?v=74");
+@import url("./partials/_system.css?v=74");
+@import url("./partials/_dashboard.css?v=74");
+@import url("./partials/_footer.css?v=74");
+@import url("./partials/_animations.css?v=74");
+@import url("./partials/_responsive.css?v=74");
+@import url("./partials/_buttons.css?v=74");
+@import url("./partials/_polish.css?v=74");

@@ -25,7 +25,7 @@
 .bfs-file-header h3 {
   font-size: 20px;
   color: #24343b;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .bfs-file-desc {
@@ -49,7 +49,7 @@
   align-items: center;
   gap: 8px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: #a26a2f;
   margin-bottom: 6px;
 }
@@ -130,7 +130,7 @@
 }
 
 .bfs-total-cell {
-  font-weight: 800;
+  font-weight: 700;
   color: #24343b;
 }
 
@@ -179,7 +179,7 @@
 
 .bfs-list-name {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   color: #24343b;
 }
 

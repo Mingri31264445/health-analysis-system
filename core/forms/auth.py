@@ -1,9 +1,13 @@
+import re
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
 PHONE_ERROR = "請輸入正確的手機號碼，例如：0912345678。"
+NAME_PART_ERROR = "請輸入正確姓名，不要使用數字、Email 或特殊符號。"
+NAME_PART_PATTERN = re.compile(r"^[A-Za-z\u4e00-\u9fff·・\-\s]+$")
 
 
 def normalize_phone_number(value):
@@ -17,7 +21,38 @@ def is_valid_phone_number(value):
     return len(value) == 10 and value.startswith("09") and value.isdigit()
 
 
+def validate_name_part(value):
+    name_part = " ".join(str(value or "").strip().split())
+    if not name_part or not NAME_PART_PATTERN.fullmatch(name_part):
+        raise forms.ValidationError(NAME_PART_ERROR)
+    return name_part
+
+
 class RegisterForm(UserCreationForm):
+    last_name = forms.CharField(
+        label="姓氏",
+        max_length=40,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "例如：王",
+                "autocomplete": "family-name",
+                "spellcheck": "false",
+            }
+        ),
+    )
+    first_name = forms.CharField(
+        label="名字",
+        max_length=80,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "例如：小明",
+                "autocomplete": "given-name",
+                "spellcheck": "false",
+            }
+        ),
+    )
     username = forms.CharField(
         label="手機號碼",
         widget=forms.TextInput(
@@ -26,6 +61,7 @@ class RegisterForm(UserCreationForm):
                 "placeholder": "例如：0912345678",
                 "inputmode": "tel",
                 "autocomplete": "tel",
+                "spellcheck": "false",
             }
         ),
     )
@@ -37,14 +73,17 @@ class RegisterForm(UserCreationForm):
                 "class": "form-control",
                 "placeholder": "example@email.com",
                 "autocomplete": "email",
+                "spellcheck": "false",
             }
         ),
     )
 
     class Meta:
         model = User
-        fields = ["username", "email", "password1", "password2"]
+        fields = ["last_name", "first_name", "username", "email", "password1", "password2"]
         labels = {
+            "last_name": "姓氏",
+            "first_name": "名字",
             "username": "手機號碼",
         }
 
@@ -59,6 +98,12 @@ class RegisterForm(UserCreationForm):
             {"class": "form-control", "placeholder": "請再次輸入密碼", "autocomplete": "new-password"}
         )
 
+    def clean_last_name(self):
+        return validate_name_part(self.cleaned_data.get("last_name"))
+
+    def clean_first_name(self):
+        return validate_name_part(self.cleaned_data.get("first_name"))
+
     def clean_username(self):
         phone_number = normalize_phone_number(self.cleaned_data.get("username"))
         if not is_valid_phone_number(phone_number):
@@ -66,6 +111,12 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(username=phone_number).exists():
             raise forms.ValidationError("這支手機號碼已經註冊過，請直接登入。")
         return phone_number
+
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("這個電子信箱已被其他帳號使用，請改用另一個信箱。")
+        return email
 
 
 class LoginForm(AuthenticationForm):
@@ -80,7 +131,8 @@ class LoginForm(AuthenticationForm):
                 "class": "form-control",
                 "placeholder": "例如：0912345678",
                 "inputmode": "tel",
-                "autocomplete": "tel",
+                "autocomplete": "username",
+                "spellcheck": "false",
             }
         ),
     )
@@ -91,7 +143,7 @@ class LoginForm(AuthenticationForm):
         ),
     )
     remember_me = forms.BooleanField(
-        label="讓我保持登入",
+        label="保持登入",
         required=False,
         widget=forms.CheckboxInput(attrs={"class": "remember-checkbox"}),
     )
@@ -112,6 +164,7 @@ class PhonePasswordResetForm(forms.Form):
                 "placeholder": "請輸入註冊時使用的手機號碼",
                 "inputmode": "tel",
                 "autocomplete": "tel",
+                "spellcheck": "false",
             }
         ),
     )

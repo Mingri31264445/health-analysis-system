@@ -1,18 +1,57 @@
 import os
 import tempfile
 from datetime import datetime
+from urllib.parse import urlencode
 
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils import timezone
-from pdfplumber.utils.exceptions import PdfminerException
+try:
+    from pdfplumber.utils.exceptions import PdfminerException
+except ImportError:
+    class PdfminerException(Exception):
+        pass
 
 from ..forms import MeridianTestForm, MeridianTestUpdateForm
-from ..models import MeridianTest
-from ..services import parse_meridian_pdf, save_meridian_result
+from ..models import MeridianTest, Questionnaire
+from ..services.subjects import get_subject_display_name, get_user_identity_name
+from .permissions import (
+    can_manage_all_records,
+    can_manage_record,
+    can_view_all_records,
+    get_manageable_record_or_404,
+    get_viewable_record_or_404,
+    scope_viewable_records,
+)
 
 
 MERIDIANS_ORDER = ['肺經', '心包', '心經', '小腸', '三焦', '大腸', '脾經', '肝經', '腎經', '膀胱', '膽經', '胃經']
+
+
+def _resolve_upload_subject(request):
+    subject_id = request.POST.get("subject") or request.GET.get("subject")
+    if subject_id and can_manage_all_records(request.user):
+        subject_user = get_user_model().objects.filter(pk=subject_id).first()
+        if subject_user:
+            return subject_user
+    return request.user
+
+
+def _upload_context(form, request, subject_user):
+    questionnaire = Questionnaire.objects.filter(user=subject_user).first()
+    subject_name = request.GET.get("patient_name") or (
+        questionnaire.name if questionnaire else get_subject_display_name(subject_user)
+    )
+    return {
+        "form": form,
+        "target_subject_user": subject_user,
+        "target_subject_name": subject_name,
+        "show_upload_target": can_manage_all_records(request.user)
+        and subject_user.id != request.user.id,
+    }
 
 
 def _parse_measure_datetime(raw):
@@ -24,8 +63,10 @@ def _parse_measure_datetime(raw):
     naive = datetime.strptime(normalized, '%Y/%m/%d %p %I:%M:%S')
     return timezone.make_aware(naive)
 
-
+@login_required(login_url="login")
 def upload_meridian_result(request):
+    subject_user = _resolve_upload_subject(request)
+
     if request.method == 'POST':
         form = MeridianTestForm(request.POST, request.FILES)
         if form.is_valid():
@@ -38,20 +79,34 @@ def upload_meridian_result(request):
                 tmp_path = tmp.name
 
             try:
+                from ..services import parse_meridian_pdf, save_meridian_result
+
                 data = parse_meridian_pdf(tmp_path)
                 # PDF 的測量日期含日期+12小時制時間（如 '2025/7/25 下午 03:26:04'），
                 # 轉成 timezone-aware datetime 才能存進 DateTimeField；
                 # 轉換失敗(ValueError)視同 PDF 內容異常，走同一句錯誤訊息。
                 test_date = _parse_measure_datetime(data['測量日期'])
+            except ImportError:
+                messages.error(request, "經絡 PDF 分析套件尚未安裝，請先執行 pip install -r requirements.txt。")
+                return render(
+                    request,
+                    "core/upload_meridian_result.html",
+                    _upload_context(form, request, subject_user),
+                )
             except (PdfminerException, IndexError, AttributeError, ValueError, FileNotFoundError):
                 messages.error(request, "這份 PDF 無法解析，請確認是經絡儀原始報告。")
-                return render(request, "core/upload_meridian_result.html", {'form': form})
+                return render(
+                    request,
+                    "core/upload_meridian_result.html",
+                    _upload_context(form, request, subject_user),
+                )
             finally:
                 os.unlink(tmp_path)  # 不論成敗都清掉暫存檔
 
             # 解析＋日期轉換都成功，這時候才真正建立記錄（避免孤兒資料）
             instance = form.save(commit=False)
-            instance.patient_name = data['姓名']
+            instance.user = subject_user
+            instance.patient_name = get_user_identity_name(subject_user) or data['姓名']
             instance.test_date = test_date
             instance.gender = data['性別']
             instance.birth_date = data['生日']
@@ -62,7 +117,11 @@ def upload_meridian_result(request):
             return redirect('meridian_detail', pk=instance.pk)
     else:
         form = MeridianTestForm()
-    return render(request, "core/upload_meridian_result.html", {'form': form})
+    return render(
+        request,
+        "core/upload_meridian_result.html",
+        _upload_context(form, request, subject_user),
+    )
 
 
 def _classify_reading(value, thresholds):
@@ -84,14 +143,48 @@ def _classify_reading(value, thresholds):
         return 'warn'
     return 'good'
 
-
+@login_required(login_url="login")
 def meridian_list(request):
-    meridian_tests = MeridianTest.objects.all()
-    return render(request, "core/meridian_list.html", {"meridian_tests": meridian_tests})
+    meridian_tests = scope_viewable_records(MeridianTest.objects.all(), request.user)
+    target_subject = None
+    subject_id = request.GET.get("subject")
+    upload_url = reverse("upload_meridian_result")
+
+    if subject_id and can_view_all_records(request.user):
+        target_subject = get_user_model().objects.filter(pk=subject_id).first()
+        if target_subject:
+            meridian_tests = meridian_tests.filter(user=target_subject)
+            upload_url = (
+                f"{upload_url}?"
+                f"{urlencode({'subject': target_subject.id, 'patient_name': get_subject_display_name(target_subject)})}"
+            )
+
+    for meridian_test in meridian_tests:
+        meridian_test.subject_display_name = (
+            get_subject_display_name(meridian_test.user)
+            if meridian_test.user_id
+            else "未指定"
+        )
+
+    return render(request, "core/meridian_list.html", {
+        "meridian_tests": meridian_tests,
+        "target_subject": target_subject,
+        "target_subject_name": get_subject_display_name(target_subject)
+        if target_subject
+        else "",
+        "upload_url": upload_url,
+        "can_manage_all_records": can_manage_all_records(request.user),
+        "can_view_all_records": can_view_all_records(request.user),
+    })
 
 
+@login_required(login_url="login")
 def meridian_detail(request, pk):
-    test = get_object_or_404(MeridianTest, pk=pk)
+    test = get_viewable_record_or_404(
+        MeridianTest.objects.prefetch_related('readings'),
+        request.user,
+        pk=pk,
+    )
     readings_by_name = {r.meridian: r for r in test.readings.all()}
 
     thresholds = {
@@ -117,11 +210,13 @@ def meridian_detail(request, pk):
     return render(request, "core/meridian_detail.html", {
         'test': test,
         'rows': rows,
+        'can_view_all_records': can_view_all_records(request.user),
+        'can_manage_this_record': can_manage_record(request.user, test),
     })
 
-
+@login_required(login_url="login")
 def meridian_update(request, pk):
-    test = get_object_or_404(MeridianTest, pk=pk)
+    test = get_manageable_record_or_404(MeridianTest.objects.all(), request.user, pk=pk)
 
     if request.method == 'POST':
         form = MeridianTestUpdateForm(request.POST, instance=test)
@@ -137,9 +232,9 @@ def meridian_update(request, pk):
         'test': test,
     })
 
-
+@login_required(login_url="login")
 def meridian_delete(request, pk):
-    test = get_object_or_404(MeridianTest, pk=pk)
+    test = get_manageable_record_or_404(MeridianTest.objects.all(), request.user, pk=pk)
 
     if request.method == 'POST':
         test.result_pdf.delete(save=False)  # 先刪實體 PDF

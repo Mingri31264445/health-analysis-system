@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject.name }}｜受測者資料</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+</head>
+<body>
+    {% include "core/system_nav.html" %}
+    <main class="system-page dashboard-page">
+        <div class="dashboard-shell">
+            <section class="dashboard-panel subject-profile-hero">
+                <div>
+                    <p class="system-eyebrow">受測者詳細資料</p>
+                    <h1>{{ subject.name }}</h1>
+                    <p class="system-desc">{{ subject.phone }} / {{ subject.email }}</p>
+                    {% if subject.needs_name %}
+                        <p class="dashboard-name-warning">此帳號尚未填姓名，請先補上姓氏與名字。</p>
+                    {% endif %}
+                </div>
+                <div class="subject-profile-score">
+                    <span>四項資料完成度</span>
+                    <strong>{{ subject.completed_count }}/4</strong>
+                    <small>{{ subject.updated_at|date:"Y/m/d H:i" }} 更新</small>
+                </div>
+            </section>
+
+            <section class="dashboard-panel">
+                <div class="dashboard-panel-heading">
+                    <div>
+                        <p class="system-eyebrow">資料狀態</p>
+                        <h2>四項檢測狀態</h2>
+                        <p class="dashboard-panel-note">同一位受測者可保留多筆面診、BFS 與經絡儀紀錄；問卷作為最新背景資料。</p>
+                    </div>
+                    <a href="{% url 'dashboard' %}#subject-tracker" class="dashboard-text-link">返回工作台</a>
+                </div>
+
+                <div class="dashboard-module-grid subject-detail-module-grid">
+                    {% for status in subject.statuses %}
+                        <article class="dashboard-module-card {% if status.complete %}is-complete{% endif %}">
+                            <div class="dashboard-module-card-head">
+                                <span>{{ status.number }}</span>
+                                <div>
+                                    <strong>{{ status.label }}</strong>
+                                    <em>{{ status.state }}</em>
+                                </div>
+                            </div>
+                            <p>{{ status.description }}</p>
+                            {% if status.date %}
+                                <small>最近：{{ status.date|date:"Y/m/d H:i" }}</small>
+                            {% else %}
+                                <small>尚未建立資料</small>
+                            {% endif %}
+                            {% if status.actions %}
+                                <div class="dashboard-module-actions">
+                                    {% for action in status.actions %}
+                                        <a href="{{ action.url }}" class="{% if action.primary %}is-primary{% endif %}">
+                                            {{ action.label }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="dashboard-panel">
+                <div class="dashboard-panel-heading">
+                    <div>
+                        <p class="system-eyebrow">長期追蹤</p>
+                        <h2>歷史紀錄</h2>
+                        <p class="dashboard-panel-note">依資料類型分開整理，避免所有紀錄混在一起看不清楚。</p>
+                    </div>
+                </div>
+
+                <div class="subject-history-grid">
+                    {% for group in subject.history_groups %}
+                        <article class="subject-history-group">
+                            <div class="subject-history-group-head">
+                                <div>
+                                    <span>{{ group.label }}</span>
+                                    <strong>{{ group.count }} 筆</strong>
+                                </div>
+                            </div>
+
+                            {% if group.items %}
+                                <div class="dashboard-history-list">
+                                    {% for item in group.items %}
+                                        {% if item.url %}
+                                            <a href="{{ item.url }}" class="dashboard-history-row">
+                                                <span>{{ item.type }}</span>
+                                                <strong>{{ item.title }}</strong>
+                                                <small>{{ item.date|date:"Y/m/d H:i" }}</small>
+                                            </a>
+                                        {% else %}
+                                            <div class="dashboard-history-row">
+                                                <span>{{ item.type }}</span>
+                                                <strong>{{ item.title }}</strong>
+                                                <small>{{ item.date|date:"Y/m/d H:i" }}</small>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="dashboard-history-empty">尚未建立此類資料。</div>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
+</body>
+</html>

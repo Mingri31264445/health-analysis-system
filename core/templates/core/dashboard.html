@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台｜AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+</head>
+<body>
+    {% include "core/system_nav.html" %}
+    <main class="system-page dashboard-page">
+        <div class="dashboard-shell">
+            <section class="dashboard-hero">
+                <div>
+                    <p class="system-eyebrow">工作台</p>
+                    <h1>{{ role_title }}</h1>
+                    <p class="system-desc">{{ role_description }}</p>
+                </div>
+                <div class="dashboard-role-card">
+                    <span>目前身分</span>
+                    <strong>{{ role_label }}</strong>
+                    {% if can_manage_all_records %}
+                        <small>可管理全部資料與帳號權限</small>
+                    {% elif can_view_all_records %}
+                        <small>可查看全部受測者資料</small>
+                    {% else %}
+                        <small>僅可查看自己的健康資料</small>
+                    {% endif %}
+                    <a href="{{ primary_action.url }}" class="dashboard-primary-link">{{ primary_action.label }}</a>
+                </div>
+            </section>
+
+            <section class="dashboard-stat-grid" aria-label="資料摘要">
+                {% for stat in stats %}
+                    <div class="dashboard-stat">
+                        <span>{{ stat.label }}</span>
+                        <strong>{{ stat.value }}</strong>
+                    </div>
+                {% endfor %}
+            </section>
+
+            {% if can_manage_all_records %}
+                <section class="dashboard-panel dashboard-admin-panel">
+                    <div class="dashboard-admin-heading">
+                        <div>
+                            <p class="system-eyebrow">系統管理</p>
+                            <h2>後台管理中心</h2>
+                            <p>先管理帳號與角色，再維護健康問卷、面診、BFS 與經絡儀資料。</p>
+                        </div>
+                        {% if admin_primary_action %}
+                            <a href="{{ admin_primary_action.url }}" class="dashboard-admin-entry">
+                                {{ admin_primary_action.label }}
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="dashboard-admin-layout">
+                        <div class="dashboard-admin-group">
+                            <div class="dashboard-admin-group-title">
+                                <span>01</span>
+                                <h3>帳號與權限</h3>
+                            </div>
+                            <div class="dashboard-admin-group-list">
+                                {% for action in account_admin_actions %}
+                                    <a href="{{ action.url }}" class="dashboard-admin-card">
+                                        <span>{{ action.label }}</span>
+                                        <small>{{ action.description }}</small>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="dashboard-admin-group dashboard-admin-group-wide">
+                            <div class="dashboard-admin-group-title">
+                                <span>02</span>
+                                <h3>檢測資料</h3>
+                            </div>
+                            <div class="dashboard-admin-data-grid">
+                                {% for action in detection_admin_actions %}
+                                    <div class="dashboard-admin-module">
+                                        <a href="{{ action.url }}" class="dashboard-admin-card">
+                                            <span>{{ action.label }}</span>
+                                            <small>{{ action.description }}</small>
+                                        </a>
+                                        {% if action.subactions %}
+                                            <div class="dashboard-admin-subactions">
+                                                {% for subaction in action.subactions %}
+                                                    <a href="{{ subaction.url }}">{{ subaction.label }}</a>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            {% endif %}
+
+            <section class="dashboard-main-grid">
+                <div id="subject-tracker" class="dashboard-panel dashboard-panel-wide dashboard-workbench-panel">
+                    <div class="dashboard-panel-heading">
+                        <div>
+                            <p class="system-eyebrow">受測者管理</p>
+                            <h2>{% if can_view_all_records %}受測者作業台{% else %}我的資料狀態{% endif %}</h2>
+                            <p class="dashboard-panel-note">先鎖定受測者，右側會顯示四項檢測狀態、補資料入口與個人歷史紀錄。</p>
+                        </div>
+                    </div>
+
+                    <form method="get" action="{% url 'dashboard' %}#subject-tracker" class="dashboard-search-form">
+                        {% if subject_status_filter != "all" %}
+                            <input type="hidden" name="subject_status" value="{{ subject_status_filter }}">
+                        {% endif %}
+                        {% if record_filter != "all" %}
+                            <input type="hidden" name="record_type" value="{{ record_filter }}">
+                        {% endif %}
+                        <label for="dashboard-search">搜尋受測者</label>
+                        <div class="dashboard-search-control">
+                            <input
+                                id="dashboard-search"
+                                type="search"
+                                name="q"
+                                value="{{ dashboard_query }}"
+                                placeholder="輸入姓名、手機、Email 或備註關鍵字"
+                                autocomplete="off"
+                            >
+                            <button type="submit">搜尋</button>
+                            {% if dashboard_query %}
+                                <a href="{% url 'dashboard' %}#subject-tracker">清除</a>
+                            {% endif %}
+                        </div>
+                        {% if dashboard_query %}
+                            <p>找到 {{ subject_result_count }} 位受測者、{{ record_result_count }} 筆檢測紀錄。</p>
+                        {% endif %}
+                    </form>
+
+                    <div class="dashboard-subject-filters" aria-label="受測者狀態篩選">
+                        {% for filter in subject_filters %}
+                            <a href="{{ filter.url }}" class="{% if filter.active %}is-active{% endif %}">
+                                {{ filter.label }}
+                                <span>{{ filter.count }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    {% if subject_overviews %}
+                        <div class="dashboard-workbench">
+                            <div class="dashboard-subject-column">
+                                <div class="dashboard-list-toolbar">
+                                    <div class="dashboard-section-caption">
+                                        {% if dashboard_query %}搜尋結果{% else %}受測者清單{% endif %}
+                                    </div>
+                                    <small>顯示 {{ subject_display_count }} / {{ subject_result_count }}</small>
+                                </div>
+                                {% if has_more_subjects %}
+                                    <p class="dashboard-list-hint">
+                                        資料較多，請輸入姓名、手機或 Email 縮小範圍。
+                                    </p>
+                                {% endif %}
+                                <div class="dashboard-subject-list" role="listbox" aria-label="受測者清單">
+                                    {% for subject in subject_overviews %}
+                                        <button
+                                            type="button"
+                                            class="dashboard-subject-tab {% if forloop.first %}is-active{% endif %}"
+                                            data-subject-tab="{{ subject.panel_id }}"
+                                            aria-controls="{{ subject.panel_id }}"
+                                            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                        >
+                                            <span>
+                                                <em>{{ subject.account_label }}</em>
+                                                <strong>{{ subject.name }}</strong>
+                                                <small>{{ subject.contact_line }}</small>
+                                            </span>
+                                            <b>{{ subject.completed_count }}/4</b>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="dashboard-subject-detail-column">
+                                {% for subject in subject_overviews %}
+                                    <section
+                                        id="{{ subject.panel_id }}"
+                                        class="dashboard-subject-detail {% if forloop.first %}is-active{% endif %}"
+                                        data-subject-panel="{{ subject.panel_id }}"
+                                        {% if not forloop.first %}hidden{% endif %}
+                                    >
+                                        <div class="dashboard-subject-detail-head">
+                                            <div>
+                                                <p class="system-eyebrow">目前選取</p>
+                                                <h3>{{ subject.name }}</h3>
+                                                <p>{{ subject.updated_at|date:"Y/m/d H:i" }} 更新 · {{ subject.contact_line }}</p>
+                                                {% if subject.needs_name %}
+                                                    <p class="dashboard-name-warning">此帳號尚未填姓名，請先補上姓氏與名字。</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="dashboard-subject-head-actions">
+                                                <span>{{ subject.completed_count }}/4 已完成</span>
+                                                {% if subject.detail_url %}
+                                                    <a href="{{ subject.detail_url }}" class="dashboard-text-link">完整資料</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="dashboard-module-grid">
+                                            {% for status in subject.statuses %}
+                                                <article class="dashboard-module-card {% if status.complete %}is-complete{% endif %}">
+                                                    <div class="dashboard-module-card-head">
+                                                        <span>{{ status.number }}</span>
+                                                        <div>
+                                                            <strong>{{ status.label }}</strong>
+                                                            <em>{{ status.state }}</em>
+                                                        </div>
+                                                    </div>
+                                                    <p>{{ status.description }}</p>
+                                                    {% if status.date %}
+                                                        <small>最近：{{ status.date|date:"Y/m/d H:i" }}</small>
+                                                    {% else %}
+                                                        <small>尚未建立資料</small>
+                                                    {% endif %}
+                                                    {% if status.actions %}
+                                                        <div class="dashboard-module-actions">
+                                                            {% for action in status.actions %}
+                                                                <a href="{{ action.url }}" class="{% if action.primary %}is-primary{% endif %}">
+                                                                    {{ action.label }}
+                                                                </a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </article>
+                                            {% endfor %}
+                                        </div>
+
+                                        <div class="dashboard-subject-history">
+                                            <div class="dashboard-history-head">
+                                                <span>此受測者歷史紀錄</span>
+                                                <small>最新 {{ subject.history|length }} 筆</small>
+                                            </div>
+                                            {% if subject.history %}
+                                                <div class="dashboard-history-list">
+                                                    {% for item in subject.history %}
+                                                        {% if item.url %}
+                                                            <a href="{{ item.url }}" class="dashboard-history-row">
+                                                                <span>{{ item.type }}</span>
+                                                                <strong>{{ item.title }}</strong>
+                                                                <small>{{ item.date|date:"Y/m/d H:i" }}</small>
+                                                            </a>
+                                                        {% else %}
+                                                            <div class="dashboard-history-row">
+                                                                <span>{{ item.type }}</span>
+                                                                <strong>{{ item.title }}</strong>
+                                                                <small>{{ item.date|date:"Y/m/d H:i" }}</small>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="dashboard-history-empty">此受測者尚無歷史紀錄。</div>
+                                            {% endif %}
+                                        </div>
+                                    </section>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="dashboard-empty">
+                            {% if dashboard_query %}
+                                <strong>沒有符合的受測者</strong>
+                                <p>可以換姓名、手機或 Email 再搜尋一次。</p>
+                            {% else %}
+                                <strong>尚未完成健康問卷</strong>
+                                <p>先填寫基本資料、病史與生活習慣，後續檢測會更完整。</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div id="recent-records" class="dashboard-panel dashboard-panel-wide">
+                    <div class="dashboard-panel-heading dashboard-record-heading">
+                        <div>
+                            <p class="system-eyebrow">最近更新</p>
+                            <h2>{% if can_view_all_records %}最近資料更新{% else %}我的最近更新{% endif %}</h2>
+                            <p class="dashboard-panel-note">這裡是全站最新異動總覽；要處理單一受測者，請以上方作業台為主。</p>
+                        </div>
+                        <div class="dashboard-record-filters" aria-label="紀錄分類">
+                            {% for filter in record_filters %}
+                                <a
+                                    href="{{ filter.url }}"
+                                    class="{% if filter.active %}is-active{% endif %}"
+                                    data-record-filter="{{ filter.key }}"
+                                >
+                                    {{ filter.label }}
+                                    <span>{{ filter.count }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if recent_records %}
+                        <div class="dashboard-record-list">
+                            {% for record in recent_records %}
+                                {% if record.url %}
+                                    <a href="{{ record.url }}" class="dashboard-record-row dashboard-record-item" data-record-type="{{ record.type_key }}">
+                                        <span>{{ record.type }}</span>
+                                        <strong>{{ record.title }}</strong>
+                                        <small>{{ record.date|date:"Y/m/d H:i" }}</small>
+                                    </a>
+                                {% else %}
+                                    <div class="dashboard-record-row dashboard-record-item" data-record-type="{{ record.type_key }}">
+                                        <span>{{ record.type }}</span>
+                                        <strong>{{ record.title }}</strong>
+                                        <small>{{ record.date|date:"Y/m/d H:i" }}</small>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="dashboard-empty dashboard-empty-compact dashboard-record-filter-empty" hidden>
+                            <strong>這個分類目前沒有資料</strong>
+                            <p>可以切回全部，或用上方搜尋找特定受測者。</p>
+                        </div>
+                    {% else %}
+                        <div class="dashboard-empty dashboard-empty-compact">
+                            {% if dashboard_query %}
+                                <strong>沒有符合的資料更新</strong>
+                                <p>可以改用受測者姓名、手機、備註關鍵字搜尋。</p>
+                            {% else %}
+                                <strong>目前沒有資料更新</strong>
+                                <p>完成問卷後即可開始建立 BFS 或經絡檢測資料。</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
+</body>
+</html>

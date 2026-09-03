@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from ..forms import LoginForm, PhonePasswordResetForm, RegisterForm
+from ..models import Questionnaire
+from .permissions import can_view_all_records
 
 
 def safe_next_url(request, fallback):
@@ -18,9 +20,19 @@ def questionnaire_start_url():
     return f"{reverse('questionnaire')}?next={reverse('start_analysis')}"
 
 
+def default_auth_redirect(user):
+    if can_view_all_records(user):
+        return reverse("dashboard")
+
+    if Questionnaire.objects.filter(user=user).exists():
+        return reverse("start_analysis")
+
+    return questionnaire_start_url()
+
+
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("home")
+        return redirect(default_auth_redirect(request.user))
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -28,7 +40,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, "註冊成功，歡迎開始使用健康分析平台。")
-            return redirect(safe_next_url(request, questionnaire_start_url()))
+            return redirect(safe_next_url(request, default_auth_redirect(user)))
     else:
         form = RegisterForm()
 
@@ -51,7 +63,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("home")
+        return redirect(default_auth_redirect(request.user))
 
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
@@ -62,7 +74,7 @@ def login_view(request):
             else:
                 request.session.set_expiry(0)
             messages.success(request, "登入成功。")
-            return redirect(safe_next_url(request, reverse("start_analysis")))
+            return redirect(safe_next_url(request, default_auth_redirect(form.get_user())))
     else:
         form = LoginForm(request)
 

@@ -1,26 +1,86 @@
-from django.conf import settings
 from datetime import datetime, time as datetime_time
-from django.shortcuts import render, redirect, get_object_or_404
+from urllib.parse import urlencode
+
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils import timezone
 
 from ..forms import BFSTestForm, BFSTestUpdateForm
-from ..models import BFSTest, BFSTestFile
-from ..services.bfs import analyze_bfs_pdf
+from ..models import BFSTest, BFSTestFile, Questionnaire
+from ..services.subjects import get_subject_display_name, get_user_identity_name
+from .permissions import (
+    can_manage_all_records,
+    can_manage_record,
+    can_view_all_records,
+    get_manageable_record_or_404,
+    get_viewable_record_or_404,
+    scope_viewable_records,
+)
 
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
+
+def _resolve_upload_subject(request):
+    subject_id = request.POST.get("subject") or request.GET.get("subject")
+    if subject_id and can_manage_all_records(request.user):
+        subject_user = get_user_model().objects.filter(pk=subject_id).first()
+        if subject_user:
+            return subject_user
+    return request.user
+
+
+def _upload_context(form, request, subject_user):
+    questionnaire = Questionnaire.objects.filter(user=subject_user).first()
+    subject_name = request.GET.get("patient_name") or (
+        questionnaire.name if questionnaire else get_subject_display_name(subject_user)
+    )
+    return {
+        "form": form,
+        "target_subject_user": subject_user,
+        "target_subject_name": subject_name,
+        "show_upload_target": can_manage_all_records(request.user)
+        and subject_user.id != request.user.id,
+    }
+
+@login_required(login_url="login")
 def bfs_list(request):
-    bfs_tests = BFSTest.objects.all().prefetch_related('files')
+    bfs_tests = scope_viewable_records(BFSTest.objects.all(), request.user).prefetch_related('files')
+    target_subject = None
+    subject_id = request.GET.get("subject")
+    upload_url = reverse("upload_bfs_test")
+
+    if subject_id and can_view_all_records(request.user):
+        target_subject = get_user_model().objects.filter(pk=subject_id).first()
+        if target_subject:
+            bfs_tests = bfs_tests.filter(user=target_subject)
+            upload_url = (
+                f"{upload_url}?"
+                f"{urlencode({'subject': target_subject.id, 'patient_name': get_subject_display_name(target_subject)})}"
+            )
 
     for bfs_test in bfs_tests:
         has_file_issue = any(
             f.analysis_status == 'needs_review' for f in bfs_test.files.all()
         )
         bfs_test.has_issue = bfs_test.needs_date_review or has_file_issue
+        bfs_test.subject_display_name = (
+            get_subject_display_name(bfs_test.user) if bfs_test.user_id else "未指定"
+        )
 
-    return render(request, "core/bfs_list.html", {"bfs_tests": bfs_tests})
+    return render(request, "core/bfs_list.html", {
+        "bfs_tests": bfs_tests,
+        "target_subject": target_subject,
+        "target_subject_name": get_subject_display_name(target_subject)
+        if target_subject
+        else "",
+        "upload_url": upload_url,
+        "can_manage_all_records": can_manage_all_records(request.user),
+        "can_view_all_records": can_view_all_records(request.user),
+    })
 
 def _parse_bfs_date_string(date_str):
     """把 PDF 抓到的日期字串轉成 timezone-aware 的 datetime(時間補 00:00)。"""
@@ -56,15 +116,31 @@ def _resolve_test_date(per_file_date_detections):
 
     return {"test_date": parsed, "needs_date_review": False}
 
-
+@login_required(login_url="login")
 def upload_bfs_test(request):
+    subject_user = _resolve_upload_subject(request)
+
     if request.method == 'POST':
         form = BFSTestForm(request.POST)
         pdf_files = request.FILES.getlist('pdf_files')
 
         if form.is_valid() and pdf_files:
+            try:
+                from ..services.bfs import analyze_bfs_pdf
+            except ImportError:
+                messages.error(request, "BFS 分析套件尚未安裝，請先執行 pip install -r requirements.txt。")
+                return render(
+                    request,
+                    "core/upload_bfs_test.html",
+                    _upload_context(form, request, subject_user),
+                )
+
             # 先給暫時值
             bfs_test = form.save(commit=False)
+            bfs_test.user = subject_user
+            identity_name = get_user_identity_name(subject_user)
+            if identity_name:
+                bfs_test.patient_name = identity_name
             if not bfs_test.test_date:
                 bfs_test.test_date = timezone.now()
             bfs_test.save()
@@ -99,8 +175,19 @@ def upload_bfs_test(request):
 
             return redirect('bfs_detail', pk=bfs_test.pk)
     else:
-        form = BFSTestForm() # 如果是 GET 請求，則建立一個空的表單
-    return render(request, "core/upload_bfs_test.html", {'form': form})
+        initial = {}
+        subject_name = request.GET.get("patient_name")
+        questionnaire = Questionnaire.objects.filter(user=subject_user).first()
+        if subject_name:
+            initial["patient_name"] = subject_name
+        elif questionnaire:
+            initial["patient_name"] = questionnaire.name
+        form = BFSTestForm(initial=initial) # 如果是 GET 請求，則建立一個空的表單
+    return render(
+        request,
+        "core/upload_bfs_test.html",
+        _upload_context(form, request, subject_user),
+    )
 
 def _build_display_rows(analysis_result):
     """
@@ -136,8 +223,13 @@ def _build_display_rows(analysis_result):
     }
 
 # 將多筆資料輸出結果統合成一個陣列送往 templates
+@login_required(login_url="login")
 def bfs_detail(request, pk):
-    bfs_test = BFSTest.objects.prefetch_related('files').get(pk=pk)
+    bfs_test = get_viewable_record_or_404(
+        BFSTest.objects.prefetch_related('files'),
+        request.user,
+        pk=pk,
+    )
 
     files_display = []
     for bfs_file in bfs_test.files.all():
@@ -149,11 +241,14 @@ def bfs_detail(request, pk):
     return render(request, "core/bfs_detail.html", {
         'bfs_test': bfs_test,
         'files_display': files_display,
+        'can_view_all_records': can_view_all_records(request.user),
+        'can_manage_this_record': can_manage_record(request.user, bfs_test),
     })
 
 # 在前端確認補填遺失的測試日期
+@login_required(login_url="login")
 def bfs_confirm_date(request, pk):
-    bfs_test = get_object_or_404(BFSTest, pk=pk)
+    bfs_test = get_manageable_record_or_404(BFSTest.objects.all(), request.user, pk=pk)
 
     if request.method == 'POST':
         new_date = request.POST.get('test_date')
@@ -165,8 +260,9 @@ def bfs_confirm_date(request, pk):
 
     return redirect('bfs_detail', pk=bfs_test.pk)
 
+@login_required(login_url="login")
 def bfs_update(request, pk):
-    bfs_test = get_object_or_404(BFSTest, pk=pk)
+    bfs_test = get_manageable_record_or_404(BFSTest.objects.all(), request.user, pk=pk)
 
     if request.method == 'POST':
         form = BFSTestUpdateForm(request.POST, instance=bfs_test)
@@ -182,8 +278,13 @@ def bfs_update(request, pk):
         'bfs_test': bfs_test,
     })
 
+@login_required(login_url="login")
 def bfs_delete(request, pk):
-    bfs_test = get_object_or_404(BFSTest, pk=pk)
+    bfs_test = get_manageable_record_or_404(
+        BFSTest.objects.prefetch_related('files'),
+        request.user,
+        pk=pk,
+    )
 
     if request.method == 'POST':
         for bfs_file in bfs_test.files.all():

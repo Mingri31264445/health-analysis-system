@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError #  用於跨欄位的邏輯驗證
+from core.services.subjects import split_subject_name
 
 # AI 人工智慧臉部影像整併系統開發問卷模型
 class Questionnaire(models.Model):
@@ -163,6 +164,19 @@ class Questionnaire(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # 在保存前進行驗證
         super().save(*args, **kwargs)
+        if self.user_id and self.name:
+            last_name, first_name = split_subject_name(self.name)
+            update_fields = []
+
+            if self.user.last_name != last_name:
+                self.user.last_name = last_name
+                update_fields.append("last_name")
+            if self.user.first_name != first_name:
+                self.user.first_name = first_name
+                update_fields.append("first_name")
+
+            if update_fields:
+                self.user.save(update_fields=update_fields)
 
     class Meta:
         verbose_name = "問卷"

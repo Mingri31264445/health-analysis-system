@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ feature.label }}｜AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=35">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
 </head>
 <body>
     {% include "core/system_nav.html" %}
@@ -18,8 +18,20 @@
             <div class="feature-placeholder">
                 <span>下一階段功能頁</span>
                 <strong>{{ feature.action }}</strong>
-                <p>目前已完成登入與問卷前置檢查，後續可在此加入上傳、分析結果與報告內容。</p>
+                <p>{{ feature.focus|default:"目前已完成登入與問卷前置檢查，後續可在此加入上傳、分析結果與報告內容。" }}</p>
             </div>
+
+            {% if feature.considerations %}
+                <div class="feature-consideration-grid" aria-label="設計重點">
+                    {% for item in feature.considerations %}
+                        <article class="feature-consideration-card">
+                            <span>{{ forloop.counter|stringformat:"02d" }}</span>
+                            <strong>{{ item.label }}</strong>
+                            <p>{{ item.description }}</p>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <div class="form-actions">
                 <a href="{% url 'start_analysis' %}" class="system-secondary">返回分析入口</a>
@@ -27,6 +39,6 @@
             </div>
         </section>
     </main>
-    <script src="{% static 'js/main.js' %}?v=34"></script>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
 </body>
 </html>

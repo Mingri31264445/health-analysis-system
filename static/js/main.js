@@ -110,6 +110,113 @@ document.addEventListener("DOMContentLoaded", function () {
   handleNavbarScroll();
   window.addEventListener("scroll", handleNavbarScroll);
 
+  const scrollToDashboardAnchor = () => {
+    const target = document.querySelector(window.location.hash);
+
+    if (!target) return;
+
+    window.setTimeout(() => {
+      target.scrollIntoView({
+        block: "start",
+        inline: "nearest",
+      });
+    }, 80);
+  };
+
+  if (
+    window.location.hash === "#subject-tracker" ||
+    window.location.hash === "#recent-records"
+  ) {
+    scrollToDashboardAnchor();
+  }
+
+  const recordFilterLinks = document.querySelectorAll(
+    ".dashboard-record-filters a[data-record-filter]",
+  );
+  const recordItems = document.querySelectorAll(".dashboard-record-item");
+  const recordEmpty = document.querySelector(".dashboard-record-filter-empty");
+  const maxVisibleRecords = 6;
+
+  const applyRecordFilter = (filterKey, updateUrl = true) => {
+    if (!recordItems.length) return;
+
+    let visibleCount = 0;
+
+    recordItems.forEach((item) => {
+      const itemType = item.getAttribute("data-record-type");
+      const matches = filterKey === "all" || itemType === filterKey;
+      const shouldShow = matches && visibleCount < maxVisibleRecords;
+
+      item.hidden = !shouldShow;
+
+      if (matches) {
+        visibleCount += 1;
+      }
+    });
+
+    recordFilterLinks.forEach((link) => {
+      link.classList.toggle(
+        "is-active",
+        link.getAttribute("data-record-filter") === filterKey,
+      );
+    });
+
+    if (recordEmpty) {
+      recordEmpty.hidden = visibleCount !== 0;
+    }
+
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+
+      if (filterKey === "all") {
+        url.searchParams.delete("record_type");
+      } else {
+        url.searchParams.set("record_type", filterKey);
+      }
+
+      window.history.replaceState({}, "", url);
+    }
+  };
+
+  if (recordFilterLinks.length) {
+    const initialFilter =
+      new URL(window.location.href).searchParams.get("record_type") || "all";
+
+    applyRecordFilter(initialFilter, false);
+
+    recordFilterLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        applyRecordFilter(link.getAttribute("data-record-filter") || "all");
+      });
+    });
+  }
+
+  const subjectTabs = document.querySelectorAll("[data-subject-tab]");
+  const subjectPanels = document.querySelectorAll("[data-subject-panel]");
+
+  const selectSubject = (panelId) => {
+    subjectTabs.forEach((tab) => {
+      const isActive = tab.getAttribute("data-subject-tab") === panelId;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    subjectPanels.forEach((panel) => {
+      const isActive = panel.getAttribute("data-subject-panel") === panelId;
+      panel.hidden = !isActive;
+      panel.classList.toggle("is-active", isActive);
+    });
+  };
+
+  if (subjectTabs.length && subjectPanels.length) {
+    subjectTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        selectSubject(tab.getAttribute("data-subject-tab"));
+      });
+    });
+  }
+
   const passwordToggles = document.querySelectorAll(".password-toggle");
 
   passwordToggles.forEach((button) => {

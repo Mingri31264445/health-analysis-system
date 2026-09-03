@@ -18,7 +18,7 @@
 .system-nav-logo {
   color: #24343b;
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -39,7 +39,7 @@
   border-radius: 8px;
   color: #5d6b70;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -107,7 +107,7 @@
   margin-bottom: 34px;
   color: #5e706a;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .auth-panel .system-logo {
@@ -124,7 +124,7 @@
 .system-eyebrow {
   color: #b06a5b;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -152,7 +152,7 @@
 .auth-method-note {
   color: #5e706a;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .message-list {
@@ -182,6 +182,12 @@
   gap: 18px;
 }
 
+.auth-name-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: 14px;
+}
+
 .form-grid {
   grid-template-columns: repeat(2, 1fr);
 }
@@ -194,7 +200,7 @@
   display: grid;
   gap: 8px;
   color: #46545a;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .form-field > span:first-child {
@@ -293,7 +299,7 @@ textarea.form-control {
   align-items: center;
   gap: 10px;
   color: #46545a;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -305,7 +311,7 @@ textarea.form-control {
 
 .forgot-link {
   color: #5e706a;
-  font-weight: 800;
+  font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -334,7 +340,7 @@ textarea.form-control {
   border-radius: 8px;
   padding: 0 24px;
   font: inherit;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   transition:
     transform 0.22s ease,
@@ -412,7 +418,7 @@ textarea.form-control {
 
 .system-switch a {
   color: #aa6a5a;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .questionnaire-page {
@@ -473,7 +479,7 @@ textarea.form-control {
 .questionnaire-status small {
   color: #738087;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .questionnaire-status strong {
@@ -518,7 +524,7 @@ textarea.form-control {
 .progress-step span {
   color: #aa6a5a;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
 }
 
@@ -559,7 +565,7 @@ textarea.form-control {
   background: #6a807a;
   color: #fff;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .questionnaire-section-header h2 {
@@ -592,7 +598,7 @@ textarea.form-control {
 
 #section-04 .questionnaire-fields {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 18px;
+  gap: 18px 20px;
   align-items: end;
 }
 
@@ -603,7 +609,7 @@ textarea.form-control {
 
 #section-04 .field-menstruation {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
 }
 
 #section-04 .field-exercise {
@@ -612,17 +618,17 @@ textarea.form-control {
 }
 
 #section-04 .field-exercise_duration {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 2;
 }
 
 #section-04 .field-exercise_frequency {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 2;
 }
 
 #section-04 .health-choice {
-  min-height: 62px;
+  min-height: 54px;
 }
 
 #section-05 .questionnaire-fields {
@@ -653,7 +659,7 @@ textarea.form-control {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(184, 177, 166, 0.52);
   color: #46545a;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -679,14 +685,23 @@ textarea.form-control {
 }
 
 .questionnaire-actions {
-  justify-content: flex-end;
-  margin-top: 22px;
-  padding: 24px 0 0;
-  border-top: 1px solid rgba(223, 216, 206, 0.78);
+  width: 100%;
+  justify-self: stretch;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  margin-top: 18px;
+  padding: 28px 0 40px;
+  border-top: 0;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
   backdrop-filter: none;
+}
+
+.questionnaire-actions .system-secondary,
+.questionnaire-actions .system-submit {
+  min-width: 180px;
 }
 
 .analysis-page {
@@ -747,7 +762,7 @@ textarea.form-control {
 .analysis-profile small {
   color: #738087;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .analysis-profile strong {
@@ -772,7 +787,7 @@ textarea.form-control {
   background: rgba(255, 255, 255, 0.52);
   border: 1px solid rgba(223, 216, 206, 0.72);
   color: #738087;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .flow-chip.is-done {
@@ -819,7 +834,7 @@ textarea.form-control {
 .analysis-module-card span {
   color: #738087;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
 }
 
@@ -839,7 +854,7 @@ textarea.form-control {
   margin-top: 8px;
   color: #aa6a5a;
   font-style: normal;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .feature-placeholder {
@@ -854,7 +869,7 @@ textarea.form-control {
   display: block;
   color: #738087;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   margin-bottom: 12px;
 }
@@ -869,4 +884,47 @@ textarea.form-control {
 .feature-placeholder p {
   color: #69757b;
   line-height: 1.8;
+}
+
+.feature-consideration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0 28px;
+}
+
+.feature-consideration-card {
+  min-height: 150px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid rgba(223, 216, 206, 0.74);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.feature-consideration-card span {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(176, 106, 91, 0.1);
+  color: #aa6a5a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.feature-consideration-card strong {
+  color: #24343b;
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.feature-consideration-card p {
+  color: #69757b;
+  font-size: 15px;
+  line-height: 1.75;
 }

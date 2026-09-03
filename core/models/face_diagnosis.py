@@ -1,8 +1,17 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 # 面診系統模型
 class FaceDiagnosis(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="face_diagnoses",
+        null=True,
+        blank=True,
+        verbose_name="使用者",
+    )
     patient_name = models.CharField("患者姓名", max_length=100)
     diagnosis_date = models.DateTimeField(
         "診斷日期",

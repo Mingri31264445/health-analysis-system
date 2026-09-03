@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=35">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
 </head>
 <body>
     <header class="navbar">
@@ -25,6 +25,9 @@
                 </div>
                 <a href="#process">檢測流程</a>
                 <a href="#about">關於系統</a>
+                {% if show_dashboard_link %}
+                    <a href="{% url 'dashboard' %}">工作台</a>
+                {% endif %}
             </nav>
 
             {% if user.is_authenticated %}
@@ -306,6 +309,6 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/main.js' %}?v=34"></script>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
 </body>
 </html>

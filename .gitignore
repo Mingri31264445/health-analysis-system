@@ -4,6 +4,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+.venv/
 
 # Django
 *.log
@@ -44,3 +45,4 @@ htmlcov/
 .pytest_cache/
 
 .claude/
+initial-review-doc.docx

@@ -2,6 +2,9 @@
     <a href="{% url 'home' %}" class="system-nav-logo">AI智慧面診健康平台</a>
     <nav class="system-nav-links" aria-label="系統導覽">
         <a href="{% url 'home' %}">首頁</a>
+        {% if show_dashboard_link %}
+            <a href="{% url 'dashboard' %}">工作台</a>
+        {% endif %}
         <a href="{% url 'questionnaire' %}">健康問卷</a>
         <a href="{% url 'start_analysis' %}" class="system-nav-primary">開始分析</a>
         {% if user.is_authenticated %}

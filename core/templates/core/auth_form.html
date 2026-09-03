@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}｜AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=35">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
 </head>
 <body>
     <main class="system-page">
@@ -37,7 +37,25 @@
                 {% endif %}
 
                 {% for field in form %}
-                    {% if field.name == "remember_me" %}
+                    {% if mode == "register" and field.name == "last_name" %}
+                        <div class="auth-name-grid">
+                            <label class="form-field">
+                                <span>{{ form.last_name.label }}</span>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <small class="field-error">{{ form.last_name.errors|striptags }}</small>
+                                {% endif %}
+                            </label>
+                            <label class="form-field">
+                                <span>{{ form.first_name.label }}</span>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <small class="field-error">{{ form.first_name.errors|striptags }}</small>
+                                {% endif %}
+                            </label>
+                        </div>
+                    {% elif mode == "register" and field.name == "first_name" %}
+                    {% elif field.name == "remember_me" %}
                         <div class="auth-options">
                             <label class="remember-option">
                                 {{ field }}
@@ -77,6 +95,6 @@
             </p>
         </section>
     </main>
-    <script src="{% static 'js/main.js' %}?v=34"></script>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
 </body>
 </html>

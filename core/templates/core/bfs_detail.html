@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BFS測試結果 AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=35" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
   </head>
@@ -28,11 +28,15 @@
 
         <p class="bfs-meta">
           測試日期：{{ bfs_test.test_date|date:"Y-m-d H:i" }}
+          {% if can_view_all_records %}
+          ｜建立者：{{ bfs_test.user.username|default:"未指定" }}
+          {% endif %}
           {% if bfs_test.notes %}
           ｜備註：{{ bfs_test.notes }}
           {% endif %}
         </p>
 
+        {% if can_manage_this_record %}
         {% if bfs_test.needs_date_review %}
         <div class="bfs-review-note">
           <p class="bfs-review-title">⚠ 需要確認測試日期</p>
@@ -49,6 +53,7 @@
             <button type="submit" class="btn btn-primary">確認日期</button>
           </form>
         </div>
+        {% endif %}
         {% endif %}
 
         {% for item in files_display %}
@@ -125,16 +130,20 @@
           <a href="{% url 'bfs_list' %}" class="btn btn-secondary">
             返回列表
           </a>
+          {% if can_manage_this_record %}
           <a href="{% url 'bfs_update' bfs_test.pk %}" class="btn btn-secondary">
             編輯資料
           </a>
+          {% endif %}
           <a href="{% url 'upload_bfs_test' %}" class="btn btn-primary">
             上傳新的 BFS 測試
           </a>
+          {% if can_manage_this_record %}
           <form method="POST" action="{% url 'bfs_delete' bfs_test.pk %}" onsubmit="return confirm('確定要刪除這筆測試記錄嗎？包含底下所有 PDF 檔案，此操作無法復原。');">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">刪除此測試</button>
           </form>
+          {% endif %}
         </div>
       </div>
     </section>

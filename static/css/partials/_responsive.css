@@ -327,6 +327,10 @@
     gap: 12px;
   }
 
+  .auth-name-grid {
+    grid-template-columns: 1fr;
+  }
+
   .questionnaire-page {
     padding: 24px 14px;
   }
@@ -370,6 +374,7 @@
 
   #section-04 .questionnaire-fields,
   #section-05 .questionnaire-fields,
+  .feature-consideration-grid,
     .analysis-flow,
     .analysis-module-grid {
         grid-template-columns: 1fr;
@@ -408,7 +413,9 @@
         font-size: 25px;
     }
 
-    .questionnaire-actions {
+  .questionnaire-actions {
+    width: 100%;
+    justify-self: stretch;
     position: static;
   }
 

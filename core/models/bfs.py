@@ -1,8 +1,17 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 #量子生物回饋頻譜儀（BFS）測試模型
 class BFSTest(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="bfs_tests",
+        null=True,
+        blank=True,
+        verbose_name="使用者",
+    )
     patient_name = models.CharField("患者姓名", max_length=100)
     test_date = models.DateTimeField(
         "測試日期",
@@ -65,4 +74,4 @@ class BFSTestFile(models.Model):
 
     def __str__(self):
         test_date = self.bfs_test.test_date.strftime('%Y-%m-%d')
-        return f"{self.bfs_test.patient_name} ({test_date}) - 檔案 {self.file_number}"  
+        return f"{self.bfs_test.patient_name} ({test_date}) - 檔案 {self.file_number}"
