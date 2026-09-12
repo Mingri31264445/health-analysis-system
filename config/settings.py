@@ -13,32 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import importlib.util
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-def load_local_env():
-    env_path = BASE_DIR / '.env'
-
-    if not env_path.exists():
-        return
-
-    for line in env_path.read_text(encoding='utf-8').splitlines():
-        line = line.strip()
-        if not line or line.startswith('#') or '=' not in line:
-            continue
-
-        key, value = line.split('=', 1)
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
-
-
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    load_local_env()
-else:
-    load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -51,6 +31,12 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['.trycloudflare.com', '127.0.0.1', 'localhost']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.trycloudflare.com',
+    'https://healthanalysis.tech',
+    'https://www.healthanalysis.tech',
+]
 
 
 # Application definition
@@ -153,7 +139,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-if HAS_WHITENOISE:
+if HAS_WHITENOISE and not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
