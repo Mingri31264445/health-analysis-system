@@ -1,140 +1,150 @@
 .meridian-meta {
-    text-align: center;
-    color: #6b767c;
-    font-size: 15px;
-    margin-bottom: 32px;
+  text-align: center;
+  color: #6b767c;
+  font-size: 15px;
+  margin-bottom: 32px;
 }
 
 .meridian-result-table {
-    max-width: 900px;
-    margin: 0 auto 32px;
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    background: #fff;
-    border: 1.5px solid #ddd8ce;
-    border-radius: 14px;
-    overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto 32px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .meridian-result-table th,
 .meridian-result-table td {
-    padding: 10px 14px;
-    text-align: center;
-    border-bottom: 1px solid #ede8de;
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid #ede8de;
 }
 
 .meridian-result-table th {
-    color: #46545a;
-    font-weight: 700;
-    background: #f8f5f0;
+  color: #46545a;
+  font-weight: 700;
+  background: #f8f5f0;
+}
+
+.meridian-result-table tbody tr.meridian-group-divider td {
+  border-top: 5px solid #d3ac81;
 }
 
 .meridian-cell.meridian-good {
-    color: #5d7e69;
-    font-weight: 700;
+  color: #5d7e69;
+  font-weight: 700;
 }
 
 .meridian-cell.meridian-warn {
-    color: #a26a2f;
-    font-weight: 700;
-    background: rgba(193, 154, 109, 0.08);
+  color: #a26a2f;
+  font-weight: 700;
+  background: rgba(193, 154, 109, 0.08);
 }
 
 .meridian-cell.meridian-danger {
-    color: #dc3545;
-    font-weight: 700;
-    background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+  font-weight: 700;
+  background: rgba(220, 53, 69, 0.08);
 }
 
 /* ===== Meridian List Page ===== */
 
 .meridian-list-header {
-    max-width: 900px;
-    margin: 0 auto 28px;
-    display: flex;
-    justify-content: center; /* 上傳按鈕置中（BFS List 是 flex-end 靠右，此處刻意不同） */
+  max-width: 900px;
+  margin: 0 auto 28px;
+  display: flex;
+  justify-content: center; /* 上傳按鈕置中（BFS List 是 flex-end 靠右，此處刻意不同） */
 }
 
 .meridian-list {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .meridian-list-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .meridian-list-item-link {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 20px 26px;
-    background: #fff;
-    border: 1.5px solid #ddd8ce;
-    border-radius: 14px;
-    text-decoration: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 26px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .meridian-list-item-link:hover {
-    border-color: #6a807a;
-    box-shadow: 0 4px 14px rgba(36, 52, 59, 0.08);
+  border-color: #6a807a;
+  box-shadow: 0 4px 14px rgba(36, 52, 59, 0.08);
 }
 
 .meridian-delete-btn {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1.5px solid #ddd8ce;
-    background: #fff;
-    color: #a6a196;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
-        box-shadow 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #ddd8ce;
+  background: #fff;
+  color: #a6a196;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .meridian-delete-btn:hover {
-    border-color: #dc3545;
-    color: #dc3545;
-    background: rgba(220, 53, 69, 0.06);
-    box-shadow: 0 10px 22px rgba(220, 53, 69, 0.1);
-    transform: translateY(-1px);
+  border-color: #dc3545;
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.06);
+  box-shadow: 0 10px 22px rgba(220, 53, 69, 0.1);
+  transform: translateY(-1px);
 }
 
 .meridian-list-item-main {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .meridian-list-name {
-    font-size: 17px;
-    font-weight: 700;
-    color: #24343b;
+  font-size: 17px;
+  font-weight: 700;
+  color: #24343b;
 }
 
 .meridian-list-date {
-    font-size: 13px;
-    color: #6b767c;
+  font-size: 13px;
+  color: #6b767c;
 }
 
 .meridian-empty-note {
-    max-width: 900px;
-    margin: 0 auto;
-    text-align: center;
-    color: #6b767c;
-    font-size: 14px;
-    padding: 40px 0;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: #6b767c;
+  font-size: 14px;
+  padding: 40px 0;
 }
 
 /* .bfs-actions / .btn-secondary / .btn-danger 已移至 partials/_buttons.css（跨模組共用） */
