@@ -1,5 +1,6 @@
 from datetime import datetime, time as datetime_time
 from urllib.parse import urlencode
+from django.templatetags.static import static as static_url
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,6 +24,14 @@ from .permissions import (
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
 
+LEVEL_ICONS = {
+    1: "images/bfs_levels/level_1.png",
+    2: "images/bfs_levels/level_2.png",
+    3: "images/bfs_levels/level_3.png",
+    4: "images/bfs_levels/level_4.png",
+    5: "images/bfs_levels/level_5.png",
+    6: "images/bfs_levels/level_6.png",
+}
 
 def _resolve_upload_subject(request):
     subject_id = request.POST.get("subject") or request.GET.get("subject")
@@ -208,7 +217,7 @@ def _build_display_rows(analysis_result):
         for level_num, level_name in LEVEL_NAMES.items():
             # JSON 存進資料庫後，數字鍵會變成字串鍵，兩種都嘗試取值
             count = counts.get(str(level_num), counts.get(level_num, 0))
-            levels.append({'name': level_name, 'count': count})
+            levels.append({'name': level_name, 'count': count, 'icon_url': static_url(LEVEL_ICONS[level_num]),})
         rows.append({
             'region': region,
             'caption': captions.get(region, region),

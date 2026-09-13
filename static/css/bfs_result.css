@@ -111,6 +111,25 @@
   font-size: 14px;
 }
 
+.bfs-level-header {
+  display: flex;
+  flex-direction: column; /* 垂直排列 */
+  align-items: center; /* 水平置中 */
+  justify-content: center; /* 垂直置中 */
+  gap: 4px;
+}
+
+.bfs-level-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain; /* 保持圖像比例 */
+  display: block;
+}
+
+.bfs-level-header span {
+  white-space: nowrap; /* 防止文字換行 */
+}
+
 .bfs-result-table th,
 .bfs-result-table td {
   padding: 10px 12px;
@@ -205,6 +224,12 @@
 .bfs-file-header .result-badge.warn {
   background: rgba(220, 53, 69, 0.12);
   color: #dc3545;
+}
+
+/* 「分析完成」徽章不需要底色，拿掉背景，其他頁面的 result-badge.good 不受影響 */
+.bfs-file-header .result-badge.good {
+  background: transparent;
+  border: none;
 }
 
 /* 刪除功能相關樣式 */
