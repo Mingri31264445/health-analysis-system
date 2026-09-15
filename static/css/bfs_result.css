@@ -107,8 +107,24 @@
 
 .bfs-result-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 14px;
+}
+
+.bfs-result-table th:first-child,
+.bfs-result-table td:first-child {
+  width: 45%;
+}
+
+.bfs-result-table th:not(:first-child):not(:last-child),
+.bfs-result-table td:not(:first-child):not(:last-child) {
+  width: 8%;
+}
+
+.bfs-result-table th:last-child,
+.bfs-result-table td:last-child {
+  width: 7%;
 }
 
 .bfs-level-header {
@@ -171,8 +187,6 @@
   font-weight: 700;
 }
 
-/* .bfs-actions 已移至 partials/_buttons.css（跨模組共用） */
-
 /* ===== BFS List Page ===== */
 
 .bfs-list-header {
@@ -215,8 +229,6 @@
   font-size: 14px;
   padding: 40px 0;
 }
-
-/* .btn-secondary 已移至 partials/_buttons.css（跨模組共用） */
 
 /* 在 BFS 頁面範圍內，把「需要確認」的警示色改成紅色，
    透過指定父層容器讓選擇器優先權更高，達到覆蓋效果。 */
@@ -286,5 +298,3 @@
   box-shadow: 0 10px 22px rgba(220, 53, 69, 0.1);
   transform: translateY(-1px);
 }
-
-/* .btn-danger 已移至 partials/_buttons.css（跨模組共用） */

@@ -212,6 +212,9 @@ def _build_display_rows(analysis_result):
 
     rows = []
     for region in color['regions_present']:
+        total = color['quadrant_totals'][region]
+        if total == 0:
+            continue # 如果這個區域沒有任何數據，就不顯示這一行
         counts = color['quadrant_counts'][region]
         levels = []
         for level_num, level_name in LEVEL_NAMES.items():
