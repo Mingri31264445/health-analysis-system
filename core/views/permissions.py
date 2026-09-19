@@ -44,11 +44,11 @@ def scope_manageable_records(queryset, user):
 def scope_user_records(queryset, user):
     return scope_viewable_records(queryset, user)
 
-
+#驗證使用者是否有檢視的權限
 def get_viewable_record_or_404(queryset, user, **kwargs):
     return get_object_or_404(scope_viewable_records(queryset, user), **kwargs)
 
-
+#驗證使用者是否有管理的權限
 def get_manageable_record_or_404(queryset, user, **kwargs):
     return get_object_or_404(scope_manageable_records(queryset, user), **kwargs)
 

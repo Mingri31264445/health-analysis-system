@@ -187,6 +187,25 @@
   font-weight: 700;
 }
 
+/* ===== BFS open File 相關樣式 ===== */
+.bfs-file-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bfs-file-open-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6a807a;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bfs-file-open-link:hover {
+  text-decoration: underline;
+}
+
 /* ===== BFS List Page ===== */
 
 .bfs-list-header {

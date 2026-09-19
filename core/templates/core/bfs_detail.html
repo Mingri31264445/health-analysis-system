@@ -61,17 +61,20 @@
           <div class="bfs-file-header">
             <h3>檔案 {{ item.file.file_number }}</h3>
 
-            {% if item.file.analysis_status == 'success' %}
-            <span class="result-badge good">
-              分析完成｜{{ item.file.detected_template }}
-            </span>
-            {% endif %}
-            {% if item.file.analysis_status == 'needs_review' %}
-            <span class="result-badge warn">需人工確認</span>
-            {% endif %}
-            {% if item.file.analysis_status == 'pending' %}
-            <span class="result-badge normal">待分析</span>
-            {% endif %}
+            <div class="bfs-file-header-right">
+              {% if item.file.analysis_status == 'success' %}
+              <span class="result-badge good">
+                分析完成｜{{ item.file.detected_template }}
+              </span>
+              {% endif %}
+              {% if item.file.analysis_status == 'needs_review' %}
+              <span class="result-badge warn">需人工確認</span>
+              {% endif %}
+              {% if item.file.analysis_status == 'pending' %}
+              <span class="result-badge normal">待分析</span>
+              {% endif %}
+              <a href="{% url 'bfs_file_view' bfs_test.pk item.file.file_number %}" target="_blank" class="bfs-file-open-link">查看原始檔</a>
+            </div>
           </div>
 
           {% if item.file.file_description %}

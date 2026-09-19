@@ -21,6 +21,8 @@ from .views import (
     bfs_confirm_date,
     bfs_update,
     bfs_delete,
+    bfs_file_view,
+    meridian_file_view,
 )
 
 urlpatterns = [
@@ -45,4 +47,6 @@ urlpatterns = [
     path('bfs/<int:pk>/confirm-date/', bfs_confirm_date, name='bfs_confirm_date'),
     path('bfs/<int:pk>/update/', bfs_update, name='bfs_update'),
     path('bfs/<int:pk>/delete/', bfs_delete, name='bfs_delete'),
+    path('bfs/<int:pk>/file/<int:file_number>', bfs_file_view, name='bfs_file_view'),
+    path('meridian/<int:pk>/file/', meridian_file_view, name='meridian_file_view'),
 ]

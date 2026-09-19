@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -213,6 +214,15 @@ def meridian_detail(request, pk):
         'can_view_all_records': can_view_all_records(request.user),
         'can_manage_this_record': can_manage_record(request.user, test),
     })
+
+@login_required(login_url="login")
+def meridian_file_view(request, pk):
+    test = get_viewable_record_or_404(
+        MeridianTest.objects.all(),
+        request.user,
+        pk=pk,
+    )
+    return FileResponse(test.result_pdf.open('rb'), content_type='application/pdf')
 
 @login_required(login_url="login")
 def meridian_update(request, pk):

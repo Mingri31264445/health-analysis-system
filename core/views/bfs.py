@@ -5,7 +5,8 @@ from django.templatetags.static import static as static_url
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, redirect
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
 
@@ -256,6 +257,16 @@ def bfs_detail(request, pk):
         'can_view_all_records': can_view_all_records(request.user),
         'can_manage_this_record': can_manage_record(request.user, bfs_test),
     })
+
+@login_required(login_url="login")
+def bfs_file_view(request, pk, file_number):
+    bfs_test = get_viewable_record_or_404(
+        BFSTest.objects.prefetch_related('files'),
+        request.user,
+        pk=pk,
+    )
+    bfs_file = get_object_or_404(bfs_test.files, file_number = file_number)
+    return FileResponse(bfs_file.pdf_file.open('rb'), content_type='application/pdf')
 
 # 在前端確認補填遺失的測試日期
 @login_required(login_url="login")

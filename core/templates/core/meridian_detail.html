@@ -75,6 +75,9 @@
             編輯備註
           </a>
           {% endif %}
+          <a href="{% url 'meridian_file_view' test.pk %}" target="_blank" class="btn btn-secondary">
+            查看原始檔
+          </a>
           <a href="{% url 'upload_meridian_result' %}" class="btn btn-primary">
             上傳新的經絡檢測
           </a>
