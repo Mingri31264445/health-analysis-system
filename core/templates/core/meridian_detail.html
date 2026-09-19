@@ -38,24 +38,33 @@
           {% endif %}
         </p>
 
-        <table class="meridian-result-table">
-          <thead>
-            <tr>
-              <th>經絡</th>
-              <th>左側</th>
-              <th>右側</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in rows %}
-            <tr {% if row.name == "脾經" %} class="meridian-group-divider"{% endif %}>
-              <td>{{ row.name }}</td>
-              <td class="meridian-cell meridian-{{ row.left_cmp.level }}">{{ row.left_cmp.value }}</td>
-              <td class="meridian-cell meridian-{{ row.right_cmp.level }}">{{ row.right_cmp.value }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="meridian-table-wrap">
+          <table class="meridian-result-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>經絡</th>
+                <th>左側</th>
+                <th>右側</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+              <tr {% if row.name == "脾經" %} class="meridian-group-divider"{% endif %}>
+                {% if row.name == "肺經" %}
+                <td rowspan="6" class="meridian-body-label">上半身</td>
+                {% endif %}
+                {% if row.name == "脾經" %}
+                <td rowspan="6" class="meridian-body-label">下半身</td>
+                {% endif %}
+                <td>{{ row.name }}</td>
+                <td class="meridian-cell meridian-{{ row.left_cmp.level }}">{{ row.left_cmp.value }}</td>
+                <td class="meridian-cell meridian-{{ row.right_cmp.level }}">{{ row.right_cmp.value }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
         <div class="bfs-actions">
           <a href="{% url 'meridian_list' %}" class="btn btn-secondary">
