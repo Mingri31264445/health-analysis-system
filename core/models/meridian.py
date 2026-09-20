@@ -37,6 +37,8 @@ class MeridianTest(models.Model):
     threshold_low = models.FloatField("低值", null=True, blank=True)
     threshold_toolow = models.FloatField("過低值", null=True, blank=True)
 
+    summary_analysis = models.JSONField("摘要分析", default=dict, blank=True)
+
     notes = models.TextField("備註", blank=True)
 
     created_at = models.DateTimeField("建立日期", auto_now_add=True)

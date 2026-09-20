@@ -66,6 +66,20 @@
           </table>
         </div>
 
+        {% if test.summary_analysis %}
+        <div class="meridian-summary-block">
+          <h3>整合分析摘要（暫時顯示，待後續整合分析頁面設計）</h3>
+          <ul>
+            <li>能量組成(E.C.I.)：{{ test.summary_analysis.eci }}</li>
+            <li>身體能量：{{ test.summary_analysis.body_energy.value }}（參考範圍 {{ test.summary_analysis.body_energy.range.0 }}–{{ test.summary_analysis.body_energy.range.1 }}）— {{ test.summary_analysis.body_energy.summary }}</li>
+            <li>精神狀態比值：上 {{ test.summary_analysis.mental_ratio.upper }} / 下 {{ test.summary_analysis.mental_ratio.lower }} = {{ test.summary_analysis.mental_ratio.ratio }}（參考範圍 {{ test.summary_analysis.mental_ratio.range.0 }}–{{ test.summary_analysis.mental_ratio.range.1 }}）— {{ test.summary_analysis.mental_ratio.summary }}</li>
+            <li>左右肌骨系統：左 {{ test.summary_analysis.bilateral.left }} / 右 {{ test.summary_analysis.bilateral.right }} = {{ test.summary_analysis.bilateral.ratio }}（參考範圍 {{ test.summary_analysis.bilateral.range.0 }}–{{ test.summary_analysis.bilateral.range.1 }}）— {{ test.summary_analysis.bilateral.summary }}</li>
+            <li>新陳代謝功能：陰 {{ test.summary_analysis.metabolism.yin }} / 陽 {{ test.summary_analysis.metabolism.yang }} = {{ test.summary_analysis.metabolism.ratio }}（參考範圍 {{ test.summary_analysis.metabolism.range.0 }}–{{ test.summary_analysis.metabolism.range.1 }}）— {{ test.summary_analysis.metabolism.summary }}</li>
+            <li>自律神經平衡度：高 {{ test.summary_analysis.autonomic.high }} / 低 {{ test.summary_analysis.autonomic.low }} = {{ test.summary_analysis.autonomic.ratio }}（參考範圍 {{ test.summary_analysis.autonomic.range.0 }}–{{ test.summary_analysis.autonomic.range.1 }}）— {{ test.summary_analysis.autonomic.summary }}</li>
+          </ul>
+        </div>
+        {% endif %}
+
         <div class="bfs-actions">
           <a href="{% url 'meridian_list' %}" class="btn btn-secondary">
             返回列表

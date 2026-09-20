@@ -9,6 +9,44 @@ import sys
 
 MERIDIANS = ['肺經','心包','心經','小腸','三焦','大腸','脾經','肝經','腎經','膀胱','膽經','胃經']
 
+def _parse_summary(lines: list[str]) -> dict:
+    """擷取報告最下方的整合分析摘要(E.C.I. + 5 項指標），未來跨模組整合分析可以使用"""
+    summary = {}
+
+    summary['eci'] = float(re.search(r'能量組成\(E\.C\.I\.\):\s*([\d.]+)', lines[25]).group(1))
+
+    m = re.search(r'身體能量:\s*([\d.]+)\s*\(\s*([\d.]+)\s*-\s*([\d.]+)\s*\)\s*(.+)', lines[26])
+    summary['body_energy'] = {
+        'value': float(m.group(1)),
+        'range': [float(m.group(2)), float(m.group(3))],
+        'summary': m.group(4).strip(),
+    }
+
+    m = re.search(r'精神狀態比值:\s*上\s*([\d.]+)\s*/\s*下\s*([\d.]+)\s*=\s*([\d.]+)\s*\(\s*([\d.]+)\s*-\s*([\d.]+)\s*\)\s*(.+)', lines[27])
+    summary['mental_ratio'] = {
+        'upper': float(m.group(1)), 'lower': float(m.group(2)), 'ratio': float(m.group(3)),
+        'range': [float(m.group(4)), float(m.group(5))], 'summary': m.group(6).strip(),
+    }
+
+    m = re.search(r'左右肌骨系統:\s*左\s*([\d.]+)\s*/\s*右\s*([\d.]+)\s*=\s*([\d.]+)\s*\(\s*([\d.]+)\s*-\s*([\d.]+)\s*\)\s*(.+)', lines[28])
+    summary['bilateral'] = {
+        'left': float(m.group(1)), 'right': float(m.group(2)), 'ratio': float(m.group(3)),
+        'range': [float(m.group(4)), float(m.group(5))], 'summary': m.group(6).strip(),
+    }
+
+    m = re.search(r'新陳代謝功能:\s*陰\s*([\d.]+)\s*/\s*陽\s*([\d.]+)\s*=\s*([\d.]+)\s*\(\s*([\d.]+)\s*-\s*([\d.]+)\s*\)\s*(.+)', lines[29])
+    summary['metabolism'] = {
+        'yin': float(m.group(1)), 'yang': float(m.group(2)), 'ratio': float(m.group(3)),
+        'range': [float(m.group(4)), float(m.group(5))], 'summary': m.group(6).strip(),
+    }
+
+    m = re.search(r'自律神經平衡度:\s*高\s*([\d.]+)\s*/\s*低\s*([\d.]+)\s*=\s*([\d.]+)\s*\(\s*([\d.]+)\s*-\s*([\d.]+)\s*\)\s*(.+)', lines[30])
+    summary['autonomic'] = {
+        'high': float(m.group(1)), 'low': float(m.group(2)), 'ratio': float(m.group(3)),
+        'range': [float(m.group(4)), float(m.group(5))], 'summary': m.group(6).strip(),
+    }
+
+    return summary
 
 def parse_meridian_pdf(pdf_path: str) -> dict:
     with pdfplumber.open(pdf_path) as pdf:
@@ -50,6 +88,7 @@ def parse_meridian_pdf(pdf_path: str) -> dict:
         '過低值': thresholds[4],
     }
 
+    result['摘要分析'] = _parse_summary(lines)
     return result
 
 
@@ -62,6 +101,7 @@ def save_meridian_result(instance, data: dict):
     instance.threshold_average = thresholds['均值']
     instance.threshold_low     = thresholds['低值']
     instance.threshold_toolow  = thresholds['過低值']
+    instance.summary_analysis = data['摘要分析']
     instance.save()
 
     readings = [
