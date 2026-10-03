@@ -102,7 +102,12 @@
               <tr>
                 <td>{{ row.caption }}</td>
                 {% for level in row.levels %}
-                <td>{{ level.count }}</td>
+                <td>
+                  <div class="bfs-level-value">
+                    <span class="bfs-level-count">{{ level.count }}</span>
+                    <span class="bfs-percentage">{{ level.percentage|floatformat:2 }}%</span>
+                  </div>
+                </td>
                 {% endfor %}
                 <td class="bfs-total-cell">{{ row.total }}</td>
               </tr>

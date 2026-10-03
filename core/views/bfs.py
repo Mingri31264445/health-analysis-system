@@ -213,20 +213,24 @@ def _build_display_rows(analysis_result):
 
     rows = []
     for region in color['regions_present']:
-        total = color['quadrant_totals'][region]
-        if total == 0:
-            continue # 如果這個區域沒有任何數據，就不顯示這一行
         counts = color['quadrant_counts'][region]
+        total = color['quadrant_totals'][region]
         levels = []
         for level_num, level_name in LEVEL_NAMES.items():
             # JSON 存進資料庫後，數字鍵會變成字串鍵，兩種都嘗試取值
             count = counts.get(str(level_num), counts.get(level_num, 0))
-            levels.append({'name': level_name, 'count': count, 'icon_url': static_url(LEVEL_ICONS[level_num]),})
+            percentage = (count / total * 100) if total else 0 #排除 total 為 0 的情況，避免除以零爆開
+            levels.append({
+                'name': level_name,
+                'count': count,
+                'icon_url': static_url(LEVEL_ICONS[level_num]),
+                'percentage': percentage,
+            })
         rows.append({
             'region': region,
             'caption': captions.get(region, region),
             'levels': levels,
-            'total': color['quadrant_totals'][region],
+            'total': total,
         })
 
     return {
