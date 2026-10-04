@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="zh-Hant">
   <head>
+    <link rel="stylesheet" href="{% static 'css/meridian_trend.css' %}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>經絡測試列表 AI智慧面診健康平台</title>
@@ -43,9 +44,22 @@
         </div>
 
         {% if meridian_tests %}
+        {% if meridian_tests|length >= 2 %}
+        <div class="meridian-compare-bar">
+          <span class="meridian-compare-hint">勾選 2～4 筆同一受測者的紀錄，可比較趨勢</span>
+          <button type="button" id="meridian-compare-btn" class="btn btn-primary"
+                  data-compare-url="{% url 'meridian_trend' %}" disabled>
+            比較趨勢（已選 0/4）
+          </button>
+        </div>
+        {% endif %}
         <div class="meridian-list">
           {% for test in meridian_tests %}
           <div class="meridian-list-item">
+            {% if meridian_tests|length >= 2 %}
+            <input type="checkbox" class="meridian-compare-checkbox"
+                   value="{{ test.pk }}" data-user="{{ test.user_id }}" aria-label="選取以比較趨勢">
+            {% endif %}
             <a href="{% url 'meridian_detail' test.pk %}" class="meridian-list-item-link">
               <div class="meridian-list-item-main">
                 <span class="meridian-list-name">{{ test.patient_name }}</span>
@@ -80,5 +94,6 @@
     </footer>
 
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/meridian_compare.js' %}"></script>
   </body>
 </html>
