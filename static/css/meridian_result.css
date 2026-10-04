@@ -165,4 +165,38 @@
   padding: 40px 0;
 }
 
-/* .bfs-actions / .btn-secondary / .btn-danger 已移至 partials/_buttons.css（跨模組共用） */
+/* 整合分析摘要區塊 */
+.meridian-summary-block {
+  max-width: 900px;
+  margin: 24px auto 0;
+  padding: 24px 28px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+  text-align: left;
+}
+
+.meridian-summary-block h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #24343b;
+  margin-bottom: 14px;
+}
+
+.meridian-summary-block ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.meridian-summary-block li {
+  padding: 10px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #46545a;
+  border-bottom: 1px solid #ede8de;
+}
+
+.meridian-summary-block li:last-child {
+  border-bottom: none;
+}
