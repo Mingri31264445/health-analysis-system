@@ -1,0 +1,19 @@
+.trend-chart-card {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  padding: 24px 28px;
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+}
+
+.trend-chart-wrap {
+  position: relative;
+  height: 420px;
+}
+
+.trend-diff {
+  font-weight: 700;
+  color: #46545a;
+  white-space: nowrap;
+}

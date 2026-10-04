@@ -277,12 +277,48 @@ def meridian_trend(request):
     if len({t.user_id for t in tests}) > 1:
         return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
 
-    # 依測試日期排序，讓折線圖的顯示順序符合時間軸
+    # 將測試記錄列表按照測試日期由舊到新進行排序
     tests.sort(key=lambda t: t.test_date)
-    return JsonResponse(
-        _build_meridian_trend(tests),
-        json_dumps_params={'ensure_ascii': False}, # 讓中文經絡名稱不被轉成unicode 亂碼
-    )
+    # 把整理好的資料打包送給前端的 HTML 網頁模板（Template）來顯示
+    return render(request, "core/meridian_trend.html", {
+        'patient_name': tests[-1].patient_name,
+        'payload': _build_meridian_trend(tests),
+        'table_rows': _build_trend_table(tests),
+    })
+
+def _build_trend_table(tests):
+    """整理下方對照表：每條經絡拆成左右兩列，每次測試一格。
+    『變化』= 最新一次 - 最早一次，只呈現數字差，不判斷好壞"""
+    # 蒐集每一筆測試的門檻值
+    thresholds_list = [
+        {
+            'toohigh': t.threshold_toohigh,
+            'high': t.threshold_high,
+            'low': t.threshold_low,
+            'toolow': t.threshold_toolow,
+        }
+        for t in tests
+    ]
+    # 蒐集每一筆測試的經絡數據，整理成dict方便查詢
+    readings_list = [{r.meridian: r for r in t.readings.all()} for t in tests]
+
+    rows = []
+    # 決定表格的列數
+    for name in MERIDIANS_ORDER:
+        # 將每條經絡拆成左右兩列，分別呈現左側與右側的補償值
+        for side, attr in (('左', 'left_cmp'), ('右', 'right_cmp')):
+            # 初始化一個空串列list
+            cells = []
+            # 把每一筆測試的該經絡數據填入
+            for readings, thresholds in zip(readings_list, thresholds_list):
+                reading = readings.get(name)
+                value = getattr(reading, attr, None)
+                cells.append({'value': value, 'level': _classify_reading(value, thresholds)})
+            first, last = cells[0]['value'], cells[-1]['value']
+            # 計算變化量 last - first
+            diff = round(last - first, 1) if first is not None and last is not None else None
+            rows.append({'name': name, 'side': side, 'cells': cells, 'diff': diff})
+    return rows
 
 @login_required(login_url="login")
 def meridian_update(request, pk):

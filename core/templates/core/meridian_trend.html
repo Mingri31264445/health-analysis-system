@@ -1,0 +1,88 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>經絡趨勢比較 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
+    <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/meridian_trend.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <p>Meridian Trend</p>
+          <h2>{{ patient_name }} 的經絡趨勢比較</h2>
+        </div>
+
+        <p class="meridian-meta">
+          共比較 {{ payload.series|length }} 次測試：
+          {% for s in payload.series %}{{ s.label }}{% if not forloop.last %}、{% endif %}{% endfor %}
+        </p>
+
+        <div class="trend-chart-card">
+          <div class="trend-chart-wrap">
+            <canvas id="meridian-trend-chart"></canvas>
+          </div>
+        </div>
+        {{ payload|json_script:"trend-data" }}
+
+        <div class="meridian-table-wrap">
+          <table class="meridian-result-table">
+            <thead>
+              <tr>
+                <th>經絡</th>
+                <th>側別</th>
+                {% for s in payload.series %}
+                <th>{{ s.label }}</th>
+                {% endfor %}
+                <th>變化<br /><small>（最新 − 最早）</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in table_rows %}
+              <tr{% if row.name == "脾經" and row.side == "左" %} class="meridian-group-divider"{% endif %}>
+                {% if row.side == "左" %}
+                <td rowspan="2">{{ row.name }}</td>
+                {% endif %}
+                <td>{{ row.side }}</td>
+                {% for cell in row.cells %}
+                <td class="meridian-cell meridian-{{ cell.level }}">{% if cell.value is None %}—{% else %}{{ cell.value }}{% endif %}</td>
+                {% endfor %}
+                <td class="trend-diff">
+                  {% if row.diff is None %}—{% elif row.diff > 0 %}↑ +{{ row.diff }}{% elif row.diff < 0 %}↓ {{ row.diff }}{% else %}持平{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bfs-actions">
+          <a href="{% url 'meridian_list' %}" class="btn btn-secondary">返回列表</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+    <script src="{% static 'js/meridian_trend.js' %}"></script>
+  </body>
+</html>
