@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -30,7 +30,8 @@ from .permissions import (
 
 
 MERIDIANS_ORDER = ['肺經', '心包', '心經', '小腸', '三焦', '大腸', '脾經', '肝經', '腎經', '膀胱', '膽經', '胃經']
-
+MIN_TREND_COMPARE = 2
+MAX_TREND_COMPARE = 4
 
 def _resolve_upload_subject(request):
     subject_id = request.POST.get("subject") or request.GET.get("subject")
@@ -223,6 +224,65 @@ def meridian_file_view(request, pk):
         pk=pk,
     )
     return FileResponse(test.result_pdf.open('rb'), content_type='application/pdf')
+
+def _build_meridian_trend(tests):
+    """將要比較的幾筆經絡測試整理成折線圖用的資料。
+    X 軸共 25 格：左側 12 條經絡 + 1 格空白（值為 None,折線在這裡斷開、
+    之後分隔線也畫在這裡）+ 右側 12 條經絡。Y 值用補償值(cmp)"""
+    series = []
+    for t in tests:
+        # 將這筆測試的所有經絡數據整理成dict字典，以經絡名稱為key
+        readings = {r.meridian: r for r in t.readings.all()}
+        # 該經絡如果沒有量測資料， readings.get(name) 找不到時會回傳 None，getattr 會回傳預設值 None
+        left = [getattr(readings.get(name), 'left_cmp', None) for name in MERIDIANS_ORDER]
+        right = [getattr(readings.get(name), 'right_cmp', None) for name in MERIDIANS_ORDER]
+        # 組合成折線圖所需的資料格式
+        series.append({
+            'test_id': t.pk,
+            'label': timezone.localtime(t.test_date).strftime('%Y/%m/%d %H:%M'),
+            'values': left + [None] + right,
+        })
+    return {
+        'meridians': MERIDIANS_ORDER,# 經絡名稱順序
+        'series': series,# 每筆測試的折線圖資料
+    }
+
+
+@login_required(login_url="login")
+def meridian_trend(request):
+    # 從 GET 參數取得要比較的測試記錄 id
+    raw_ids = request.GET.get('ids', '')
+    try:
+        # dict.fromkeys 用來去除重複 id 並保留使用者選取順序
+        ids = list(dict.fromkeys(int(x) for x in raw_ids.split(',') if x.strip()))
+    except ValueError:
+        return HttpResponseBadRequest("ids 格式錯誤")
+
+    if not (MIN_TREND_COMPARE <= len(ids) <= MAX_TREND_COMPARE):
+        return HttpResponseBadRequest(
+            f"請選擇 {MIN_TREND_COMPARE}～{MAX_TREND_COMPARE} 筆測試記錄"
+        )
+
+    # 每一筆都走原本的權限檢查：沒有權限或不存在會直接 404
+    tests = [
+        get_viewable_record_or_404(
+            MeridianTest.objects.prefetch_related('readings'),
+            request.user,
+            pk=pk,
+        )
+        for pk in ids
+    ]
+
+    # 管理員看得到全部人的紀錄，這裡限制只能比較同一位受測者
+    if len({t.user_id for t in tests}) > 1:
+        return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
+
+    # 依測試日期排序，讓折線圖的顯示順序符合時間軸
+    tests.sort(key=lambda t: t.test_date)
+    return JsonResponse(
+        _build_meridian_trend(tests),
+        json_dumps_params={'ensure_ascii': False}, # 讓中文經絡名稱不被轉成unicode 亂碼
+    )
 
 @login_required(login_url="login")
 def meridian_update(request, pk):

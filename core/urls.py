@@ -23,6 +23,7 @@ from .views import (
     bfs_delete,
     bfs_file_view,
     meridian_file_view,
+    meridian_trend,
 )
 
 urlpatterns = [
@@ -49,4 +50,5 @@ urlpatterns = [
     path('bfs/<int:pk>/delete/', bfs_delete, name='bfs_delete'),
     path('bfs/<int:pk>/file/<int:file_number>', bfs_file_view, name='bfs_file_view'),
     path('meridian/<int:pk>/file/', meridian_file_view, name='meridian_file_view'),
+    path('meridian/trend/', meridian_trend, name='meridian_trend'),
 ]
