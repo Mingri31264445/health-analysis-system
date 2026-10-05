@@ -92,3 +92,35 @@
   font-size: 13px;
   font-weight: 700;
 }
+
+.bfs-compare-bar {
+  max-width: 900px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bfs-compare-hint {
+  font-size: 13px;
+  color: #6b767c;
+}
+
+.bfs-compare-bar .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bfs-compare-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #6a807a;
+}
+
+.bfs-compare-checkbox:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
