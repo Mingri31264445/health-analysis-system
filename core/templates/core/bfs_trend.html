@@ -1,0 +1,151 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BFS趨勢比較 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
+    <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bfs_trend.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <p>BFS Trend</p>
+          <h2>{{ patient_name }} 的 BFS 趨勢比較</h2>
+        </div>
+
+        <p class="bfs-meta">
+          共比較 {{ labels|length }} 次測試：{{ labels|join:"、" }}
+        </p>
+        <p class="bfs-trend-note">
+          平均等級 = 各等級點數依權重加總後，除以該部位的總點數，數值越高代表狀態越差；
+          最新與最早的差距在 0.05 以內視為持平。
+        </p>
+                {% if overall %}
+        <div class="bfs-file-block">
+          <div class="bfs-file-header">
+            <h3>整份報告平均</h3>
+          </div>
+
+          <table class="bfs-trend-table bfs-trend-summary">
+            <thead>
+              <tr>
+                <th class="trend-col-caption">項目</th>
+                {% for item in overall %}
+                <th>{{ item.label }}</th>
+                {% endfor %}
+                <th class="trend-col-diff">變化<br /><small>（最新 − 最早）</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="bfs-trend-overall">
+                <td>平均等級</td>
+                {% for item in overall %}
+                <td>{% if item.average is None %}—{% else %}{{ item.average|floatformat:2 }}{% endif %}</td>
+                {% endfor %}
+                <td class="bfs-trend-diff{% if overall_trend.trend %} trend-{{ overall_trend.trend }}{% endif %}">
+                  {% if overall_trend.trend == "better" %}↓ {{ overall_trend.diff|floatformat:2 }} 好轉
+                  {% elif overall_trend.trend == "worse" %}↑ +{{ overall_trend.diff|floatformat:2 }} 惡化
+                  {% elif overall_trend.trend == "same" %}持平
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>涵蓋檔案數</td>
+                {% for item in overall %}
+                <td>{{ item.file_count }}</td>
+                {% endfor %}
+                <td></td>
+              </tr>
+              <tr>
+                <td>總點數</td>
+                {% for item in overall %}
+                <td>{{ item.point_total }}</td>
+                {% endfor %}
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+
+          {% if coverage_differs %}
+          <p class="bfs-trend-warning">
+            ⚠ 各次測試包含的檔案數不同，整份報告平均的涵蓋範圍不一致，解讀時請留意。
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+        {% for chart in charts %}
+        <div class="bfs-file-block">
+          <div class="bfs-file-header">
+            <h3>{{ chart.template }}</h3>
+          </div>
+
+          <div class="bfs-trend-chart-wrap">
+            <canvas id="bfs-trend-chart-{{ forloop.counter0 }}"></canvas>
+          </div>
+
+          <table class="bfs-trend-table">
+            <thead>
+              <tr>
+                <th class="trend-col-no">#</th>
+                <th class="trend-col-caption">部位</th>
+                {% for label in labels %}
+                <th>{{ label }}</th>
+                {% endfor %}
+                <th class="trend-col-diff">變化<br /><small>（最新 − 最早）</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in chart.rows %}
+              <tr{% if row.is_overall %} class="bfs-trend-overall"{% endif %}>
+                <td>{{ row.label }}</td>
+                <td>{{ row.caption }}</td>
+                {% for v in row.values %}
+                <td>{% if v is None %}—{% else %}{{ v|floatformat:2 }}{% endif %}</td>
+                {% endfor %}
+                <td class="bfs-trend-diff{% if row.trend %} trend-{{ row.trend }}{% endif %}">
+                  {% if row.trend == "better" %}↓ {{ row.diff|floatformat:2 }} 好轉
+                  {% elif row.trend == "worse" %}↑ +{{ row.diff|floatformat:2 }} 惡化
+                  {% elif row.trend == "same" %}持平
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% empty %}
+        <p class="bfs-empty-note">所選的測試沒有可以比較的分析結果（需要兩次以上都包含的相同版型）。</p>
+        {% endfor %}
+
+        {{ chart_data|json_script:"bfs-trend-data" }}
+
+        <div class="bfs-actions">
+          <a href="{% url 'bfs_list' %}" class="btn btn-secondary">返回列表</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+    <script src="{% static 'js/bfs_trend.js' %}"></script>
+  </body>
+</html>

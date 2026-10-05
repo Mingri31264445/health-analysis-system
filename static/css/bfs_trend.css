@@ -1,0 +1,94 @@
+.bfs-trend-note {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  text-align: center;
+  color: #6b767c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.bfs-trend-chart-wrap {
+  position: relative;
+  height: 380px;
+  margin-bottom: 24px;
+}
+
+.bfs-trend-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bfs-trend-table th,
+.bfs-trend-table td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #ede8de;
+}
+
+.bfs-trend-table th {
+  color: #46545a;
+  font-weight: 700;
+  background: #f8f5f0;
+}
+
+.bfs-trend-table th.trend-col-no {
+  width: 44px;
+}
+
+.bfs-trend-table th.trend-col-caption {
+  width: 36%;
+  text-align: left;
+}
+
+.bfs-trend-table th.trend-col-diff {
+  width: 130px;
+}
+
+.bfs-trend-table td:nth-child(2) {
+  text-align: left;
+}
+
+.bfs-trend-table small {
+  font-weight: 400;
+  color: #8a8a8a;
+}
+
+.bfs-trend-overall td {
+  font-weight: 700;
+  color: #24343b;
+  background: #fbf9f5;
+}
+
+.bfs-trend-diff {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bfs-trend-diff.trend-better {
+  color: #5d7e69;
+}
+
+.bfs-trend-diff.trend-worse {
+  color: #c0504d;
+}
+
+.bfs-trend-diff.trend-same {
+  color: #6b767c;
+}
+
+.bfs-trend-summary td:first-child {
+  text-align: left;
+}
+
+.bfs-trend-summary td:nth-child(2) {
+  text-align: center;
+}
+
+.bfs-trend-warning {
+  margin-top: 14px;
+  color: #a26a2f;
+  font-size: 13px;
+  font-weight: 700;
+}

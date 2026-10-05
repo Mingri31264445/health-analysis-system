@@ -385,21 +385,16 @@ def _build_bfs_trend(tests, labels):
                 continue
             color = result['color_analysis']
             captions = result.get('detection', {}).get('detail', {}).get('captions', {})
-            group = groups.setdefault(template, {'regions': {}, 'scores': {}, 'overall': {}}) # setdefault() 會回傳指定 key 的 value，如果沒有就建立一個新的 dict
+            group = groups.setdefault(template, {'regions': {}, 'scores': {}}) # setdefault() 會回傳指定 key 的 value，如果沒有就建立一個新的 dict
             if idx in group['scores']:
                 continue  # 同一次測試出現兩份相同版型時，以第一份為準
             scores = group['scores'][idx] = {} # 連續建立 group['scores'][idx] 為空 dict，方便後續存放各部位的分數
-            weighted_total = 0
-            point_total = 0
             for region in color['regions_present']:
                 counts = color['quadrant_counts'][region] # 各等級的點數
                 total = color['quadrant_totals'][region] # 該部位的總點數
                 group['regions'].setdefault(region, captions.get(region, region))
                 weighted = _weighted_sum(counts) # 該部位的加權和
                 scores[region] = round(weighted / total, 2) if total else None # 避免除以零
-                weighted_total += weighted # 全部位的加權和
-                point_total += total # 全部位的點數總和(不乘以權重)
-            group['overall'][idx] = round(weighted_total / point_total, 2) if point_total else None # 整體 = 所有部位的加權和 ÷ 所有部位的點數總和
 
     charts = []
     for template in sorted(groups):
@@ -425,12 +420,38 @@ def _build_bfs_trend(tests, labels):
             _make_trend_row(str(i + 1), caption, [s['values'][i] for s in series]) # 將每個部位丟給 _make_trend_row() 去計算 diff
             for i, caption in enumerate(captions)
         ]
-        rows.append(_make_trend_row(
-            '', '整體平均', [group['overall'].get(idx) for idx in range(len(tests))], is_overall=True,
-        ))
         charts.append({'template': template, 'captions': captions, 'series': series, 'rows': rows})
     return charts
 
+def _build_bfs_overall(tests, labels):
+    """整份報告的平均等級：把該次測試所有檔案、所有部位的點數合併後計算。
+    同時回傳涵蓋的檔案數與總點數，方便看出各次測試涵蓋範圍是否一致。"""
+    overall = []
+    for test, label in zip(tests, labels):
+        weighted_total = 0
+        point_total = 0
+        file_count = 0
+        seen_templates = set()
+        for bfs_file in test.files.all():
+            result = bfs_file.analysis_result
+            template = bfs_file.detected_template
+            if not template or not result or 'color_analysis' not in result:
+                continue
+            if template in seen_templates:
+                continue  # 與趨勢圖一致：同一次測試出現兩份相同版型時，以第一份為準
+            seen_templates.add(template)
+            color = result['color_analysis']
+            for region in color['regions_present']:
+                weighted_total += _weighted_sum(color['quadrant_counts'][region])
+                point_total += color['quadrant_totals'][region]
+            file_count += 1
+        overall.append({
+            'label': label,
+            'average': round(weighted_total / point_total, 2) if point_total else None,
+            'file_count': file_count,
+            'point_total': point_total,
+        })
+    return overall
 
 @login_required(login_url="login")
 def bfs_trend(request):
@@ -460,5 +481,23 @@ def bfs_trend(request):
         return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
 
     tests.sort(key=lambda t: t.test_date)
-    charts = _build_bfs_trend(tests, _trend_labels(tests)) # 由舊到新
-    return JsonResponse({'charts': charts}, json_dumps_params={'ensure_ascii': False})
+    labels = _trend_labels(tests)
+    charts = _build_bfs_trend(tests, labels)
+    overall = _build_bfs_overall(tests, labels)
+    return render(request, "core/bfs_trend.html", {
+        'patient_name': tests[-1].patient_name,
+        'labels': labels,
+        'charts': charts,
+        # 整份報告平均
+        'overall': overall,
+        'overall_trend': _make_trend_row(
+            '', '整份報告平均', [o['average'] for o in overall], is_overall=True,
+        ),
+        # 各次測試涵蓋的檔案數不同時，提醒使用者解讀時要留意
+        'coverage_differs': len({o['file_count'] for o in overall}) > 1,
+        # 給圖表用的精簡資料（對照表用的 rows 不需要送進 JS）
+        'chart_data': [
+            {'template': c['template'], 'captions': c['captions'], 'series': c['series']}
+            for c in charts
+        ],
+    })
