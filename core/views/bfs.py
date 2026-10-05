@@ -219,6 +219,8 @@ def _build_display_rows(analysis_result):
 
     rows = []
     for region in color['regions_present']:
+        if not color['quadrant_totals'][region]:
+            continue  # 這個部位一個點都沒有，不顯示
         counts = color['quadrant_counts'][region]
         total = color['quadrant_totals'][region]
         levels = []
