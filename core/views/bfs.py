@@ -5,7 +5,7 @@ from django.templatetags.static import static as static_url
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -33,6 +33,12 @@ LEVEL_ICONS = {
     5: "images/bfs_levels/level_5.png",
     6: "images/bfs_levels/level_6.png",
 }
+
+# 平均等級的權重：等級數字越大代表狀態越差
+LEVEL_WEIGHTS = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
+MIN_TREND_COMPARE = 2
+MAX_TREND_COMPARE = 4
+TREND_STABLE_THRESHOLD = 0.05  # 前後差距不超過這個值視為持平
 
 def _resolve_upload_subject(request):
     subject_id = request.POST.get("subject") or request.GET.get("subject")
@@ -321,3 +327,138 @@ def bfs_delete(request, pk):
         return redirect('bfs_list')
 
     return redirect('bfs_detail', pk=bfs_test.pk)
+
+def _weighted_sum(counts):
+    """Σ(等級權重 * 該等級點數) JSON 存進資料庫後數字鍵會變字串"""
+    return sum(
+        weight * counts.get(str(level), counts.get(level, 0)) # 各等級的點數(count)乘上權重
+        for level, weight in LEVEL_WEIGHTS.items() # comprehension / generator expression 括號是必要的
+    )
+
+
+def _make_trend_row(label, caption, values, is_overall=False):
+    """對照表的一列。變化 = 最新 - 最早；並判斷這一列的趨勢是變好、變差還是持平"""
+    first, last = values[0], values[-1] # 取第一筆(values[0])與最後一筆(values[-1])的值
+    diff = round(last - first, 2) if first is not None and last is not None else None # 都有值才計算差距，否則 diff = None 四捨五入到小數點第二位才不會噴錯
+    if diff is None:
+        trend = None
+    elif diff > TREND_STABLE_THRESHOLD:
+        trend = 'worse'
+    elif diff < -TREND_STABLE_THRESHOLD:
+        trend = 'better'
+    else:
+        trend = 'same'
+    # 把這一列的資訊整理成 dict 回傳給前端
+    return {
+        'label': label,
+        'caption': caption,
+        'values': values,
+        'diff': diff,
+        'trend': trend,
+        'is_overall': is_overall,
+    }
+
+
+def _trend_labels(tests):
+    """如果同一天有多筆測試，則在日期後加上 (1)、(2)… 區別"""
+    labels = [timezone.localtime(t.test_date).strftime('%Y/%m/%d') for t in tests] # 把時間轉成本地時區，然後格式化成 YYYY/MM/DD 字串
+    # ['2026/09/01 (1)', '2026/09/01 (2)', '2026/09/08']
+    return [
+        f"{label} ({i + 1})" if labels.count(label) > 1 else label # 判斷同一個日期出現第二次以上
+        for i, label in enumerate(labels) # enumerate() 會把 labels 變成 (index, value) 的 tuple，i 是 index，label 是 value
+    ]
+
+
+def _build_bfs_trend(tests, labels):
+    """tests 需已依 test_date 由舊到新排序。
+    依 detected_template(bfs1、bfs2…)分組，每組一張圖；
+    同一組內用部位key對齊不同次測試,某次沒有的部位值為 None(折線會斷開)。"""
+    groups = {}
+    # 第幾次測試 = idx，測試本身 = test
+    for idx, test in enumerate(tests):
+        # 這次檢測底下的第幾份檔案 = bfs_file，檔案的分析結果 = result，檔案偵測到的版型 = template
+        for bfs_file in test.files.all():
+            result = bfs_file.analysis_result
+            template = bfs_file.detected_template
+            # 跳過沒用的檔案
+            if not template or not result or 'color_analysis' not in result:
+                continue
+            color = result['color_analysis']
+            captions = result.get('detection', {}).get('detail', {}).get('captions', {})
+            group = groups.setdefault(template, {'regions': {}, 'scores': {}, 'overall': {}}) # setdefault() 會回傳指定 key 的 value，如果沒有就建立一個新的 dict
+            if idx in group['scores']:
+                continue  # 同一次測試出現兩份相同版型時，以第一份為準
+            scores = group['scores'][idx] = {} # 連續建立 group['scores'][idx] 為空 dict，方便後續存放各部位的分數
+            weighted_total = 0
+            point_total = 0
+            for region in color['regions_present']:
+                counts = color['quadrant_counts'][region] # 各等級的點數
+                total = color['quadrant_totals'][region] # 該部位的總點數
+                group['regions'].setdefault(region, captions.get(region, region))
+                weighted = _weighted_sum(counts) # 該部位的加權和
+                scores[region] = round(weighted / total, 2) if total else None # 避免除以零
+                weighted_total += weighted # 全部位的加權和
+                point_total += total # 全部位的點數總和(不乘以權重)
+            group['overall'][idx] = round(weighted_total / point_total, 2) if point_total else None # 整體 = 所有部位的加權和 ÷ 所有部位的點數總和
+
+    charts = []
+    for template in sorted(groups):
+        group = groups[template]
+        if len(group['scores']) < 2:
+            continue  # 只有一次測試有這個版型，沒有趨勢可比
+        # 所有測試都沒有點數的部位（例如空象限）不顯示
+        region_keys = [
+            k for k in group['regions']
+            if any(group['scores'].get(idx, {}).get(k) is not None for idx in range(len(tests)))
+        ]
+        captions = [group['regions'][k] for k in region_keys]
+        series = []
+        for idx, test in enumerate(tests):
+            scores = group['scores'].get(idx, {}) # 如果這次測試沒有這個版型，則回傳空 dict
+            series.append({
+                'test_id': test.pk,
+                'label': labels[idx],
+                'values': [scores.get(k) for k in region_keys], # 沒有這個部位就是 None
+            })
+        # series 是每次檢測一列，對照表要的是每個部位一列，所以要把表格轉 90 度
+        rows = [
+            _make_trend_row(str(i + 1), caption, [s['values'][i] for s in series]) # 將每個部位丟給 _make_trend_row() 去計算 diff
+            for i, caption in enumerate(captions)
+        ]
+        rows.append(_make_trend_row(
+            '', '整體平均', [group['overall'].get(idx) for idx in range(len(tests))], is_overall=True,
+        ))
+        charts.append({'template': template, 'captions': captions, 'series': series, 'rows': rows})
+    return charts
+
+
+@login_required(login_url="login")
+def bfs_trend(request):
+    raw_ids = request.GET.get('ids', '')
+    try:
+        ids = list(dict.fromkeys(int(x) for x in raw_ids.split(',') if x.strip()))  # 去除重複 [12, 15, 20]
+    except ValueError:
+        return HttpResponseBadRequest("ids 格式錯誤") # ?ids=1,abc
+
+    if not (MIN_TREND_COMPARE <= len(ids) <= MAX_TREND_COMPARE):
+        return HttpResponseBadRequest(
+            f"請選擇 {MIN_TREND_COMPARE}～{MAX_TREND_COMPARE} 筆測試記錄"
+        )
+
+    # 每一筆都走原本的權限檢查：沒有權限或不存在會直接 404
+    # 避免有人用亂猜 id 的方式探測資料
+    tests = [
+        get_viewable_record_or_404(
+            BFSTest.objects.prefetch_related('files'),
+            request.user,
+            pk=pk,
+        )
+        for pk in ids
+    ]
+
+    if len({t.user_id for t in tests}) > 1:
+        return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
+
+    tests.sort(key=lambda t: t.test_date)
+    charts = _build_bfs_trend(tests, _trend_labels(tests)) # 由舊到新
+    return JsonResponse({'charts': charts}, json_dumps_params={'ensure_ascii': False})

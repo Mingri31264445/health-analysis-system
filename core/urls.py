@@ -24,6 +24,7 @@ from .views import (
     bfs_file_view,
     meridian_file_view,
     meridian_trend,
+    bfs_trend,
 )
 
 urlpatterns = [
@@ -51,4 +52,5 @@ urlpatterns = [
     path('bfs/<int:pk>/file/<int:file_number>', bfs_file_view, name='bfs_file_view'),
     path('meridian/<int:pk>/file/', meridian_file_view, name='meridian_file_view'),
     path('meridian/trend/', meridian_trend, name='meridian_trend'),
+    path('bfs/trend/', bfs_trend, name='bfs_trend'),
 ]
