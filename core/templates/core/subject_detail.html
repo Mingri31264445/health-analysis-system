@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ subject.name }}｜受測者資料</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=76">
 </head>
 <body>
     {% include "core/system_nav.html" %}
     <main class="system-page dashboard-page">
         <div class="dashboard-shell">
+            <nav class="workflow-path" aria-label="頁面路徑">
+                <a class="workflow-back" href="{{ return_url }}" aria-label="{{ return_label }}"><span aria-hidden="true">&#8592;</span><span class="workflow-back-label">{{ return_label }}</span></a>
+            </nav>
             <section class="dashboard-panel subject-profile-hero">
                 <div>
                     <p class="system-eyebrow">受測者詳細資料</p>
@@ -34,7 +37,9 @@
                         <h2>四項檢測狀態</h2>
                         <p class="dashboard-panel-note">同一位受測者可保留多筆面診、BFS 與經絡儀紀錄；問卷作為最新背景資料。</p>
                     </div>
-                    <a href="{% url 'dashboard' %}#subject-tracker" class="dashboard-text-link">返回工作台</a>
+                    <div class="dashboard-module-actions">
+                        <a href="{% url 'analysis_report' subject.id %}" class="is-primary">查看綜合結果</a>
+                    </div>
                 </div>
 
                 <div class="dashboard-module-grid subject-detail-module-grid">

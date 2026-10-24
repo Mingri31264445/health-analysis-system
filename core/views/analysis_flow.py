@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from ..forms import QuestionnaireForm
-from ..models import Questionnaire
+from ..models import BFSTest, MeridianTest, Questionnaire
 from .auth import safe_next_url, questionnaire_start_url
 
 FEATURES = {
@@ -61,34 +61,49 @@ def start_analysis_view(request):
         messages.info(request, "開始分析前，請先完成健康問卷。")
         return redirect(questionnaire_start_url())
 
+    bfs_records = BFSTest.objects.filter(user=request.user)
+    meridian_records = MeridianTest.objects.filter(user=request.user)
+    latest_bfs = bfs_records.first()
+    latest_meridian = meridian_records.first()
     modules = [
         {
             "eyebrow": "QUESTIONNAIRE",
             "label": "健康問卷",
             "description": "更新個人資料、病史與生活習慣，讓後續分析維持最新狀態。",
-            "action": "更新問卷",
-            "url": reverse("questionnaire") + f"?next={reverse('start_analysis')}",
+            "status": "已完成",
+            "latest": questionnaire.updated_at,
+            "primary_label": "更新問卷",
+            "primary_url": reverse("questionnaire") + f"?next={reverse('start_analysis')}",
         },
         {
             "eyebrow": FEATURES["face"]["eyebrow"],
             "label": FEATURES["face"]["label"],
-            "description": FEATURES["face"]["description"],
-            "action": FEATURES["face"]["action"],
-            "url": reverse("feature_gate", args=["face"]),
+            "description": "面診影像自助上傳尚未開放。",
+            "status": "尚未開放",
+            "primary_label": "查看面診說明",
+            "primary_url": reverse("feature_gate", args=["face"]),
         },
         {
             "eyebrow": FEATURES["bfs"]["eyebrow"],
             "label": FEATURES["bfs"]["label"],
-            "description": FEATURES["bfs"]["description"],
-            "action": FEATURES["bfs"]["action"],
-            "url": reverse("feature_gate", args=["bfs"]),
+            "description": "上傳報告，或查看同一帳號過去的量測紀錄。",
+            "status": f"已有 {bfs_records.count()} 筆紀錄" if latest_bfs else "尚無紀錄",
+            "latest": latest_bfs.test_date if latest_bfs else None,
+            "primary_label": "上傳 BFS 報告",
+            "primary_url": reverse("upload_bfs_test"),
+            "secondary_label": "查看紀錄",
+            "secondary_url": reverse("bfs_list"),
         },
         {
             "eyebrow": FEATURES["meridian"]["eyebrow"],
             "label": FEATURES["meridian"]["label"],
-            "description": FEATURES["meridian"]["description"],
-            "action": FEATURES["meridian"]["action"],
-            "url": reverse("feature_gate", args=["meridian"]),
+            "description": "上傳報告，或查看同一帳號過去的檢測紀錄。",
+            "status": f"已有 {meridian_records.count()} 筆紀錄" if latest_meridian else "尚無紀錄",
+            "latest": latest_meridian.test_date if latest_meridian else None,
+            "primary_label": "上傳經絡儀報告",
+            "primary_url": reverse("upload_meridian_result"),
+            "secondary_label": "查看紀錄",
+            "secondary_url": reverse("meridian_list"),
         },
     ]
 
@@ -98,6 +113,7 @@ def start_analysis_view(request):
         {
             "questionnaire": questionnaire,
             "modules": modules,
+            "result_url": reverse("analysis_report", args=[request.user.pk]),
         },
     )
 

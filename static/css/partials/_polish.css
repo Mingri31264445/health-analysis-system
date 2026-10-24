@@ -910,18 +910,6 @@ body::after {
   max-width: 100%;
 }
 
-.score-ring {
-  width: 168px;
-  height: 168px;
-  margin-left: 0;
-  background: conic-gradient(var(--color-primary) 0deg, #b7c5c0 290deg, #e8ece8 290deg 360deg);
-}
-
-.score-inner {
-  width: 120px;
-  height: 120px;
-}
-
 .result-card {
   min-height: 214px;
   padding: 24px;

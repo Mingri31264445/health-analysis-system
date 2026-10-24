@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject_name }}｜綜合分析結果</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+    <link rel="stylesheet" href="{% static 'css/analysis_report.css' %}">
+</head>
+<body>
+    {% include "core/system_nav.html" %}
+    <main class="system-page result-page">
+        <div class="result-shell">
+            {% include "core/workflow_back.html" %}
+            <header class="result-heading">
+                <div>
+                    <p class="result-eyebrow">COMPREHENSIVE RESULT</p>
+                    <h1>綜合分析結果</h1>
+                    <p>四項資料分開判定，再彙整為一個燈號。</p>
+                </div>
+            </header>
+
+            <div class="result-identity">
+                <span>受測者</span>
+                <strong>{{ subject_name }}</strong>
+                <small>{{ contact_line }}</small>
+            </div>
+
+            <section class="result-selection" aria-labelledby="selection-title">
+                <div class="result-section-heading">
+                    <div>
+                        <span>01 / RECORDS</span>
+                        <h2 id="selection-title">選擇本次判定資料</h2>
+                    </div>
+                    {% if report %}<a href="{% url 'analysis_report' subject.pk %}" class="result-text-link">改用最新資料</a>{% endif %}
+                </div>
+                <p class="result-muted">已帶入各項最新紀錄。每項選一筆作為本次綜合判定；BFS 與經絡儀的多次比較請使用各自的趨勢頁。</p>
+                {% if can_save %}
+                    <form method="post" class="result-form">
+                        {% csrf_token %}
+                        <div class="result-select-grid">
+                            {% for field in form %}
+                                <div class="result-field">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.name == 'bfs' %}
+                                        <small class="result-field-note"><a href="{{ bfs_history_url }}">查看 BFS 紀錄／比較趨勢</a></small>
+                                    {% elif field.name == 'meridian' %}
+                                        <small class="result-field-note"><a href="{{ meridian_history_url }}">查看經絡儀紀錄／比較趨勢</a></small>
+                                    {% endif %}
+                                    {% if field.errors %}<span class="result-error">{{ field.errors|join:"、" }}</span>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if not has_bfs or not has_meridian %}
+                            <p class="result-empty-hint">{% if not has_bfs %}此受測者尚無已綁定的 BFS 紀錄。{% endif %}{% if not has_meridian %}此受測者尚無已綁定的經絡儀紀錄。{% endif %}{% if user.is_staff %}舊紀錄請先在 <a href="{% url 'admin:core_bfstest_changelist' %}">管理後台</a>核對身分，再指定受測者帳號。{% endif %}</p>
+                        {% endif %}
+                        {% if dates_far_apart %}<p class="result-date-warning">所選資料日期相隔超過 30 天，請確認是否適合一起比較。</p>{% endif %}
+                        <div class="result-form-actions">
+                            <button type="submit">儲存這次結果</button>
+                            <span>缺少有效判定時，不產生總燈號。</span>
+                        </div>
+                    </form>
+                {% else %}
+                    <p class="result-muted">此帳號可查看結果，但不能替其他受測者儲存結果。</p>
+                {% endif %}
+            </section>
+
+            <div class="result-grid">
+                <section aria-labelledby="light-title">
+                    <div class="result-section-heading">
+                        <div><span>02 / OVERVIEW</span><h2 id="light-title">綜合分析燈號</h2></div>
+                    </div>
+                    <p class="result-muted">四項都有「有」或「無」的有效判定，才會亮起燈號。</p>
+                    <div class="result-light-row {% if overall == 'green' %}is-active{% endif %}">
+                        <i class="result-light is-green" aria-hidden="true"></i>
+                        <div><strong>綠燈｜無異常項目</strong><p>四項皆為「無」，共 0 項。</p></div>
+                    </div>
+                    <div class="result-light-row {% if overall == 'yellow' %}is-active{% endif %}">
+                        <i class="result-light is-yellow" aria-hidden="true"></i>
+                        <div><strong>黃燈｜部分項目需留意</strong><p>四項中有 1～2 項為「有」。</p></div>
+                    </div>
+                    <div class="result-light-row {% if overall == 'red' %}is-active{% endif %}">
+                        <i class="result-light is-red" aria-hidden="true"></i>
+                        <div><strong>紅燈｜多項結果需留意</strong><p>四項中有 3～4 項為「有」。</p></div>
+                    </div>
+                    <p class="result-outcome" role="status">
+                        目前狀態：{% if overall == 'green' %}綠燈{% elif overall == 'yellow' %}黃燈{% elif overall == 'red' %}紅燈{% else %}尚無分析結果{% endif %}
+                        {% if report %}<small>已儲存於 {{ report.created_at|date:"Y/m/d H:i" }}</small>{% else %}<small>尚未儲存</small>{% endif %}
+                    </p>
+                </section>
+                <section aria-labelledby="modules-title">
+                    <div class="result-section-heading">
+                        <div><span>03 / MODULES</span><h2 id="modules-title">四項判定依據</h2></div>
+                    </div>
+                    <p class="result-muted">每項對應上方選用的同一位受測者紀錄。</p>
+                    <div class="result-module-list">
+                        {% for row in rows %}
+                            <div class="result-module-row">
+                                <span class="result-module-number">0{{ forloop.counter }}</span>
+                                <div>
+                                    <strong>{{ row.label }}</strong>
+                                    <small>{{ row.date_label }}{% if row.record.id %} · #{{ row.record.id }}{% endif %}</small>
+                                    <p>{{ row.result.reason }}</p>
+                                </div>
+                                <span class="result-state is-{{ row.result.state }}">
+                                    {% if row.result.state == 'yes' %}有{% elif row.result.state == 'no' %}無{% else %}未完成{% endif %}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <section class="result-history" aria-labelledby="history-title">
+                <div class="result-section-heading">
+                    <div><span>04 / HISTORY</span><h2 id="history-title">已儲存的結果</h2></div>
+                </div>
+                {% if reports %}
+                    <div class="result-history-list">
+                        {% for item in reports %}
+                            <a href="{% url 'analysis_report' subject.pk %}?report={{ item.pk }}" class="result-history-row {% if report.pk == item.pk %}is-current{% endif %}">
+                                <strong>{{ item.created_at|date:"Y/m/d H:i" }}</strong>
+                                <span>{% if item.overall_result == 'green' %}綠燈{% elif item.overall_result == 'yellow' %}黃燈{% elif item.overall_result == 'red' %}紅燈{% else %}尚無分析結果{% endif %}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="result-muted">尚未儲存任何結果。</p>
+                {% endif %}
+            </section>
+            <footer class="result-footer">非醫療診斷依據</footer>
+        </div>
+    </main>
+    <script src="{% static 'js/main.js' %}?v=74"></script>
+</body>
+</html>

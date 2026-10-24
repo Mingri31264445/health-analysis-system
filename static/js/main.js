@@ -51,48 +51,25 @@ document.addEventListener("DOMContentLoaded", function () {
     resultCards.forEach((card) => resultObserver.observe(card));
   }
 
-  const scoreElement = document.getElementById("health-score");
+  const analysisCards = document.querySelectorAll("[data-module-result]");
+  const analysisResult = document.getElementById("analysis-result");
 
-  if (scoreElement) {
-    let animated = false;
+  if (analysisCards.length === 4 && analysisResult) {
+    const states = Array.from(analysisCards, (card) => card.dataset.moduleResult);
+    analysisCards.forEach((card) => {
+      const state = card.dataset.moduleResult;
+      card.querySelector(".result-badge").textContent =
+        state === "yes" ? "有" : state === "no" ? "無" : "未完成";
+    });
 
-    const scoreObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !animated) {
-            animated = true;
-
-            const target = parseInt(
-              scoreElement.getAttribute("data-target"),
-              10,
-            );
-            let current = 0;
-            const duration = 1600;
-            const stepTime = 20;
-            const steps = duration / stepTime;
-            const increment = target / steps;
-
-            const counter = setInterval(() => {
-              current += increment;
-
-              if (current >= target) {
-                scoreElement.textContent = target;
-                clearInterval(counter);
-              } else {
-                scoreElement.textContent = Math.floor(current);
-              }
-            }, stepTime);
-
-            scoreObserver.unobserve(scoreElement);
-          }
-        });
-      },
-      {
-        threshold: 0.4,
-      },
-    );
-
-    scoreObserver.observe(scoreElement);
+    if (states.every((state) => state === "yes" || state === "no")) {
+      const positiveCount = states.filter((state) => state === "yes").length;
+      const light = positiveCount === 0 ? "green" : positiveCount <= 2 ? "yellow" : "red";
+      const indicator = analysisResult.closest(".analysis-indicator");
+      indicator.classList.add("has-result");
+      indicator.querySelector(`[data-light="${light}"]`).closest(".analysis-light-row").classList.add("is-active");
+      analysisResult.textContent = `目前狀態：${{ green: "綠燈｜無異常項目", yellow: "黃燈｜部分項目需留意", red: "紅燈｜多項結果需留意" }[light]}`;
+    }
   }
 
   const navbar = document.querySelector(".navbar");
@@ -125,6 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (
     window.location.hash === "#subject-tracker" ||
+    window.location.hash === "#subject-list" ||
     window.location.hash === "#recent-records"
   ) {
     scrollToDashboardAnchor();

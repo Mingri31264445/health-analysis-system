@@ -14,12 +14,14 @@
         <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
         <nav class="nav-links">
           <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
         </nav>
       </div>
     </header>
 
-    <section class="section">
+    <section class="section workflow-section">
       <div class="container">
+        {% include "core/workflow_back.html" with record_parent_url=record_return_url record_parent_label="經絡儀紀錄" %}
         <div class="section-title">
           <p>Meridian Test</p>
           <h2>上傳經絡檢測報告</h2>
@@ -68,8 +70,8 @@
         </form>
 
         <div class="bfs-actions">
-          <a href="{% url 'meridian_list' %}" class="btn btn-secondary">
-            返回列表
+          <a href="{{ record_return_url }}" class="btn btn-secondary">
+            返回經絡儀紀錄
           </a>
         </div>
       </div>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BFS測試列表 AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=75" />
     <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bfs_trend.css' %}" />
   </head>
@@ -15,12 +15,14 @@
         <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
         <nav class="nav-links">
           <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
         </nav>
       </div>
     </header>
 
-    <section class="section">
+    <section class="section workflow-section" data-record-list data-list-user="{{ user.pk }}">
       <div class="container">
+        {% include "core/workflow_back.html" %}
         <div class="section-title">
           <p>{% if target_subject %}Subject BFS History{% elif can_view_all_records %}All BFS Records{% else %}My BFS Records{% endif %}</p>
           <h2>
@@ -34,7 +36,7 @@
           </h2>
         </div>
 
-        <div class="bfs-list-header">
+        <div class="bfs-list-header" id="records">
           <a href="{{ upload_url }}" class="btn btn-primary">
             上傳新的 BFS 測試
           </a>
@@ -44,7 +46,7 @@
         </div>
 
         {% if bfs_tests %}
-        {% if bfs_tests|length >= 2 %}
+        {% if comparable_count >= 2 %}
         <div class="bfs-compare-bar">
           <span class="bfs-compare-hint">勾選 2～4 筆同一受測者的紀錄，可比較趨勢</span>
           <button type="button" id="bfs-compare-btn" class="btn btn-primary"
@@ -56,7 +58,7 @@
         <div class="bfs-list">
           {% for test in bfs_tests %}
           <div class="bfs-list-item">
-            {% if bfs_tests|length >= 2 %}
+            {% if comparable_count >= 2 and test.user_id %}
             <input type="checkbox" class="bfs-compare-checkbox"
                    value="{{ test.pk }}" data-user="{{ test.user_id }}" aria-label="選取以比較趨勢">
             {% endif %}
@@ -71,6 +73,7 @@
               {% if test.has_issue %}
               <span class="result-badge warn">需要確認</span>
               {% endif %}
+              {% if not test.user_id %}<span class="result-badge warn">未綁定帳號</span>{% endif %}
             </a>
             {% if can_manage_all_records or test.user_id == user.id %}
               <form method="POST" action="{% url 'bfs_delete' test.pk %}"
@@ -96,6 +99,7 @@
       </div>
     </footer>
 
+    <script src="{% static 'js/record_list_navigation.js' %}"></script>
     <script src="{% static 'js/bfs_compare.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
   </body>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=76">
 </head>
 <body>
     <header class="navbar">
@@ -218,46 +218,64 @@
                         作為個人健康管理與專題研究展示之基礎。
                     </p>
 
-                    <div class="score-ring">
-                        <div class="score-inner">
-                            <span id="health-score" data-target="82">0</span>
-                            <small>健康分數</small>
+                    <div class="analysis-indicator">
+                        <div class="analysis-light-row">
+                            <span class="analysis-light analysis-light-green" data-light="green" aria-hidden="true"></span>
+                            <div class="analysis-light-copy">
+                                <strong>綠燈｜無異常項目</strong>
+                                <p>四個模組皆判定為「無」，共 0 項。</p>
+                            </div>
                         </div>
+                        <div class="analysis-light-row">
+                            <span class="analysis-light analysis-light-yellow" data-light="yellow" aria-hidden="true"></span>
+                            <div class="analysis-light-copy">
+                                <strong>黃燈｜部分項目需留意</strong>
+                                <p>四個模組中有 1～2 項判定為「有」。</p>
+                            </div>
+                        </div>
+                        <div class="analysis-light-row">
+                            <span class="analysis-light analysis-light-red" data-light="red" aria-hidden="true"></span>
+                            <div class="analysis-light-copy">
+                                <strong>紅燈｜多項結果需留意</strong>
+                                <p>四個模組中有 3～4 項判定為「有」。</p>
+                            </div>
+                        </div>
+                        <p class="analysis-indicator-result" id="analysis-result" role="status" aria-live="polite">目前狀態：尚無分析結果</p>
                     </div>
                 </div>
 
                 <div class="results-grid">
-                    <div class="result-card result-reveal result-delay-1 reveal">
+                    <div class="result-card result-reveal result-delay-1 reveal" data-module-result="pending">
                         <div class="result-top">
                             <span class="result-label">QUESTIONNAIRE</span>
-                            <span class="result-badge good">穩定</span>
+                            <span class="result-badge">未完成</span>
                         </div>
                         <h4>健康問卷分析</h4>
                         <p>根據生活作息與病史填答結果，系統可初步整理使用者目前健康風險與基本狀態。</p>
                     </div>
 
-                    <div class="result-card result-reveal result-delay-2 reveal">
+                    <div class="result-card result-reveal result-delay-2 reveal" data-module-result="pending">
                         <div class="result-top">
                             <span class="result-label">FACE IMAGE</span>
-                            <span class="result-badge warn">注意</span>
+                            <span class="result-badge">未完成</span>
                         </div>
                         <h4>面診影像觀察</h4>
                         <p>透過臉部影像特徵分析，輔助觀察個人狀態變化並作為視覺化展示依據。</p>
                     </div>
 
-                    <div class="result-card result-reveal result-delay-3 reveal">
+                    <div class="result-card result-reveal result-delay-3 reveal" data-module-result="pending">
                         <div class="result-top">
                             <span class="result-label">BFS DATA</span>
-                            <span class="result-badge normal">一般</span>
+                            <span class="result-badge">未完成</span>
                         </div>
                         <h4>BFS量測結果</h4>
                         <p>整合 BFS（生物頻譜回饋分析儀）檢測資料後，協助平台建立多面向健康數據分析基礎。</p>
                     </div>
 
-                    <div class="result-card result-reveal result-delay-4 reveal">
+                    <div class="result-card result-reveal result-delay-4 reveal" data-module-result="pending">
                         <div class="result-top">
                             <span class="result-label">MERIDIAN</span>
-                            <span class="result-badge good">良好</span>
+                            <span class="result-badge">未完成</span>
                         </div>
                         <h4>經絡檢測分析</h4>
                         <p>透過經絡檢測資訊補充健康分析維度，使平台呈現更完整的整合性健康評估概念。</p>
@@ -309,6 +327,6 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/main.js' %}?v=74"></script>
+    <script src="{% static 'js/main.js' %}?v=75"></script>
 </body>
 </html>

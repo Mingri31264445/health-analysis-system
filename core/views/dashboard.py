@@ -455,15 +455,6 @@ def build_subject_overview(
     else:
         face_primary_url = face_create_url
 
-    bfs_primary_url = (
-        reverse("bfs_detail", args=[latest_bfs.pk]) if latest_bfs else bfs_create_url
-    )
-    meridian_primary_url = (
-        reverse("meridian_detail", args=[latest_meridian.pk])
-        if latest_meridian
-        else meridian_create_url
-    )
-
     latest_activity = max(
         [
             date_value
@@ -505,25 +496,32 @@ def build_subject_overview(
             "key": "face",
             "number": "02",
             "label": "面診影像",
-            "state": f"{face_count} 筆" if face_count else "待建立",
+            "state": f"{face_count} 筆" if face_count else (
+                "尚未開放自助上傳" if subject_user.id == actor.id and not can_manage_all
+                else "待建立"
+            ),
             "description": "臉部影像與面診分析紀錄。",
             "date": latest_face.diagnosis_date if latest_face else None,
             "count": face_count,
             "complete": face_count > 0,
-            "actions": [
-                {
-                    "label": "查看最新" if latest_face else "新增面診",
-                    "url": face_primary_url,
-                    "primary": True,
-                },
-                {
-                    "label": "新增一筆" if latest_face else "查看列表",
-                    "url": face_create_url if latest_face else face_list_url,
-                    "primary": False,
-                },
-            ]
-            if face_primary_url
-            else [],
+            "actions": (
+                [
+                    {
+                        "label": "查看最新" if latest_face else "新增面診",
+                        "url": face_primary_url,
+                        "primary": True,
+                    },
+                    {
+                        "label": "新增一筆" if latest_face else "查看列表",
+                        "url": face_create_url if latest_face else face_list_url,
+                        "primary": False,
+                    },
+                ]
+                if can_manage_all else [
+                    {"label": "查看面診說明", "url": face_primary_url, "primary": False}
+                ]
+                if subject_user.id == actor.id else []
+            ),
         },
         {
             "key": "bfs",
@@ -536,17 +534,17 @@ def build_subject_overview(
             "complete": bfs_count > 0,
             "actions": [
                 {
-                    "label": "查看最新" if latest_bfs else "上傳 BFS",
-                    "url": bfs_primary_url,
+                    "label": "查看紀錄" if latest_bfs else "上傳 BFS",
+                    "url": bfs_list_url if latest_bfs else bfs_create_url,
                     "primary": True,
                 },
                 {
-                    "label": "新增一筆" if latest_bfs else "查看列表",
+                    "label": "上傳新的一筆" if latest_bfs else "查看紀錄",
                     "url": bfs_create_url if latest_bfs else bfs_list_url,
                     "primary": False,
                 },
             ]
-            if bfs_primary_url
+            if bfs_create_url
             else [],
         },
         {
@@ -560,17 +558,17 @@ def build_subject_overview(
             "complete": meridian_count > 0,
             "actions": [
                 {
-                    "label": "查看最新" if latest_meridian else "上傳經絡儀",
-                    "url": meridian_primary_url,
+                    "label": "查看紀錄" if latest_meridian else "上傳經絡儀",
+                    "url": meridian_list_url if latest_meridian else meridian_create_url,
                     "primary": True,
                 },
                 {
-                    "label": "新增一筆" if latest_meridian else "查看列表",
+                    "label": "上傳新的一筆" if latest_meridian else "查看紀錄",
                     "url": meridian_create_url if latest_meridian else meridian_list_url,
                     "primary": False,
                 },
             ]
-            if meridian_primary_url
+            if meridian_create_url
             else [],
         },
     ]
@@ -802,6 +800,10 @@ def dashboard_view(request):
         for subject in all_subject_overviews
         if subject_matches_filter(subject, subject_status_filter)
     ]
+    selected_subject_id = request.GET.get("subject", "")
+    if selected_subject_id.isdecimal():
+        selected_subject_pk = int(selected_subject_id)
+        subject_overviews.sort(key=lambda subject: subject["id"] != selected_subject_pk)
 
     record_counts = build_record_counts(record_querysets)
     recent_records = build_recent_records(record_querysets, user, can_manage_all)
@@ -883,12 +885,23 @@ def subject_detail_view(request, subject_id):
         history_limit=30,
         group_limit=None,
     )
+    if subject_user.pk == user.pk:
+        return_url = reverse("start_analysis")
+        return_label = "返回四項檢測"
+    elif can_view_all:
+        return_url = f"{reverse('dashboard')}?subject={subject_user.pk}#subject-list"
+        return_label = "返回受測者清單"
+    else:
+        return_url = reverse("start_analysis")
+        return_label = "返回四項檢測"
 
     return render(
         request,
         "core/subject_detail.html",
         {
             "subject": subject,
+            "return_url": return_url,
+            "return_label": return_label,
             "can_manage_all_records": can_manage_all_records(user),
             "can_view_all_records": can_view_all,
         },

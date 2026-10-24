@@ -21,6 +21,7 @@ from .permissions import (
     get_viewable_record_or_404,
     scope_viewable_records,
 )
+from .workflow_navigation import workflow_navigation
 
 
 LEVEL_NAMES = {1: "活躍", 2: "理想", 3: "暫緩", 4: "減弱", 5: "異常", 6: "嚴重"}
@@ -55,6 +56,7 @@ def _upload_context(form, request, subject_user):
         questionnaire.name if questionnaire else get_subject_display_name(subject_user)
     )
     return {
+        **workflow_navigation(request, subject_user, "bfs"),
         "form": form,
         "target_subject_user": subject_user,
         "target_subject_name": subject_name,
@@ -88,7 +90,9 @@ def bfs_list(request):
         )
 
     return render(request, "core/bfs_list.html", {
+        **workflow_navigation(request, target_subject, "bfs"),
         "bfs_tests": bfs_tests,
+        "comparable_count": sum(test.user_id is not None for test in bfs_tests),
         "target_subject": target_subject,
         "target_subject_name": get_subject_display_name(target_subject)
         if target_subject
@@ -264,6 +268,7 @@ def bfs_detail(request, pk):
         })
 
     return render(request, "core/bfs_detail.html", {
+        **workflow_navigation(request, bfs_test.user, "bfs"),
         'bfs_test': bfs_test,
         'files_display': files_display,
         'can_view_all_records': can_view_all_records(request.user),
@@ -309,6 +314,7 @@ def bfs_update(request, pk):
         form = BFSTestUpdateForm(instance=bfs_test)
 
     return render(request, "core/bfs_update.html", {
+        **workflow_navigation(request, bfs_test.user, "bfs"),
         'form': form,
         'bfs_test': bfs_test,
     })
@@ -322,11 +328,12 @@ def bfs_delete(request, pk):
     )
 
     if request.method == 'POST':
+        list_url = workflow_navigation(request, bfs_test.user, "bfs")["record_list_url"]
         for bfs_file in bfs_test.files.all():
             bfs_file.pdf_file.delete(save=False)  # 先刪實體檔案
         bfs_test.delete()  # 再刪資料庫記錄（CASCADE 會連帶清掉 BFSTestFile）
         messages.success(request, "測試記錄已刪除。")
-        return redirect('bfs_list')
+        return redirect(list_url)
 
     return redirect('bfs_detail', pk=bfs_test.pk)
 
@@ -479,14 +486,15 @@ def bfs_trend(request):
         for pk in ids
     ]
 
-    if len({t.user_id for t in tests}) > 1:
-        return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
+    if any(t.user_id is None for t in tests) or len({t.user_id for t in tests}) > 1:
+        return HttpResponseBadRequest("請先將紀錄綁定到同一位受測者，再比較趨勢")
 
     tests.sort(key=lambda t: t.test_date)
     labels = _trend_labels(tests)
     charts = _build_bfs_trend(tests, labels)
     overall = _build_bfs_overall(tests, labels)
     return render(request, "core/bfs_trend.html", {
+        **workflow_navigation(request, tests[-1].user, "bfs", selected_ids=ids),
         'patient_name': tests[-1].patient_name,
         'labels': labels,
         'charts': charts,

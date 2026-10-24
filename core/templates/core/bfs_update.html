@@ -14,12 +14,14 @@
         <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
         <nav class="nav-links">
           <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
         </nav>
       </div>
     </header>
 
-    <section class="section">
+    <section class="section workflow-section">
       <div class="container">
+        {% include "core/workflow_back.html" with record_parent_url=record_return_url record_parent_label="BFS 紀錄" %}
         <div class="section-title">
           <p>BFS Test</p>
           <h2>編輯 BFS 測試資料</h2>

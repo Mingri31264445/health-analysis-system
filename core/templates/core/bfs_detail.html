@@ -15,12 +15,14 @@
         <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
         <nav class="nav-links">
           <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
         </nav>
       </div>
     </header>
 
-    <section class="section">
+    <section class="section workflow-section">
       <div class="container">
+        {% include "core/workflow_back.html" with record_parent_url=record_return_url record_parent_label="BFS 紀錄" %}
         <div class="section-title">
           <p>BFS Test Result</p>
           <h2>{{ bfs_test.patient_name }} 的 BFS 測試結果</h2>
@@ -140,15 +142,15 @@
         {% endfor %}
 
         <div class="bfs-actions">
-          <a href="{% url 'bfs_list' %}" class="btn btn-secondary">
-            返回列表
+          <a href="{{ record_return_url }}" class="btn btn-secondary">
+            返回 BFS 紀錄
           </a>
           {% if can_manage_this_record %}
           <a href="{% url 'bfs_update' bfs_test.pk %}" class="btn btn-secondary">
             編輯資料
           </a>
           {% endif %}
-          <a href="{% url 'upload_bfs_test' %}" class="btn btn-primary">
+          <a href="{{ record_upload_url }}" class="btn btn-primary">
             上傳新的 BFS 測試
           </a>
           {% if can_manage_this_record %}

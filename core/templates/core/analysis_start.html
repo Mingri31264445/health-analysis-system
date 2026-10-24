@@ -11,6 +11,9 @@
     {% include "core/system_nav.html" %}
     <main class="system-page analysis-page">
         <section class="system-panel analysis-panel">
+            <nav class="workflow-path" aria-label="頁面路徑">
+                <a class="workflow-back" href="{% url 'home' %}"><span aria-hidden="true">&#8592;</span> 返回首頁</a>
+            </nav>
             <div class="analysis-hero">
                 <div>
                     <p class="system-eyebrow">START ANALYSIS</p>
@@ -41,14 +44,22 @@
 
             <div class="analysis-module-grid">
                 {% for module in modules %}
-                    <a href="{{ module.url }}" class="analysis-module-card">
+                    <article class="analysis-module-card">
                         <span>{{ module.eyebrow }}</span>
                         <strong>{{ module.label }}</strong>
+                        <div class="analysis-module-status">
+                            <span>{{ module.status }}</span>
+                            {% if module.latest %}<small>最近：{{ module.latest|date:"Y/m/d H:i" }}</small>{% endif %}
+                        </div>
                         <p>{{ module.description }}</p>
-                        <em>{{ module.action }} →</em>
-                    </a>
+                        <div class="analysis-module-actions">
+                            <a href="{{ module.primary_url }}" class="analysis-module-primary">{{ module.primary_label }}</a>
+                            {% if module.secondary_url %}<a href="{{ module.secondary_url }}" class="analysis-module-secondary">{{ module.secondary_label }}</a>{% endif %}
+                        </div>
+                    </article>
                 {% endfor %}
             </div>
+            <a href="{{ result_url }}" class="btn btn-primary">查看綜合結果</a>
         </section>
     </main>
     <script src="{% static 'js/main.js' %}?v=74"></script>

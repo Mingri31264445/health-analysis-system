@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工作台｜AI智慧面診健康平台</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=76">
 </head>
 <body>
     {% include "core/system_nav.html" %}
     <main class="system-page dashboard-page">
         <div class="dashboard-shell">
+            <nav class="workflow-path" aria-label="頁面路徑">
+                <a class="workflow-back" href="{% url 'home' %}"><span aria-hidden="true">&#8592;</span> 返回首頁</a>
+            </nav>
             <section class="dashboard-hero">
                 <div>
                     <p class="system-eyebrow">工作台</p>
@@ -146,7 +149,7 @@
 
                     {% if subject_overviews %}
                         <div class="dashboard-workbench">
-                            <div class="dashboard-subject-column">
+                            <div class="dashboard-subject-column" id="subject-list">
                                 <div class="dashboard-list-toolbar">
                                     <div class="dashboard-section-caption">
                                         {% if dashboard_query %}搜尋結果{% else %}受測者清單{% endif %}
@@ -335,6 +338,6 @@
             </section>
         </div>
     </main>
-    <script src="{% static 'js/main.js' %}?v=74"></script>
+    <script src="{% static 'js/main.js' %}?v=75"></script>
 </body>
 </html>

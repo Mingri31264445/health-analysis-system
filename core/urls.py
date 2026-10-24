@@ -25,6 +25,7 @@ from .views import (
     meridian_file_view,
     meridian_trend,
     bfs_trend,
+    analysis_report_view,
 )
 
 urlpatterns = [
@@ -35,6 +36,7 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("dashboard/", dashboard_view, name="dashboard"),
     path("dashboard/subjects/<int:subject_id>/", subject_detail_view, name="subject_detail"),
+    path("results/<int:subject_id>/", analysis_report_view, name="analysis_report"),
     path("start/", start_analysis_view, name="start_analysis"),
     path("questionnaire/", questionnaire_view, name="questionnaire"),
     path("analysis/<str:feature_key>/", feature_gate, name="feature_gate"),

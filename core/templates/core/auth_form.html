@@ -10,6 +10,9 @@
 <body>
     <main class="system-page">
         <section class="system-panel auth-panel">
+            <nav class="workflow-path" aria-label="頁面路徑">
+                <a class="workflow-back" href="{% url 'home' %}"><span aria-hidden="true">&#8592;</span> 返回首頁</a>
+            </nav>
             <a href="{% url 'home' %}" class="system-logo">AI智慧面診健康平台</a>
             <div class="auth-heading">
                 <p class="system-eyebrow">{{ mode|upper }}</p>

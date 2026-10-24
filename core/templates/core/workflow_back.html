@@ -1,0 +1,10 @@
+<nav class="workflow-path" aria-label="頁面路徑">
+    <a class="workflow-back" href="{{ workflow_url }}">
+        <span aria-hidden="true">&#8592;</span>
+        {{ workflow_label }}
+    </a>
+    {% if record_parent_url %}
+        <span class="workflow-path-divider" aria-hidden="true">/</span>
+        <a class="workflow-parent" href="{{ record_parent_url }}">{{ record_parent_label }}</a>
+    {% endif %}
+</nav>

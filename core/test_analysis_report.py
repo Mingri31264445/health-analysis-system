@@ -1,0 +1,191 @@
+from datetime import date, timedelta
+
+from django.contrib.auth.models import Group, User
+from django.test import TestCase
+from django.urls import reverse
+from django.utils import timezone
+
+from .models import AnalysisReport, BFSTest, BFSTestFile, MeridianReading, MeridianTest, Questionnaire
+from .services.analysis_report import (
+    bfs_result, meridian_result, overall_from_states, questionnaire_result,
+)
+from .views.permissions import RESEARCHER_GROUP_NAME
+
+
+class AnalysisReportTests(TestCase):
+    def setUp(self):
+        self.subject = User.objects.create_user(username="0911111111", password="pass")
+        self.other = User.objects.create_user(username="0922222222", password="pass")
+        self.staff = User.objects.create_user(
+            username="0933333333", password="pass", is_staff=True
+        )
+        self.questionnaire = Questionnaire.objects.create(
+            user=self.subject, name="王小明", gender="M", blood_type="O",
+            height=170, weight=65, birth_date=date(2000, 1, 1), sleep_hours=7,
+        )
+        self.url = reverse("analysis_report", args=[self.subject.pk])
+
+    def test_latest_record_is_preselected(self):
+        old = BFSTest.objects.create(
+            user=self.subject, patient_name="王小明",
+            test_date=timezone.now() - timedelta(days=4),
+        )
+        latest = BFSTest.objects.create(
+            user=self.subject, patient_name="王小明", test_date=timezone.now(),
+        )
+        self.client.force_login(self.subject)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].initial["bfs"], latest)
+        self.assertEqual(response.context["overall"], "")
+        self.assertContains(response, "尚無分析結果")
+        self.assertNotEqual(old.pk, latest.pk)
+
+    def test_entry_links_and_distant_dates_are_visible(self):
+        BFSTest.objects.create(
+            user=self.subject, patient_name="王小明",
+            test_date=timezone.now() - timedelta(days=45),
+        )
+        self.client.force_login(self.subject)
+
+        self.assertContains(self.client.get(reverse("start_analysis")), self.url)
+        self.assertContains(
+            self.client.get(reverse("subject_detail", args=[self.subject.pk])),
+            self.url,
+        )
+        self.assertContains(self.client.get(self.url), "日期相隔超過 30 天")
+
+    def test_unlinked_records_are_not_offered_as_subject_choices(self):
+        BFSTest.objects.create(patient_name="舊資料")
+        self.client.force_login(self.subject)
+
+        response = self.client.get(self.url)
+
+        self.assertContains(response, "此受測者尚無已綁定的 BFS 紀錄")
+        self.assertContains(response, "此帳號尚無 BFS 檢測紀錄")
+        self.assertContains(response, "查看 BFS 紀錄／比較趨勢")
+        self.assertFalse(response.context["has_bfs"])
+
+    def test_manual_choice_is_saved_and_new_upload_does_not_change_it(self):
+        chosen = BFSTest.objects.create(
+            user=self.subject, patient_name="王小明",
+            test_date=timezone.now() - timedelta(days=2),
+        )
+        BFSTest.objects.create(
+            user=self.subject, patient_name="王小明", test_date=timezone.now(),
+        )
+        self.client.force_login(self.subject)
+
+        response = self.client.post(self.url, {
+            "questionnaire": self.questionnaire.pk,
+            "face": "", "bfs": chosen.pk, "meridian": "",
+        })
+
+        self.assertEqual(response.status_code, 302)
+        report = AnalysisReport.objects.get()
+        self.assertEqual(report.bfs_id, chosen.pk)
+        self.assertEqual(report.selected_records["bfs"]["id"], chosen.pk)
+        self.assertEqual(report.module_results["questionnaire"]["state"], "no")
+        self.assertEqual(report.module_results["face"]["state"], "pending")
+        self.assertEqual(report.overall_result, "")
+
+        self.questionnaire.autoimmune_disease = True
+        self.questionnaire.save()
+        BFSTest.objects.create(
+            user=self.subject, patient_name="王小明",
+            test_date=timezone.now() + timedelta(days=1),
+        )
+        saved = self.client.get(f"{self.url}?report={report.pk}")
+        self.assertEqual(saved.context["report"].bfs_id, chosen.pk)
+        self.assertEqual(saved.context["rows"][0]["result"]["state"], "no")
+
+    def test_foreign_record_cannot_be_selected(self):
+        foreign = BFSTest.objects.create(user=self.other, patient_name="他人")
+        self.client.force_login(self.subject)
+
+        response = self.client.post(self.url, {
+            "questionnaire": self.questionnaire.pk,
+            "face": "", "bfs": foreign.pk, "meridian": "",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("bfs", response.context["form"].errors)
+        self.assertFalse(AnalysisReport.objects.exists())
+
+    def test_subject_access_and_researcher_write_permissions(self):
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(self.url).status_code, 404)
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+
+        researcher = User.objects.create_user(username="0944444444", password="pass")
+        group, _ = Group.objects.get_or_create(name=RESEARCHER_GROUP_NAME)
+        researcher.groups.add(group)
+        self.client.force_login(researcher)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+        self.assertEqual(self.client.post(self.url, {}).status_code, 403)
+
+    def test_report_rules_do_not_treat_missing_data_as_no(self):
+        self.assertEqual(overall_from_states(["no"] * 4), "green")
+        self.assertEqual(overall_from_states(["yes", "no", "no", "no"]), "yellow")
+        self.assertEqual(overall_from_states(["yes", "yes", "yes", "no"]), "red")
+        self.assertEqual(overall_from_states(["no", "no", "no", "pending"]), "")
+
+    def test_existing_module_rules_only_accept_complete_source_data(self):
+        self.assertEqual(questionnaire_result(self.questionnaire)["state"], "no")
+        self.questionnaire.autoimmune_disease = True
+        self.assertEqual(questionnaire_result(self.questionnaire)["state"], "yes")
+
+        bfs = BFSTest.objects.create(user=self.subject, patient_name="王小明")
+        self.assertEqual(bfs_result(bfs)["state"], "pending")
+        BFSTestFile.objects.create(
+            bfs_test=bfs, file_number=1, pdf_file="bfs_tests/test.pdf",
+            analysis_status="success",
+            analysis_result={"color_analysis": {
+                "total_all": 2, "quadrant_counts": {"左上": {"5": 1, "6": 0}},
+            }},
+        )
+        self.assertEqual(bfs_result(bfs)["state"], "yes")
+
+        meridian = MeridianTest.objects.create(
+            user=self.subject, patient_name="王小明", result_pdf="meridian_tests/test.pdf",
+            threshold_toohigh=90, threshold_toolow=10,
+        )
+        self.assertEqual(meridian_result(meridian)["state"], "pending")
+        MeridianReading.objects.bulk_create([
+            MeridianReading(
+                meridian_test=meridian, meridian=f"經絡{index}",
+                left_org=50, left_cmp=50, right_org=50, right_cmp=50,
+            ) for index in range(12)
+        ])
+        self.assertEqual(meridian_result(meridian)["state"], "no")
+        reading = meridian.readings.first()
+        reading.left_org = 95
+        reading.save()
+        self.assertEqual(meridian_result(meridian)["state"], "yes")
+
+    def test_trends_reject_records_without_verified_subject(self):
+        bfs_a = BFSTest.objects.create(patient_name="舊資料 A")
+        bfs_b = BFSTest.objects.create(patient_name="舊資料 B")
+        meridian_a = MeridianTest.objects.create(
+            patient_name="舊資料 A", result_pdf="meridian_tests/a.pdf"
+        )
+        meridian_b = MeridianTest.objects.create(
+            patient_name="舊資料 B", result_pdf="meridian_tests/b.pdf"
+        )
+        self.client.force_login(self.staff)
+
+        bfs_list = self.client.get(reverse("bfs_list"))
+        self.assertNotContains(bfs_list, 'class="bfs-compare-checkbox"')
+        self.assertEqual(
+            self.client.get(f"{reverse('bfs_trend')}?ids={bfs_a.pk},{bfs_b.pk}").status_code,
+            400,
+        )
+        self.assertEqual(
+            self.client.get(
+                f"{reverse('meridian_trend')}?ids={meridian_a.pk},{meridian_b.pk}"
+            ).status_code,
+            400,
+        )

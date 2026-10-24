@@ -11,13 +11,16 @@
     {% include "core/system_nav.html" %}
     <main class="system-page">
         <section class="system-panel feature-panel">
+            <nav class="workflow-path" aria-label="頁面路徑">
+                <a class="workflow-back" href="{% url 'start_analysis' %}"><span aria-hidden="true">&#8592;</span> 返回四項檢測</a>
+            </nav>
             <p class="system-eyebrow">{{ feature.eyebrow }}</p>
             <h1>{{ feature.label }}</h1>
             <p class="system-desc">{{ feature.description }}</p>
 
             <div class="feature-placeholder">
-                <span>下一階段功能頁</span>
-                <strong>{{ feature.action }}</strong>
+                <span>目前狀態</span>
+                <strong>受測者自助上傳尚未開放</strong>
                 <p>{{ feature.focus|default:"目前已完成登入與問卷前置檢查，後續可在此加入上傳、分析結果與報告內容。" }}</p>
             </div>
 
@@ -34,7 +37,7 @@
             {% endif %}
 
             <div class="form-actions">
-                <a href="{% url 'start_analysis' %}" class="system-secondary">返回分析入口</a>
+                <a href="{% url 'start_analysis' %}" class="system-secondary">返回四項檢測</a>
                 <a href="{% url 'questionnaire' %}?next={{ request.path }}" class="system-submit">更新健康問卷</a>
             </div>
         </section>

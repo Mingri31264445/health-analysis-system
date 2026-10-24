@@ -27,6 +27,7 @@ from .permissions import (
     get_viewable_record_or_404,
     scope_viewable_records,
 )
+from .workflow_navigation import workflow_navigation
 
 
 MERIDIANS_ORDER = ['肺經', '心包', '心經', '小腸', '三焦', '大腸', '脾經', '肝經', '腎經', '膀胱', '膽經', '胃經']
@@ -48,6 +49,7 @@ def _upload_context(form, request, subject_user):
         questionnaire.name if questionnaire else get_subject_display_name(subject_user)
     )
     return {
+        **workflow_navigation(request, subject_user, "meridian"),
         "form": form,
         "target_subject_user": subject_user,
         "target_subject_name": subject_name,
@@ -169,7 +171,9 @@ def meridian_list(request):
         )
 
     return render(request, "core/meridian_list.html", {
+        **workflow_navigation(request, target_subject, "meridian"),
         "meridian_tests": meridian_tests,
+        "comparable_count": sum(test.user_id is not None for test in meridian_tests),
         "target_subject": target_subject,
         "target_subject_name": get_subject_display_name(target_subject)
         if target_subject
@@ -210,6 +214,7 @@ def meridian_detail(request, pk):
         })
 
     return render(request, "core/meridian_detail.html", {
+        **workflow_navigation(request, test.user, "meridian"),
         'test': test,
         'rows': rows,
         'can_view_all_records': can_view_all_records(request.user),
@@ -274,13 +279,14 @@ def meridian_trend(request):
     ]
 
     # 管理員看得到全部人的紀錄，這裡限制只能比較同一位受測者
-    if len({t.user_id for t in tests}) > 1:
-        return HttpResponseBadRequest("只能比較同一位受測者的紀錄")
+    if any(t.user_id is None for t in tests) or len({t.user_id for t in tests}) > 1:
+        return HttpResponseBadRequest("請先將紀錄綁定到同一位受測者，再比較趨勢")
 
     # 將測試記錄列表按照測試日期由舊到新進行排序
     tests.sort(key=lambda t: t.test_date)
     # 把整理好的資料打包送給前端的 HTML 網頁模板（Template）來顯示
     return render(request, "core/meridian_trend.html", {
+        **workflow_navigation(request, tests[-1].user, "meridian", selected_ids=ids),
         'patient_name': tests[-1].patient_name,
         'payload': _build_meridian_trend(tests),
         'table_rows': _build_trend_table(tests),
@@ -334,6 +340,7 @@ def meridian_update(request, pk):
         form = MeridianTestUpdateForm(instance=test)
 
     return render(request, "core/meridian_update.html", {
+        **workflow_navigation(request, test.user, "meridian"),
         'form': form,
         'test': test,
     })
@@ -343,9 +350,10 @@ def meridian_delete(request, pk):
     test = get_manageable_record_or_404(MeridianTest.objects.all(), request.user, pk=pk)
 
     if request.method == 'POST':
+        list_url = workflow_navigation(request, test.user, "meridian")["record_list_url"]
         test.result_pdf.delete(save=False)  # 先刪實體 PDF
         test.delete()  # 再刪資料庫記錄（CASCADE 會連帶清掉 12 條 MeridianReading）
         messages.success(request, "測試記錄已刪除。")
-        return redirect('meridian_list')
+        return redirect(list_url)
 
     return redirect('meridian_detail', pk=test.pk)
