@@ -131,17 +131,18 @@ def upload_meridian_result(request):
 def _classify_reading(value, thresholds):
     """依門檻值把單一數值分成三色：
     'danger'（過高/過低）/ 'warn'（偏高/偏低）/ 'good'（正常）。
-    門檻值理論上 parse 成功一定有；但因欄位是 null=True，任一為 None（或值為 None）
-    時回傳 'unknown' 不做比較，避免 None > value 直接讓程式炸掉。"""
+    過高/過低門檻可能為 None (部分報表只畫高/均/低），此時不判 danger;
+    高/低門檻或數值本身為 None 時回傳 'unknown'，避免比較時的異常。"""
     too_high = thresholds['toohigh']
     high = thresholds['high']
     low = thresholds['low']
     too_low = thresholds['toolow']
 
-    if value is None or None in (too_high, high, low, too_low):
+    if value is None or high is None or low is None:
         return 'unknown'
 
-    if value > too_high or value < too_low:
+    if (too_high is not None and value > too_high) or \
+       (too_low is not None and value < too_low):
         return 'danger'
     if value > high or value < low:
         return 'warn'
