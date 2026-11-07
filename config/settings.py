@@ -146,3 +146,10 @@ if HAS_WHITENOISE and not DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 面診分析引擎：獨立的 Python 3.11 環境，由 Django 以子程序呼叫
+_face_engine_dir = os.environ.get('FACE_ENGINE_DIR')
+FACE_ENGINE_DIR = Path(_face_engine_dir) if _face_engine_dir else None
+FACE_CONFIDENCE = float(os.environ.get('FACE_CONFIDENCE', '0.10'))  # 低信心候選，結果需人工確認
+FACE_TIMEOUT_SECONDS = int(os.environ.get('FACE_TIMEOUT_SECONDS', '60'))  # 單次分析時間上限
+FACE_MAX_IMAGE_SIDE = int(os.environ.get('FACE_MAX_IMAGE_SIDE', '1600'))  # 分析前先縮圖，長邊上限（像素）
