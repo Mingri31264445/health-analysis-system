@@ -38,7 +38,15 @@ def questionnaire_result(questionnaire):
 def face_result(face):
     if face is None:
         return _result()
-    return _result(reason="尚無可確認的面診有／無判定")
+    if face.analysis_status == "failed":
+        return _result(reason="面診分析失敗，無法判定")
+    if face.analysis_status != "done":
+        return _result(reason="面診尚未完成分析")
+
+    total = (face.analysis_report or {}).get("total") or 0
+    if total > 0:
+        return _result("yes", f"偵測到 {total} 處候選病灶（模型尚未驗收，僅供輔助參考）")
+    return _result("no", "未偵測到候選病灶（模型尚未驗收，僅供輔助參考）")
 
 
 def bfs_result(bfs):
@@ -70,29 +78,34 @@ def bfs_result(bfs):
         "出現第 5 或 6 級項目" if positive else "未出現第 5 或 6 級項目",
     )
 
-
 def meridian_result(meridian):
     if meridian is None:
         return _result()
-    high = meridian.threshold_toohigh
-    low = meridian.threshold_toolow
+
+    # 5 線報告用「過高／過低」線；3 線報告沒有這兩條，退回用「高／低」線
+    uses_extreme_lines = (
+        meridian.threshold_toohigh is not None
+        and meridian.threshold_toolow is not None
+    )
+    high = meridian.threshold_toohigh if uses_extreme_lines else meridian.threshold_high
+    low = meridian.threshold_toolow if uses_extreme_lines else meridian.threshold_low
     readings = list(meridian.readings.all())
     if high is None or low is None or high <= low or len(readings) != 12:
         return _result(reason="經絡儀門檻或讀數尚未完整")
 
     positive = any(
-        value > high or value < low
+        value is not None and (value > high or value < low)
         for reading in readings
         for value in (
             reading.left_org, reading.left_cmp,
             reading.right_org, reading.right_cmp,
         )
     )
+    scope = "紅色警示範圍" if uses_extreme_lines else "高／低門檻外"
     return _result(
         "yes" if positive else "no",
-        "讀數出現紅色警示範圍" if positive else "讀數未進入紅色警示範圍",
+        f"讀數出現在{scope}" if positive else f"讀數未進入{scope}",
     )
-
 
 def overall_from_states(states):
     if not all(state in ("yes", "no") for state in states):

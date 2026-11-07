@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from ..forms import QuestionnaireForm
-from ..models import BFSTest, MeridianTest, Questionnaire
+from ..models import BFSTest, FaceDiagnosis, MeridianTest, Questionnaire
 from .auth import safe_next_url, questionnaire_start_url
 
 FEATURES = {
@@ -50,6 +50,7 @@ FEATURES = {
 }
 
 FEATURE_REDIRECTS = {
+    "face": "face_list",
     "bfs": "bfs_list",
     "meridian": "meridian_list",
 }
@@ -61,8 +62,10 @@ def start_analysis_view(request):
         messages.info(request, "開始分析前，請先完成健康問卷。")
         return redirect(questionnaire_start_url())
 
+    face_records = FaceDiagnosis.objects.filter(user=request.user)
     bfs_records = BFSTest.objects.filter(user=request.user)
     meridian_records = MeridianTest.objects.filter(user=request.user)
+    latest_face = face_records.first()
     latest_bfs = bfs_records.first()
     latest_meridian = meridian_records.first()
     modules = [
@@ -78,10 +81,13 @@ def start_analysis_view(request):
         {
             "eyebrow": FEATURES["face"]["eyebrow"],
             "label": FEATURES["face"]["label"],
-            "description": "面診影像自助上傳尚未開放。",
-            "status": "尚未開放",
-            "primary_label": "查看面診說明",
-            "primary_url": reverse("feature_gate", args=["face"]),
+            "description": "上傳正面照，AI 偵測臉部病灶，或查看過去的面診紀錄。",
+            "status": f"已有 {face_records.count()} 筆紀錄" if latest_face else "尚無紀錄",
+            "latest": latest_face.diagnosis_date if latest_face else None,
+            "primary_label": "上傳面診照片",
+            "primary_url": reverse("upload_face_diagnosis"),
+            "secondary_label": "查看紀錄",
+            "secondary_url": reverse("face_list"),
         },
         {
             "eyebrow": FEATURES["bfs"]["eyebrow"],
