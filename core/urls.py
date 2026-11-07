@@ -26,6 +26,12 @@ from .views import (
     meridian_trend,
     bfs_trend,
     analysis_report_view,
+    upload_face_diagnosis,
+    face_list,
+    face_detail,
+    face_update,
+    face_delete,
+    face_file_view,
 )
 
 urlpatterns = [
@@ -53,6 +59,12 @@ urlpatterns = [
     path('bfs/<int:pk>/delete/', bfs_delete, name='bfs_delete'),
     path('bfs/<int:pk>/file/<int:file_number>', bfs_file_view, name='bfs_file_view'),
     path('meridian/<int:pk>/file/', meridian_file_view, name='meridian_file_view'),
+    path("face/", face_list, name="face_list"),
+    path("face/upload/", upload_face_diagnosis, name="upload_face_diagnosis"),
+    path("face/<int:pk>/", face_detail, name="face_detail"),
+    path("face/<int:pk>/update/", face_update, name="face_update"),
+    path("face/<int:pk>/delete/", face_delete, name="face_delete"),
+    path("face/<int:pk>/image/<str:kind>/", face_file_view, name="face_file"),
     path('meridian/trend/', meridian_trend, name='meridian_trend'),
     path('bfs/trend/', bfs_trend, name='bfs_trend'),
 ]

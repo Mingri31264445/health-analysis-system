@@ -20,7 +20,11 @@ def workflow_navigation(request, subject_user=None, record_type=None, selected_i
     context = {"workflow_url": workflow_url, "workflow_label": workflow_label}
     if record_type:
         list_url = reverse(f"{record_type}_list")
-        upload_name = "upload_bfs_test" if record_type == "bfs" else "upload_meridian_result"
+        upload_name = {
+            "bfs": "upload_bfs_test",
+            "meridian": "upload_meridian_result",
+            "face": "upload_face_diagnosis",
+        }[record_type]
         upload_url = reverse(upload_name)
         if subject_user and subject_user.pk != request.user.pk and can_view_all_records(request.user):
             query = urlencode({"subject": subject_user.pk})
