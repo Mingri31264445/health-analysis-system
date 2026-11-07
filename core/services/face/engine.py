@@ -143,6 +143,22 @@ def analyze_front_image(image_path, result_dir):
         }
         for item in report['detections']
     ]
+    # 分區落位：每個病灶落在哪個區域、各臟腑數量、總覽圖。
+    # 失敗不影響原本的病灶偵測結果，只是少了分區資訊。
+    zones = None
+    try:
+        from .zoning import analyze_zones
+
+        zones = analyze_zones(
+            result_dir / 'preprocessed.png',
+            report['landmarks'],
+            detections,  # 會在每一筆加上 'zone'、'band' 欄位
+            result_dir / 'zones_overview.png',
+        )
+        saved_images['zones_overview'] = 'zones_overview.png'
+        saved_images['zones_photo'] = zones['photo_image']
+    except Exception:
+        logger.exception('面診分區落位失敗')
     class_counts = {}
     for item in detections:
         class_counts[item['class']] = class_counts.get(item['class'], 0) + 1
@@ -155,5 +171,6 @@ def analyze_front_image(image_path, result_dir):
         'class_counts': class_counts,
         'detections': detections,
         'images': saved_images,
+        'zones': zones,
         'note': '低信心候選結果，需人工確認，不作為診斷依據。',
     }
