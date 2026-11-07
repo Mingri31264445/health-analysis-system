@@ -1,0 +1,73 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>編輯面診備註 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section workflow-section">
+      <div class="container">
+        {% include "core/workflow_back.html" with record_parent_url=record_return_url record_parent_label="面診紀錄" %}
+        <div class="section-title">
+          <p>Face Diagnosis</p>
+          <h2>編輯面診備註</h2>
+        </div>
+
+        <p class="meridian-meta">
+          {{ record.patient_name }}｜{{ record.diagnosis_date|date:"Y-m-d H:i" }}
+        </p>
+
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+          {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="upload-form">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            {% for error in field.errors %}
+            <span class="field-error">{{ error }}</span>
+            {% endfor %}
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">儲存修改</button>
+            <a href="{% url 'face_detail' record.pk %}" class="btn btn-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>

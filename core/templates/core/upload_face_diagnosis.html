@@ -1,0 +1,111 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上傳面診照片 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=75" />
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section workflow-section">
+      <div class="container">
+        {% include "core/workflow_back.html" with record_parent_url=record_return_url record_parent_label="面診紀錄" %}
+        <div class="section-title">
+          <p>Face Diagnosis</p>
+          <h2>上傳面診照片</h2>
+        </div>
+
+        {% if not engine_available %}
+        <div class="form-errors">
+          <p>面診分析功能目前未啟用，暫時無法上傳，請聯絡系統管理員。</p>
+        </div>
+        {% endif %}
+
+        {% if messages %}
+        <div class="form-errors">
+          {% for message in messages %}
+          <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+          {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form" id="face-upload-form">
+          {% csrf_token %}
+          {% if show_upload_target %}
+          <input type="hidden" name="subject" value="{{ target_subject_user.id }}" />
+          <div class="upload-target-note">
+            <span>建立對象</span>
+            <strong>{{ target_subject_name }}</strong>
+            <small>{{ target_subject_user.username }}</small>
+          </div>
+          {% endif %}
+          {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }} {% if field.errors %} {% for error in field.errors %}
+            <span class="field-error">{{ error }}</span>
+            {% endfor %} {% endif %}
+          </div>
+          {% endfor %}
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="face-submit-btn"
+                    {% if not engine_available %}disabled{% endif %}>
+              上傳並分析
+            </button>
+            <p id="face-analyzing-note" style="display: none; margin-top: 8px;">
+              分析中，約需數秒，請勿關閉或重新整理頁面…
+            </p>
+          </div>
+        </form>
+
+        <div class="bfs-actions">
+          <a href="{{ record_return_url }}" class="btn btn-secondary">
+            返回面診紀錄
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}?v=74"></script>
+    <script>
+      // 送出後鎖住按鈕並顯示「分析中」，避免重複送出
+      (function () {
+        var form = document.getElementById("face-upload-form");
+        var btn = document.getElementById("face-submit-btn");
+        var note = document.getElementById("face-analyzing-note");
+        form.addEventListener("submit", function () {
+          btn.disabled = true;
+          btn.textContent = "分析中…";
+          note.style.display = "block";
+        });
+      })();
+    </script>
+  </body>
+</html>

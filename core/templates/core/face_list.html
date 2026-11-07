@@ -1,0 +1,104 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>面診紀錄列表 AI智慧面診健康平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=75" />
+    <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/meridian_trend.css' %}" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-inner">
+        <a href="{% url 'home' %}" class="logo">AI智慧面診健康平台</a>
+        <nav class="nav-links">
+          <a href="{% url 'home' %}">首頁</a>
+          <a href="{{ workflow_url }}">{{ workflow_label }}</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="section workflow-section" data-record-list data-list-user="{{ user.pk }}">
+      <div class="container">
+        {% include "core/workflow_back.html" %}
+        <div class="section-title">
+          <p>{% if target_subject %}Subject Face History{% elif can_view_all_records %}All Face Records{% else %}My Face Records{% endif %}</p>
+          <h2>
+            {% if target_subject %}
+              {{ target_subject_name }} 的面診紀錄
+            {% elif can_view_all_records %}
+              全部面診紀錄
+            {% else %}
+              我的面診紀錄
+            {% endif %}
+          </h2>
+        </div>
+
+        {% if messages %}
+        <div class="form-errors">
+          {% for message in messages %}
+          <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="meridian-list-header" id="records">
+          <a href="{{ upload_url }}" class="btn btn-primary">
+            上傳新的面診照片
+          </a>
+          {% if target_subject %}
+            <a href="{% url 'face_list' %}" class="btn btn-secondary">返回全部紀錄</a>
+          {% endif %}
+        </div>
+
+        {% if records %}
+        <div class="meridian-list">
+          {% for record in records %}
+          <div class="meridian-list-item">
+            <a href="{% url 'face_detail' record.pk %}" class="meridian-list-item-link">
+              <div class="meridian-list-item-main">
+                <span class="meridian-list-name">{{ record.patient_name }}</span>
+                <span class="meridian-list-date">{{ record.diagnosis_date|date:"Y-m-d H:i" }}</span>
+                <span class="meridian-list-date">
+                  {% if record.analysis_status == "done" %}
+                    候選偵測 {{ record.analysis_report.total|default:0 }} 處
+                  {% elif record.analysis_status == "failed" %}
+                    分析失敗
+                  {% else %}
+                    待分析
+                  {% endif %}
+                </span>
+                {% if can_view_all_records %}
+                  <span class="meridian-list-date">受測者：{{ record.subject_display_name }}</span>
+                {% endif %}
+                {% if not record.user_id %}<span class="meridian-list-date">未綁定帳號</span>{% endif %}
+              </div>
+            </a>
+            {% if can_manage_all_records or record.user_id == user.id %}
+              <form method="POST" action="{% url 'face_delete' record.pk %}"
+                    onsubmit="return confirm('確定要刪除 {{ record.patient_name }} 的這筆面診記錄嗎？照片與分析結果都會一併刪除，此操作無法復原。');">
+                {% csrf_token %}
+                <button type="submit" class="meridian-delete-btn" title="刪除">✕</button>
+              </form>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="meridian-empty-note">目前還沒有任何面診記錄，點上方按鈕開始第一筆上傳。</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>AI智慧面診健康平台 整合健康問卷、面診影像、BFS數據與經絡檢測</p>
+      </div>
+    </footer>
+
+    <script src="{% static 'js/record_list_navigation.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
+</html>
