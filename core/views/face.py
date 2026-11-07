@@ -34,10 +34,10 @@ from .workflow_navigation import workflow_navigation
 CLASS_LABELS = {
     "blackhead": "黑頭粉刺",
     "whitehead": "白頭粉刺",
-    "papule": "丘疹",
-    "pustule": "膿皰",
-    "nodule": "結節",
-    "cyst": "囊腫",
+    "papule": "丘疹型痘痘",
+    "pustule": "膿皰型痘痘",
+    "nodule": "結節型痘痘",
+    "cyst": "囊腫型痘痘",
 }
 
 # 原圖欄位對照
