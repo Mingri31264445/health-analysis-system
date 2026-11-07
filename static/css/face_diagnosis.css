@@ -1,34 +1,271 @@
-.face-image-grid {
+/* ===== 面診結果頁 ===== */
+
+.face-note {
+  font-size: 14px;
+  color: #6b767c;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+/* 區塊標題 */
+.face-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 40px 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #24343b;
+}
+
+.face-heading::before {
+  content: "";
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: #5d7e69;
+}
+
+/* 卡片 */
+.face-card {
+  background: #fff;
+  border: 1.5px solid #ddd8ce;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.face-card h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #24343b;
+}
+
+/* 摘要 */
+.face-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
-  margin: 16px 0 24px;
+  grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
 }
 
-.face-image-card {
+.face-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.face-stat-label {
+  font-size: 13px;
+  color: #6b767c;
+}
+
+.face-stat-value {
+  font-family: "Noto Serif TC", serif;
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #24343b;
+}
+
+.face-stat-sub {
+  font-size: 13px;
+  color: #8a949a;
+}
+
+.face-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.face-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid #ddd8ce;
+  border-radius: 999px;
+  background: #f8f5f0;
+  font-size: 14px;
+  color: #46545a;
+}
+
+.face-chip b {
+  color: #5d7e69;
+}
+
+/* 圖片 */
+.face-figure {
   margin: 0;
-  text-align: center;
 }
 
-.face-image-card img {
+.face-figure img {
+  display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  border-radius: 10px;
 }
 
-.face-image-card figcaption {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #555;
+.face-figure figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6b767c;
+  text-align: center;
+  line-height: 1.5;
 }
 
-.face-disclaimer {
-  background: #fff8e1;
-  border-left: 4px solid #f0b429;
-  padding: 12px 16px;
-  margin: 16px 0;
-  border-radius: 4px;
+.face-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.face-grid-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.face-grid-photos .face-figure img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+/* 分區落位 */
+.face-zone-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.face-zone-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 臟腑長條 */
+.face-bar-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
   font-size: 14px;
-  line-height: 1.6;
+  color: #46545a;
+}
+
+.face-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: #ede8de;
+}
+
+.face-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--n) / var(--max) * 100%);
+  min-width: 10px;
+  border-radius: 5px;
+  background: #5d7e69;
+}
+
+.face-bar-count {
+  text-align: right;
+  font-weight: 700;
+  color: #24343b;
+}
+
+/* 病灶所在區域 */
+.face-zone-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #ede8de;
+  font-size: 14px;
+}
+
+.face-zone-row:last-child {
+  border-bottom: none;
+}
+
+.face-zone-name {
+  color: #24343b;
+}
+
+.face-zone-organ {
+  font-size: 12px;
+  color: #6b767c;
+}
+
+.face-zone-count {
+  min-width: 20px;
+  text-align: right;
+  font-weight: 700;
+  color: #5d7e69;
+}
+
+/* 各區編號對照（可收合） */
+.face-legend {
+  margin-top: 16px;
+}
+
+.face-legend summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #46545a;
+}
+
+.face-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 2px 18px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.face-legend-grid li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #6b767c;
+}
+
+.face-legend-grid li.is-hit {
+  background: #eef4f0;
+  color: #24343b;
+  font-weight: 600;
+}
+
+.face-legend-no {
+  min-width: 24px;
+  color: #8a949a;
+  font-variant-numeric: tabular-nums;
+}
+
+.face-legend-count {
+  margin-left: auto;
+  color: #5d7e69;
+}
+
+/* 手機 */
+@media (max-width: 820px) {
+  .face-stats,
+  .face-grid-3,
+  .face-zone-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

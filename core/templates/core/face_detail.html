@@ -46,71 +46,174 @@
           {% endif %}
         </p>
 
-        <div class="face-disclaimer">
-          以下為 AI 影像偵測的「候選結果」，目前模型尚未通過驗收，可能有漏判或誤判，
-          僅供輔助參考，不能作為診斷依據。目前僅分析正面照，側面照僅留存、不納入分析。
-        </div>
-
         {% if record.analysis_status == "failed" %}
         <div class="form-errors">
           <p>分析失敗：{{ record.analysis_error|default:"未知原因" }}</p>
         </div>
+        {% elif record.analysis_status == "pending" %}
+        <p class="face-note">尚未分析。</p>
         {% endif %}
 
-        <h3>分析結果</h3>
         {% if record.analysis_status == "done" %}
-          <p>
-            信心門檻 {{ report.confidence_threshold }}，共偵測到 <strong>{{ report.total|default:0 }}</strong> 處候選病灶。
-          </p>
-          {% if class_counts %}
-          <ul>
-            {% for item in class_counts %}
-            <li>{{ item.label }}：{{ item.count }} 處</li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>此照片在目前門檻下未偵測到候選病灶。</p>
+
+        <!-- 摘要 -->
+        <div class="face-stats">
+          <div class="face-card face-stat">
+            <span class="face-stat-label">候選病灶</span>
+            <strong class="face-stat-value">{{ report.total|default:0 }}</strong>
+            <span class="face-stat-sub">信心門檻 {{ report.confidence_threshold }}</span>
+          </div>
+          <div class="face-card face-stat">
+            <span class="face-stat-label">病灶類別</span>
+            <div class="face-chips">
+              {% for item in class_counts %}
+              <span class="face-chip">{{ item.label }} <b>{{ item.count }}</b></span>
+              {% empty %}
+              <span class="face-stat-sub">未偵測到候選病灶</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% if report.zones %}
+          <div class="face-card face-stat">
+            <span class="face-stat-label">落點臟腑</span>
+            <div class="face-chips">
+              {% for item in report.zones.organs %}
+              <span class="face-chip">{{ item.organ }} <b>{{ item.count }}</b></span>
+              {% empty %}
+              <span class="face-stat-sub">沒有病灶落入分區</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- 偵測與影像處理 -->
+        <h3 class="face-heading">偵測與影像處理</h3>
+        <div class="face-grid-3">
+          {% if result_images.spots_boxes %}
+          <figure class="face-card face-figure">
+            <img src="{% url 'face_file' record.pk 'spots_boxes' %}" alt="病灶偵測框" />
+            <figcaption>病灶偵測（方框）</figcaption>
+          </figure>
+          {% endif %}
+          {% if result_images.face_mesh %}
+          <figure class="face-card face-figure">
+            <img src="{% url 'face_file' record.pk 'face_mesh' %}" alt="臉部網格" />
+            <figcaption>臉部關鍵點網格</figcaption>
+          </figure>
+          {% endif %}
+          {% if result_images.skin_mask %}
+          <figure class="face-card face-figure">
+            <img src="{% url 'face_file' record.pk 'skin_mask' %}" alt="皮膚區域" />
+            <figcaption>皮膚區域遮罩</figcaption>
+          </figure>
+          {% endif %}
+        </div>
+
+        <!-- 分區落位 -->
+        {% if report.zones %}
+        <h3 class="face-heading">臉部分區落位</h3>
+        <p class="face-note">
+          依本校教授提供的面部反射區圖劃分（共 {{ report.zones.zone_total }} 區），
+          再以論文的分區補足圖上未涵蓋的部位；病灶落在哪一區，就計入該區對應的臟腑。
+          區域位置為近似值，僅供輔助參考。
+        </p>
+
+        <div class="face-zone-layout">
+          {% if result_images.zones_photo or result_images.zones_overview %}
+          <figure class="face-card face-figure face-zone-figure">
+            {% if result_images.zones_photo %}
+            <a href="{% url 'face_file' record.pk 'zones_photo' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'zones_photo' %}" alt="臉部分區總覽" />
+            </a>
+            <figcaption>圖上編號對應下方「各區編號對照」；紅圈為候選病灶（點圖開大圖）</figcaption>
+            {% else %}
+            <a href="{% url 'face_file' record.pk 'zones_overview' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'zones_overview' %}" alt="臉部分區總覽" />
+            </a>
+            <figcaption>紅圈為候選病灶，右側為各區編號與病灶數（點圖開大圖）</figcaption>
+            {% endif %}
+          </figure>
           {% endif %}
 
-          <div class="face-image-grid">
-            {% if result_images.spots_boxes %}
-            <figure class="face-image-card">
-              <img src="{% url 'face_file' record.pk 'spots_boxes' %}" alt="病灶偵測框" />
-              <figcaption>病灶偵測（方框）</figcaption>
-            </figure>
-            {% endif %}
-            {% if result_images.face_mesh %}
-            <figure class="face-image-card">
-              <img src="{% url 'face_file' record.pk 'face_mesh' %}" alt="臉部網格" />
-              <figcaption>臉部關鍵點網格</figcaption>
-            </figure>
-            {% endif %}
-            {% if result_images.skin_mask %}
-            <figure class="face-image-card">
-              <img src="{% url 'face_file' record.pk 'skin_mask' %}" alt="皮膚區域" />
-              <figcaption>皮膚區域遮罩</figcaption>
-            </figure>
+          <div class="face-zone-side">
+            <div class="face-card">
+              <h4>各臟腑候選數</h4>
+              {% if report.zones.organs %}
+              <div class="face-bars" style="--max: {{ report.zones.organs.0.count }}">
+                {% for item in report.zones.organs %}
+                <div class="face-bar-row">
+                  <span class="face-bar-name">{{ item.organ }}</span>
+                  <span class="face-bar" style="--n: {{ item.count }}"></span>
+                  <span class="face-bar-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="face-note">沒有候選病灶落入任何分區。</p>
+              {% endif %}
+            </div>
+
+            {% if report.zones.hit_zones %}
+            <div class="face-card">
+              <h4>病灶所在區域</h4>
+              <div class="face-zone-list">
+                {% for zone in report.zones.hit_zones %}
+                <div class="face-zone-row">
+                  <span class="face-zone-name">{{ zone.name }}</span>
+                  <span class="face-zone-organ">{{ zone.organ }}</span>
+                  <span class="face-zone-count">{{ zone.count }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% if report.zones.outside_zone %}
+              <p class="face-note">另有 {{ report.zones.outside_zone }} 處落在分區之外。</p>
+              {% endif %}
+            </div>
             {% endif %}
           </div>
-        {% elif record.analysis_status == "pending" %}
-          <p>尚未分析。</p>
+        </div>
+
+        {% if report.zones.legend %}
+        <details class="face-card face-legend">
+          <summary>各區編號對照（共 {{ report.zones.zone_total }} 區，有病灶的區域已標示）</summary>
+          <ul class="face-legend-grid">
+            {% for item in report.zones.legend %}
+            <li{% if item.count %} class="is-hit"{% endif %}>
+              <span class="face-legend-no">{{ item.no }}</span>
+              <span class="face-legend-name">{{ item.name }}</span>
+              {% if item.count %}<b class="face-legend-count">{{ item.count }}</b>{% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </details>
+        {% endif %}
         {% endif %}
 
-        <h3>原始照片</h3>
-        <div class="face-image-grid">
-          <figure class="face-image-card">
-            <img src="{% url 'face_file' record.pk 'front' %}" alt="正面照" />
+        {% endif %}
+
+        <!-- 原始照片 -->
+        <h3 class="face-heading">原始照片</h3>
+        <div class="face-grid-photos">
+          <figure class="face-card face-figure">
+            <a href="{% url 'face_file' record.pk 'front' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'front' %}" alt="正面照" />
+            </a>
             <figcaption>正面（已分析）</figcaption>
           </figure>
           {% if record.right_image %}
-          <figure class="face-image-card">
-            <img src="{% url 'face_file' record.pk 'right' %}" alt="右側照" />
+          <figure class="face-card face-figure">
+            <a href="{% url 'face_file' record.pk 'right' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'right' %}" alt="右側照" />
+            </a>
             <figcaption>右側（僅留存）</figcaption>
           </figure>
           {% endif %}
           {% if record.left_image %}
-          <figure class="face-image-card">
-            <img src="{% url 'face_file' record.pk 'left' %}" alt="左側照" />
+          <figure class="face-card face-figure">
+            <a href="{% url 'face_file' record.pk 'left' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'left' %}" alt="左側照" />
+            </a>
             <figcaption>左側（僅留存）</figcaption>
           </figure>
           {% endif %}
