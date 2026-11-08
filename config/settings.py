@@ -153,3 +153,10 @@ FACE_ENGINE_DIR = Path(_face_engine_dir) if _face_engine_dir else None
 FACE_CONFIDENCE = float(os.environ.get('FACE_CONFIDENCE', '0.10'))  # 低信心候選，結果需人工確認
 FACE_TIMEOUT_SECONDS = int(os.environ.get('FACE_TIMEOUT_SECONDS', '60'))  # 單次分析時間上限
 FACE_MAX_IMAGE_SIDE = int(os.environ.get('FACE_MAX_IMAGE_SIDE', '1600'))  # 分析前先縮圖，長邊上限（像素）
+
+# 公開網址（HTTPS）設定：只在 .env 設 HTTPS_ONLY=True 的機器啟用。
+# 本機用 http://127.0.0.1 測試時不要開，否則登入的 Cookie 不會被帶上。
+if os.environ.get('HTTPS_ONLY', 'False') == 'True':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
