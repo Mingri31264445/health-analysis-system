@@ -65,6 +65,26 @@
 .result-history-row span { color: #52665e; }
 .result-footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #dfd8ce; color: #aa6a5a; text-align: right; font-size: 13px; font-weight: 700; }
 
+.result-systems { margin-top: 55px; padding-top: 24px; border-top: 1px solid #dfd8ce; }
+.result-systems .result-section-heading small { color: #69757b; font-size: 13px; }
+.result-systems-scroll { overflow-x: auto; border-top: 1px solid #dfd8ce; }
+.result-systems-table { width: 100%; min-width: 860px; border-collapse: collapse; table-layout: fixed; }
+.result-systems-table th { padding: 14px 8px; text-align: left; color: #5e706a; font-size: 13px; font-weight: 800; border-bottom: 1px solid #dfd8ce; }
+.result-systems-table th:first-child, .result-systems-table td:first-child { width: 19%; padding-left: 2px; }
+.result-systems-table th:last-child, .result-systems-table td:last-child { width: 19%; }
+.result-systems-table td { height: 56px; padding: 10px 8px; border-bottom: 1px solid #e7e2d9; font-size: 14px; }
+.result-systems-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, .28); }
+.result-systems-table .result-system-name { color: #26353a; font-size: 14px; font-weight: 700; }
+.result-signal { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; color: #53625e; font-weight: 700; }
+.result-signal.is-overall { color: #26353a; font-weight: 800; }
+.result-dot { width: 19px; height: 19px; border-radius: 50%; box-shadow: inset 0 1px 3px rgba(27, 38, 32, .1), 0 0 0 2px rgba(76, 100, 88, .1); }
+.result-signal.is-overall .result-dot { width: 25px; height: 25px; }
+.result-dot.is-no, .result-dot.is-green { background: #4f9670; }
+.result-dot.is-yes, .result-dot.is-yellow { background: #d3a638; }
+.result-dot.is-red { background: #ba655e; }
+.result-dot.is-pending { background: #c9c6bf; }
+.result-systems-note { margin-top: 14px; }
+
 @media (max-width: 920px) {
   .result-select-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .result-grid { grid-template-columns: 1fr; gap: 36px; }

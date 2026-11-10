@@ -113,9 +113,49 @@
                 </section>
             </div>
 
+            {% if system_rows %}
+            <section class="result-systems" aria-labelledby="systems-title">
+                <div class="result-section-heading">
+                    <div><span>04 / SYSTEMS</span><h2 id="systems-title">身體系統分析對照</h2></div>
+                    <small>七個身體系統 × 四項分析模組</small>
+                </div>
+                <div class="result-systems-scroll">
+                    <table class="result-systems-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">身體系統</th>
+                                {% for row in rows %}<th scope="col">{{ row.label }}</th>{% endfor %}
+                                <th scope="col">綜合燈號</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for system in system_rows %}
+                                <tr>
+                                    <th scope="row" class="result-system-name">{{ system.label }}</th>
+                                    {% for cell in system.cells %}
+                                        <td>
+                                            <span class="result-signal" title="{{ cell.reason }}">
+                                                <i class="result-dot is-{{ cell.state }}" aria-hidden="true"></i>{% if cell.state == 'yes' %}有{% elif cell.state == 'no' %}無{% else %}尚無{% endif %}
+                                            </span>
+                                        </td>
+                                    {% endfor %}
+                                    <td>
+                                        <span class="result-signal is-overall">
+                                            <i class="result-dot is-{{ system.overall|default:'pending' }}" aria-hidden="true"></i>{% if system.overall == 'green' %}綠燈{% elif system.overall == 'yellow' %}黃燈{% elif system.overall == 'red' %}紅燈{% else %}尚無分析結果{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="result-muted result-systems-note">缺少任一模組有效判定時，應顯示「尚無分析結果」，不將缺漏當作「無」。</p>
+            </section>
+            {% endif %}
+
             <section class="result-history" aria-labelledby="history-title">
                 <div class="result-section-heading">
-                    <div><span>04 / HISTORY</span><h2 id="history-title">已儲存的結果</h2></div>
+                    <div><span>05 / HISTORY</span><h2 id="history-title">已儲存的結果</h2></div>
                 </div>
                 {% if reports %}
                     <div class="result-history-list">

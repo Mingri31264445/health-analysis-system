@@ -99,6 +99,7 @@ def analysis_report_view(request, subject_id):
         "contact_line": get_subject_contact_line(subject),
         "form": form,
         "rows": rows,
+        "system_rows": results.get("systems", []),
         "overall": overall,
         "report": report,
         "reports": reports[:15],

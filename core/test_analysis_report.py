@@ -7,8 +7,10 @@ from django.utils import timezone
 
 from .models import AnalysisReport, BFSTest, BFSTestFile, MeridianReading, MeridianTest, Questionnaire
 from .services.analysis_report import (
-    bfs_result, meridian_result, overall_from_states, questionnaire_result,
+    bfs_result, bfs_systems, build_system_rows, face_systems, meridian_result,
+    meridian_systems, overall_from_states, questionnaire_result, questionnaire_systems,
 )
+from .services.system_mapping import SYSTEM_KEYS, bfs_quadrant_systems
 from .views.permissions import RESEARCHER_GROUP_NAME
 
 
@@ -189,3 +191,94 @@ class AnalysisReportTests(TestCase):
             ).status_code,
             400,
         )
+
+
+class SystemTableTests(TestCase):
+    def setUp(self):
+        self.subject = User.objects.create_user(username="0955555555", password="pass")
+
+    def _questionnaire(self, **flags):
+        return Questionnaire.objects.create(
+            user=self.subject, name="王小明", gender="M", blood_type="O",
+            height=170, weight=65, birth_date=date(2000, 1, 1), sleep_hours=7, **flags,
+        )
+
+    def test_questionnaire_fields_light_only_their_own_system(self):
+        cells = questionnaire_systems(self._questionnaire(diabetes=True, lung_asthma=True))
+        self.assertEqual(cells["endocrine"]["state"], "yes")
+        self.assertEqual(cells["respiratory"]["state"], "yes")
+        self.assertEqual(cells["cardio"]["state"], "no")
+        self.assertEqual(set(cells), set(SYSTEM_KEYS))
+
+    def test_missing_module_is_pending_for_every_system(self):
+        for evaluator in (questionnaire_systems, face_systems, bfs_systems, meridian_systems):
+            self.assertEqual({c["state"] for c in evaluator(None).values()}, {"pending"})
+
+    def test_every_system_is_reachable_from_bfs_templates(self):
+        from .services.system_mapping import _bfs_templates
+        covered = set()
+        for template in _bfs_templates():
+            for systems in bfs_quadrant_systems(template).values():
+                covered.update(systems)
+        self.assertEqual(covered, set(SYSTEM_KEYS))
+        self.assertEqual(
+            bfs_quadrant_systems("bfs1")["左下"], {"digestive", "endocrine", "immune"},
+        )
+
+    def test_bfs_lights_systems_of_severe_quadrant_and_leaves_missing_files_pending(self):
+        bfs = BFSTest.objects.create(user=self.subject, patient_name="王小明")
+        BFSTestFile.objects.create(
+            bfs_test=bfs, file_number=1, pdf_file="bfs_tests/a.pdf",
+            analysis_status="success", detected_template="bfs3",
+            analysis_result={"color_analysis": {
+                "total_all": 4,
+                "quadrant_counts": {
+                    "左上": {"5": 1, "6": 0}, "右上": {"5": 0, "6": 0},
+                    "左下": {"5": 0, "6": 0}, "右下": {"5": 0, "6": 0},
+                },
+            }},
+        )
+        cells = bfs_systems(bfs)
+        self.assertEqual(cells["respiratory"]["state"], "yes")
+        self.assertEqual(cells["urinary"]["state"], "no")
+        self.assertEqual(cells["cardio"]["state"], "pending")
+
+    def test_meridian_maps_real_meridian_names_to_systems(self):
+        meridian = MeridianTest.objects.create(
+            user=self.subject, patient_name="王小明", result_pdf="meridian_tests/t.pdf",
+            threshold_toohigh=90, threshold_toolow=10,
+        )
+        names = ["肺經", "心包", "心經", "小腸", "三焦", "大腸", "脾經", "肝經", "腎經", "膀胱", "膽經", "胃經"]
+        MeridianReading.objects.bulk_create([
+            MeridianReading(
+                meridian_test=meridian, meridian=name,
+                left_org=95 if name == "三焦" else 50, left_cmp=50, right_org=50, right_cmp=50,
+            ) for name in names
+        ])
+        cells = meridian_systems(meridian)
+        self.assertEqual(cells["endocrine"]["state"], "yes")
+        self.assertEqual(cells["respiratory"]["state"], "no")
+        self.assertEqual(set(cells), set(SYSTEM_KEYS))
+
+    def test_face_zones_map_to_systems(self):
+        from .models import FaceDiagnosis
+        face = FaceDiagnosis.objects.create(
+            user=self.subject, patient_name="王小明", front_image="face_diagnosis/t.png",
+            analysis_status="done",
+            analysis_report={"total": 2, "zones": {"hit_zones": [
+                {"id": "pancreas_L", "organ": "胰", "count": 1},
+                {"id": "temple_R", "organ": "—", "count": 1},
+            ]}},
+        )
+        cells = face_systems(face)
+        self.assertEqual(cells["endocrine"]["state"], "yes")
+        self.assertEqual(cells["digestive"]["state"], "yes")
+        self.assertEqual(cells["neuro"]["state"], "yes")
+        self.assertEqual(cells["respiratory"]["state"], "no")
+
+    def test_system_overall_requires_all_four_modules(self):
+        rows = build_system_rows({"questionnaire": self._questionnaire()})
+        self.assertEqual(len(rows), 7)
+        self.assertTrue(all(row["overall"] == "" for row in rows))
+        self.assertEqual(rows[0]["cells"][0]["state"], "no")
+        self.assertEqual(rows[0]["cells"][1]["state"], "pending")
