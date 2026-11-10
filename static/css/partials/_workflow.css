@@ -147,3 +147,17 @@
     width: 100%;
   }
 }
+
+/* 開始分析頁：外層面板不要白底與陰影（被 _polish.css 的 .system-panel 蓋回來了），
+   「查看綜合結果」按鈕置中 */
+.system-panel.analysis-panel {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.analysis-result-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
