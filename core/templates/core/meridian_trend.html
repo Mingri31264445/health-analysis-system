@@ -7,7 +7,7 @@
     <title>經絡趨勢比較 AI智慧面診健康平台</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/meridian_trend.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/meridian_trend.css' %}?v=2" />
   </head>
   <body>
     <header class="navbar">
@@ -62,7 +62,7 @@
                 {% for cell in row.cells %}
                 <td class="meridian-cell meridian-{{ cell.level }}">{% if cell.value is None %}—{% else %}{{ cell.value }}{% endif %}</td>
                 {% endfor %}
-                <td class="trend-diff">
+                <td class="trend-diff{% if row.diff is not None %}{% if row.diff > 0 %} is-up{% elif row.diff < 0 %} is-down{% endif %}{% endif %}">
                   {% if row.diff is None %}—{% elif row.diff > 0 %}↑ +{{ row.diff }}{% elif row.diff < 0 %}↓ {{ row.diff }}{% else %}持平{% endif %}
                 </td>
               </tr>

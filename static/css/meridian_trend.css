@@ -49,3 +49,14 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* 變化欄：上升紅字、下降綠字（只改文字顏色，不加背景） */
+.trend-diff.is-up {
+  color: #f2271c;
+  font-weight: 800;
+}
+
+.trend-diff.is-down {
+  color: #12b34a;
+  font-weight: 800;
+}
