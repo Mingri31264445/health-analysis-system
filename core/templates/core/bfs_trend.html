@@ -7,7 +7,7 @@
     <title>BFS趨勢比較 AI智慧面診健康平台</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/bfs_trend.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bfs_trend.css' %}?v=4" />
   </head>
   <body>
     <header class="navbar">
@@ -31,11 +31,30 @@
         <p class="bfs-meta">
           共比較 {{ labels|length }} 次測試：{{ labels|join:"、" }}
         </p>
-        <p class="bfs-trend-note">
-          平均等級 = 各等級點數依權重加總後，除以該部位的總點數，數值越高代表狀態越差；
-          最新與最早的差距在 0.05 以內視為持平。
-        </p>
-                {% if overall %}
+        <section class="bfs-legend" aria-labelledby="bfs-legend-title">
+          <h3 id="bfs-legend-title">BFS 等級對照</h3>
+          <ul class="bfs-legend-grid">
+            {% for level in level_legend %}
+            <li class="bfs-legend-item">
+              <img src="{{ level.icon_url }}" alt="第 {{ level.number }} 級" class="bfs-legend-icon" />
+              <div>
+                <strong>第 {{ level.number }} 級｜{{ level.name }}</strong>
+                <span>{{ level.description }}</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="bfs-formula">
+            <h4>計算公式</h4>
+            <p class="bfs-formula-main">平均等級 ＝ （1 × 第 1 級點數 ＋ 2 × 第 2 級點數 ＋ … ＋ 6 × 第 6 級點數）÷ 總點數</p>
+            <ul>
+              <li>總點數是該部位（或整份報告）所有等級的點數相加。</li>
+              <li>最新與最早的平均等級差距在 0.05 以內，視為持平。</li>
+              <li>第 5、6 級代表異常與嚴重，綜合報告以這兩級判定。</li>
+            </ul>
+          </div>
+        </section>
+        {% if overall %}
         <div class="bfs-file-block">
           <div class="bfs-file-header">
             <h3>整份報告平均</h3>

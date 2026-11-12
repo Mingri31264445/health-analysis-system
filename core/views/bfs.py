@@ -38,6 +38,16 @@ LEVEL_ICONS = {
     6: "images/bfs_levels/level_6.png",
 }
 
+# 等級對照圖例的說明文字（趨勢頁最上方）
+LEVEL_DESCRIPTIONS = {
+    1: "表示目前該部位為新生狀態",
+    2: "該處現為最佳的理想狀態（標準狀態）",
+    3: "生理機能暫緩（受限狀態）（標準狀態）",
+    4: "生理機能減弱（衰弱狀態）",
+    5: "生理機能異常（失常狀態）",
+    6: "生理調節機能嚴重異常，明顯病理狀態（失常狀態）",
+}
+
 # 平均等級的權重：等級數字越大代表狀態越差
 LEVEL_WEIGHTS = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
 MIN_TREND_COMPARE = 2
@@ -500,6 +510,15 @@ def bfs_trend(request):
     overall = _build_bfs_overall(tests, labels)
     return render(request, "core/bfs_trend.html", {
         **workflow_navigation(request, tests[-1].user, "bfs", selected_ids=ids),
+        'level_legend': [
+            {
+                'number': number,
+                'name': LEVEL_NAMES[number],
+                'description': LEVEL_DESCRIPTIONS[number],
+                'icon_url': static_url(LEVEL_ICONS[number]),
+            }
+            for number in LEVEL_NAMES
+        ],
         'patient_name': tests[-1].patient_name,
         'labels': labels,
         'charts': charts,
