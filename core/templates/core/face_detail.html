@@ -59,9 +59,8 @@
         <!-- 摘要 -->
         <div class="face-stats">
           <div class="face-card face-stat">
-            <span class="face-stat-label">候選病灶</span>
+            <span class="face-stat-label">病灶</span>
             <strong class="face-stat-value">{{ report.total|default:0 }}</strong>
-            <span class="face-stat-sub">信心門檻 {{ report.confidence_threshold }}</span>
           </div>
           <div class="face-card face-stat">
             <span class="face-stat-label">病灶類別</span>
@@ -69,7 +68,7 @@
               {% for item in class_counts %}
               <span class="face-chip">{{ item.label }} <b>{{ item.count }}</b></span>
               {% empty %}
-              <span class="face-stat-sub">未偵測到候選病灶</span>
+              <span class="face-stat-sub">未偵測到病灶</span>
               {% endfor %}
             </div>
           </div>
@@ -110,7 +109,7 @@
         {% if report.zones %}
         <h3 class="face-heading">臉部分區落位</h3>
         <p class="face-note">
-          依本校教授提供的面部反射區圖劃分（共 {{ report.zones.zone_total }} 區），
+          依面部與人體臟腑對應示意圖（共 {{ report.zones.zone_total }} 區），
           再以論文的分區補足圖上未涵蓋的部位；病灶落在哪一區，就計入該區對應的臟腑。
           區域位置為近似值，僅供輔助參考。
         </p>
@@ -122,19 +121,19 @@
             <a href="{% url 'face_file' record.pk 'zones_photo' %}" target="_blank">
               <img src="{% url 'face_file' record.pk 'zones_photo' %}" alt="臉部分區總覽" />
             </a>
-            <figcaption>圖上編號對應下方「各區編號對照」；紅圈為候選病灶（點圖開大圖）</figcaption>
+            <figcaption>圖上編號對應下方「各區編號對照」；紅圈為病灶（點圖開大圖）</figcaption>
             {% else %}
             <a href="{% url 'face_file' record.pk 'zones_overview' %}" target="_blank">
               <img src="{% url 'face_file' record.pk 'zones_overview' %}" alt="臉部分區總覽" />
             </a>
-            <figcaption>紅圈為候選病灶，右側為各區編號與病灶數（點圖開大圖）</figcaption>
+            <figcaption>紅圈為病灶，右側為各區編號與病灶數（點圖開大圖）</figcaption>
             {% endif %}
           </figure>
           {% endif %}
 
           <div class="face-zone-side">
             <div class="face-card">
-              <h4>各臟腑候選數</h4>
+              <h4>各臟腑病灶數</h4>
               {% if report.zones.organs %}
               <div class="face-bars" style="--max: {{ report.zones.organs.0.count }}">
                 {% for item in report.zones.organs %}
@@ -146,7 +145,7 @@
                 {% endfor %}
               </div>
               {% else %}
-              <p class="face-note">沒有候選病灶落入任何分區。</p>
+              <p class="face-note">沒有病灶落入任何分區。</p>
               {% endif %}
             </div>
 
