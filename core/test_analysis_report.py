@@ -103,6 +103,35 @@ class AnalysisReportTests(TestCase):
         self.assertEqual(saved.context["report"].bfs_id, chosen.pk)
         self.assertEqual(saved.context["rows"][0]["result"]["state"], "no")
 
+    def test_changing_selection_previews_without_saving(self):
+        older = BFSTest.objects.create(
+            user=self.subject, patient_name="王小明",
+            test_date=timezone.now() - timedelta(days=2),
+        )
+        BFSTest.objects.create(
+            user=self.subject, patient_name="王小明", test_date=timezone.now(),
+        )
+        self.client.force_login(self.subject)
+
+        response = self.client.get(self.url, {
+            "questionnaire": "", "face": "", "bfs": older.pk, "meridian": "",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_preview"])
+        rows = {row["key"]: row for row in response.context["rows"]}
+        self.assertEqual(rows["bfs"]["record"]["id"], older.pk)
+        self.assertEqual(rows["questionnaire"]["result"]["state"], "pending")
+        self.assertEqual(AnalysisReport.objects.count(), 0)
+
+    def test_preview_with_foreign_record_is_rejected(self):
+        foreign = BFSTest.objects.create(user=self.other, patient_name="別人")
+        self.client.force_login(self.subject)
+        response = self.client.get(self.url, {"bfs": foreign.pk})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["overall"], "")
+        self.assertEqual(AnalysisReport.objects.count(), 0)
+
     def test_foreign_record_cannot_be_selected(self):
         foreign = BFSTest.objects.create(user=self.other, patient_name="他人")
         self.client.force_login(self.subject)

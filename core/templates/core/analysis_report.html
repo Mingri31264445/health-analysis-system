@@ -33,9 +33,9 @@
                         <span>01 / RECORDS</span>
                         <h2 id="selection-title">選擇本次判定資料</h2>
                     </div>
-                    {% if report %}<a href="{% url 'analysis_report' subject.pk %}" class="result-text-link">改用最新資料</a>{% endif %}
+                    {% if report or is_preview %}<a href="{% url 'analysis_report' subject.pk %}" class="result-text-link">改用最新資料</a>{% endif %}
                 </div>
-                <p class="result-muted">已帶入各項最新紀錄。每項選一筆作為本次綜合判定；BFS 與經絡儀的多次比較請使用各自的趨勢頁。</p>
+                <p class="result-muted">已帶入各項最新紀錄。每項選一筆作為本次綜合判定，選好後下方結果會立即更新；按「儲存這次結果」才會留存成歷史紀錄。BFS 與經絡儀的多次比較請使用各自的趨勢頁。</p>
                 {% if can_save %}
                     <form method="post" class="result-form">
                         {% csrf_token %}
@@ -183,5 +183,24 @@
         </div>
     </main>
     <script src="{% static 'js/main.js' %}?v=74"></script>
+    <script>
+        // 下拉選單一改變，就帶著目前的選擇重新載入，下方結果即時更新（不會儲存）
+        (function () {
+            var selects = document.querySelectorAll('.result-form .result-select');
+            if (!selects.length) return;
+            try {
+                var y = sessionStorage.getItem('reportScrollY');
+                if (y !== null) { sessionStorage.removeItem('reportScrollY'); window.scrollTo(0, parseInt(y, 10) || 0); }
+            } catch (e) {}
+            selects.forEach(function (select) {
+                select.addEventListener('change', function () {
+                    var params = new URLSearchParams();
+                    selects.forEach(function (item) { params.set(item.name, item.value); });
+                    try { sessionStorage.setItem('reportScrollY', String(window.scrollY)); } catch (e) {}
+                    window.location.href = window.location.pathname + '?' + params.toString();
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

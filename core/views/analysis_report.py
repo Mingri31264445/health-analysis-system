@@ -24,6 +24,7 @@ def analysis_report_view(request, subject_id):
     can_save = request.user.pk == subject.pk or can_manage_all_records(request.user)
     reports = AnalysisReport.objects.filter(subject=subject)
     report = None
+    is_preview = False
     if request.method == "GET" and request.GET.get("report"):
         report = get_object_or_404(reports, pk=request.GET["report"])
 
@@ -53,6 +54,10 @@ def analysis_report_view(request, subject_id):
             )
             url = reverse("analysis_report", args=[subject.pk])
             return redirect(f"{url}?report={report.pk}")
+    elif report is None and any(key in request.GET for key, _label in MODULES):
+        # 下拉選單一改就用網址帶選擇回來，即時預覽；不會存成歷史紀錄
+        form = AnalysisRecordForm(request.GET, subject=subject)
+        is_preview = True
     else:
         form = AnalysisRecordForm(subject=subject, selected=selected)
 
@@ -65,9 +70,12 @@ def analysis_report_view(request, subject_id):
         results = {}
         overall = ""
     else:
-        selected = {
-            key: form.initial[key] for key, _label in MODULES
-        }
+        if form.is_bound:
+            selected = form.cleaned_data
+        else:
+            selected = {
+                key: form.initial[key] for key, _label in MODULES
+            }
         records, results, overall = build_report_data(selected)
 
     rows = [
@@ -103,6 +111,7 @@ def analysis_report_view(request, subject_id):
         "overall": overall,
         "yes_count": sum(1 for row in rows if row["result"].get("state") == "yes"),
         "report": report,
+        "is_preview": is_preview,
         "reports": reports[:15],
         "can_save": can_save,
         "dates_far_apart": dates_far_apart,
