@@ -161,3 +161,33 @@
   justify-content: center;
   margin-top: 32px;
 }
+
+/* 流程列的「查看結果」可以直接點，前往綜合分析結果 */
+a.flow-chip-link {
+  text-decoration: none;
+  cursor: pointer;
+  color: #526960;
+  background: #fff;
+  border-color: rgba(106, 128, 122, 0.55);
+  box-shadow: 0 2px 6px rgba(67, 82, 73, 0.08);
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+a.flow-chip-link::after {
+  content: "\2192";
+  margin-left: 8px;
+}
+
+a.flow-chip-link:hover,
+a.flow-chip-link:focus-visible {
+  color: #fff;
+  background: #6a807a;
+  box-shadow: 0 5px 14px rgba(67, 82, 73, 0.18);
+  transform: translateY(-1px);
+}
+
+a.flow-chip-link:focus-visible {
+  outline: 3px solid rgba(106, 128, 122, 0.35);
+  outline-offset: 2px;
+}
+
