@@ -43,4 +43,4 @@ class AnalysisRecordForm(forms.Form):
     def _choice_label(obj):
         date = getattr(obj, "updated_at", None) or getattr(obj, "diagnosis_date", None)
         date = date or getattr(obj, "test_date", None)
-        return f"{date:%Y/%m/%d %H:%M} · #{obj.pk}"
+        return f"{date:%Y/%m/%d %H:%M}"
