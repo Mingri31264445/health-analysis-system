@@ -72,6 +72,8 @@
 .result-systems-table th { padding: 14px 8px; text-align: left; color: #5e706a; font-size: 13px; font-weight: 800; border-bottom: 1px solid #dfd8ce; }
 .result-systems-table th:first-child, .result-systems-table td:first-child { width: 19%; padding-left: 2px; }
 .result-systems-table th:last-child, .result-systems-table td:last-child { width: 19%; }
+.result-systems-table th:last-child, .result-systems-table td:last-child { border-left: 2px solid #b9b0a2; padding-left: 20px; }
+.result-systems-table th:last-child { color: #26353a; font-size: 17px; font-weight: 900; }
 .result-systems-table td { height: 56px; padding: 10px 8px; border-bottom: 1px solid #e7e2d9; font-size: 14px; }
 .result-systems-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, .28); }
 .result-systems-table .result-system-name { color: #26353a; font-size: 14px; font-weight: 700; }
