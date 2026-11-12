@@ -36,7 +36,7 @@ def questionnaire_result(questionnaire):
     )
     return _result(
         "yes" if has_history else "no",
-        "自述有疾病或手術史" if has_history else "未填報相關疾病或手術史",
+        "自述有疾病或手術史" if has_history else "自述無疾病或手術史",
     )
 
 
@@ -50,8 +50,8 @@ def face_result(face):
 
     total = (face.analysis_report or {}).get("total") or 0
     if total > 0:
-        return _result("yes", f"偵測到 {total} 處候選病灶（模型尚未驗收，僅供輔助參考）")
-    return _result("no", "未偵測到候選病灶（模型尚未驗收，僅供輔助參考）")
+        return _result("yes", f"偵測到 {total} 處臉部病灶")
+    return _result("no", "無偵測到臉部病灶")
 
 
 def bfs_result(bfs):
@@ -80,7 +80,7 @@ def bfs_result(bfs):
 
     return _result(
         "yes" if positive else "no",
-        "出現第 5 或 6 級項目" if positive else "未出現第 5 或 6 級項目",
+        "出現異常或嚴重的項目" if positive else "尚無出現異常或嚴重的項目",
     )
 
 def _meridian_limits(meridian):
@@ -118,10 +118,10 @@ def meridian_result(meridian):
     high, low, uses_extreme_lines, readings = limits
 
     positive = any(_reading_is_abnormal(reading, high, low) for reading in readings)
-    scope = "紅色警示範圍" if uses_extreme_lines else "高／低門檻外"
+    label = "過旺／過低" if uses_extreme_lines else "高／低"
     return _result(
         "yes" if positive else "no",
-        f"讀數出現在{scope}" if positive else f"讀數未進入{scope}",
+        f"讀數出現在{label}的門檻值外" if positive else f"讀數皆落在{label}的門檻值內",
     )
 
 def overall_from_states(states):

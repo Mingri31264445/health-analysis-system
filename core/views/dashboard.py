@@ -411,14 +411,8 @@ def build_subject_overview(
             "user": subject_user.id,
         }
 
-        face_create_url = (
-            f"{reverse('admin:core_facediagnosis_add')}?"
-            f"{urlencode(admin_add_params)}"
-        )
-        face_list_url = (
-            f"{reverse('admin:core_facediagnosis_changelist')}?"
-            f"{urlencode(admin_subject_params)}"
-        )
+        face_create_url = f"{reverse('upload_face_diagnosis')}?{urlencode(subject_params)}"
+        face_list_url = f"{reverse('face_list')}?{urlencode({'subject': subject_user.id})}"
         bfs_create_url = f"{reverse('upload_bfs_test')}?{urlencode(subject_params)}"
         bfs_list_url = f"{reverse('bfs_list')}?{urlencode({'subject': subject_user.id})}"
         meridian_create_url = (
@@ -430,14 +424,13 @@ def build_subject_overview(
     elif subject_user.id == actor.id:
         questionnaire_url = reverse("questionnaire")
         subject_params = {"patient_name": subject_identity_name or subject_user.username}
-        bfs_create_url = f"{reverse('upload_bfs_test')}?{urlencode(subject_params)}"
+        # 一般使用者不能自行上傳，只能查看自己的紀錄
+        bfs_create_url = ""
         bfs_list_url = reverse("bfs_list")
-        meridian_create_url = (
-            f"{reverse('upload_meridian_result')}?{urlencode(subject_params)}"
-        )
+        meridian_create_url = ""
         meridian_list_url = reverse("meridian_list")
-        face_create_url = reverse("feature_gate", args=["face"])
-        face_list_url = reverse("feature_gate", args=["face"])
+        face_create_url = ""
+        face_list_url = reverse("face_list")
     else:
         questionnaire_url = ""
         bfs_create_url = ""
@@ -448,10 +441,7 @@ def build_subject_overview(
         face_list_url = ""
 
     if latest_face and can_manage_all:
-        face_primary_url = reverse(
-            "admin:core_facediagnosis_change",
-            args=[latest_face.pk],
-        )
+        face_primary_url = reverse("face_detail", args=[latest_face.pk])
     else:
         face_primary_url = face_create_url
 
@@ -497,7 +487,7 @@ def build_subject_overview(
             "number": "02",
             "label": "面診影像",
             "state": f"{face_count} 筆" if face_count else (
-                "尚未開放自助上傳" if subject_user.id == actor.id and not can_manage_all
+                "待管理員上傳" if subject_user.id == actor.id and not can_manage_all
                 else "待建立"
             ),
             "description": "臉部影像與面診分析紀錄。",
@@ -518,9 +508,9 @@ def build_subject_overview(
                     },
                 ]
                 if can_manage_all else [
-                    {"label": "查看面診說明", "url": face_primary_url, "primary": False}
+                    {"label": "查看紀錄", "url": face_list_url, "primary": True}
                 ]
-                if subject_user.id == actor.id else []
+                if subject_user.id == actor.id and face_count else []
             ),
         },
         {
@@ -545,7 +535,11 @@ def build_subject_overview(
                 },
             ]
             if bfs_create_url
-            else [],
+            else (
+                [{"label": "查看紀錄", "url": bfs_list_url, "primary": True}]
+                if bfs_list_url and bfs_count
+                else []
+            ),
         },
         {
             "key": "meridian",
@@ -569,7 +563,11 @@ def build_subject_overview(
                 },
             ]
             if meridian_create_url
-            else [],
+            else (
+                [{"label": "查看紀錄", "url": meridian_list_url, "primary": True}]
+                if meridian_list_url and meridian_count
+                else []
+            ),
         },
     ]
 

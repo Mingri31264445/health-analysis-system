@@ -21,6 +21,8 @@ from ..services.face import (
 )
 from ..services.subjects import get_subject_display_name, get_user_identity_name
 from .permissions import (
+    admin_upload_required,
+    can_upload_records,
     can_manage_all_records,
     can_view_all_records,
     get_manageable_record_or_404,
@@ -78,7 +80,7 @@ def _upload_context(form, request, subject_user):
     }
 
 
-@login_required(login_url="login")
+@admin_upload_required
 def upload_face_diagnosis(request):
     subject_user = _resolve_upload_subject(request)
 
@@ -158,6 +160,7 @@ def face_list(request):
         if target_subject
         else "",
         "upload_url": upload_url,
+        "can_upload_records": can_upload_records(request.user),
         "can_manage_all_records": can_manage_all_records(request.user),
         "can_view_all_records": can_view_all_records(request.user),
     })

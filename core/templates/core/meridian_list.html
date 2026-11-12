@@ -37,9 +37,11 @@
         </div>
 
         <div class="meridian-list-header" id="records">
+          {% if can_upload_records %}
           <a href="{{ upload_url }}" class="btn btn-primary">
             上傳新的經絡檢測
           </a>
+          {% endif %}
           {% if target_subject %}
             <a href="{% url 'meridian_list' %}" class="btn btn-secondary">返回全部紀錄</a>
           {% endif %}
@@ -85,7 +87,7 @@
         {% endif %}
 
         {% if not meridian_tests %}
-        <p class="meridian-empty-note">目前還沒有任何經絡測試記錄，點上方按鈕開始第一筆上傳。</p>
+        <p class="meridian-empty-note">目前還沒有任何經絡測試記錄。{% if can_upload_records %}點上方按鈕開始第一筆上傳。{% else %}資料由管理員協助上傳。{% endif %}</p>
         {% endif %}
       </div>
     </section>

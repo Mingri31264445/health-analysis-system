@@ -228,9 +228,11 @@
             編輯備註
           </a>
           {% endif %}
+          {% if record_upload_url %}
           <a href="{{ record_upload_url }}" class="btn btn-primary">
             上傳新的面診照片
           </a>
+          {% endif %}
           {% if can_manage %}
           <form method="POST" action="{% url 'face_delete' record.pk %}"
                 onsubmit="return confirm('確定要刪除這筆面診記錄嗎？照片與分析結果都會一併刪除，此操作無法復原。');">

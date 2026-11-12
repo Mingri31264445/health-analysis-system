@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ subject_name }}｜綜合分析結果</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
-    <link rel="stylesheet" href="{% static 'css/analysis_report.css' %}">
+    <link rel="stylesheet" href="{% static 'css/analysis_report.css' %}?v=3">
 </head>
 <body>
     {% include "core/system_nav.html" %}
@@ -102,10 +102,10 @@
                                 <div>
                                     <strong>{{ row.label }}</strong>
                                     <small>{{ row.date_label }}{% if row.record.id %} · #{{ row.record.id }}{% endif %}</small>
-                                    <p>{{ row.result.reason }}</p>
+                                    {% if row.result.state == 'pending' %}<p>{{ row.result.reason }}</p>{% endif %}
                                 </div>
                                 <span class="result-state is-{{ row.result.state }}">
-                                    {% if row.result.state == 'yes' %}有{% elif row.result.state == 'no' %}無{% else %}未完成{% endif %}
+                                    {% if row.result.state == 'yes' or row.result.state == 'no' %}{{ row.result.reason }}{% else %}未完成{% endif %}
                                 </span>
                             </div>
                         {% endfor %}

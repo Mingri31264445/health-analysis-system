@@ -20,6 +20,8 @@ from ..forms import MeridianTestForm, MeridianTestUpdateForm
 from ..models import MeridianTest, Questionnaire
 from ..services.subjects import get_subject_display_name, get_user_identity_name
 from .permissions import (
+    admin_upload_required,
+    can_upload_records,
     can_manage_all_records,
     can_manage_record,
     can_view_all_records,
@@ -67,7 +69,7 @@ def _parse_measure_datetime(raw):
     naive = datetime.strptime(normalized, '%Y/%m/%d %p %I:%M:%S')
     return timezone.make_aware(naive)
 
-@login_required(login_url="login")
+@admin_upload_required
 def upload_meridian_result(request):
     subject_user = _resolve_upload_subject(request)
 
@@ -180,6 +182,7 @@ def meridian_list(request):
         if target_subject
         else "",
         "upload_url": upload_url,
+        "can_upload_records": can_upload_records(request.user),
         "can_manage_all_records": can_manage_all_records(request.user),
         "can_view_all_records": can_view_all_records(request.user),
     })

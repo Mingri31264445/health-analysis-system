@@ -150,9 +150,11 @@
             編輯資料
           </a>
           {% endif %}
+          {% if record_upload_url %}
           <a href="{{ record_upload_url }}" class="btn btn-primary">
             上傳新的 BFS 測試
           </a>
+          {% endif %}
           {% if can_manage_this_record %}
           <form method="POST" action="{% url 'bfs_delete' bfs_test.pk %}" onsubmit="return confirm('確定要刪除這筆測試記錄嗎？包含底下所有 PDF 檔案，此操作無法復原。');">
             {% csrf_token %}

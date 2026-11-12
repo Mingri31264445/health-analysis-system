@@ -1,3 +1,7 @@
+from functools import wraps
+
+from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 
@@ -23,6 +27,11 @@ def can_view_all_records(user):
 
 def can_manage_all_records(user):
     return is_system_admin(user)
+
+
+def can_upload_records(user):
+    """只有管理員能上傳面診、BFS、經絡儀；受測者與研究人員都不行。"""
+    return user.is_authenticated and is_system_admin(user)
 
 
 def can_manage_record(user, record):
@@ -55,3 +64,18 @@ def get_manageable_record_or_404(queryset, user, **kwargs):
 
 def get_user_record_or_404(queryset, user, **kwargs):
     return get_viewable_record_or_404(queryset, user, **kwargs)
+
+
+
+def admin_upload_required(view_func):
+    """上傳頁專用：未登入導向登入頁，非管理員直接 403。"""
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path(), "login")
+        if not can_upload_records(request.user):
+            raise PermissionDenied("僅管理員可上傳檢測資料。")
+        return view_func(request, *args, **kwargs)
+
+    return wrapper

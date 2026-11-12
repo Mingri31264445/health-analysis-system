@@ -6,6 +6,7 @@ from django.urls import reverse
 from ..forms import QuestionnaireForm
 from ..models import BFSTest, FaceDiagnosis, MeridianTest, Questionnaire
 from .auth import safe_next_url, questionnaire_start_url
+from .permissions import can_upload_records
 
 FEATURES = {
     "face": {
@@ -81,7 +82,7 @@ def start_analysis_view(request):
         {
             "eyebrow": FEATURES["face"]["eyebrow"],
             "label": FEATURES["face"]["label"],
-            "description": "上傳正面照，AI 偵測臉部病灶，或查看過去的面診紀錄。",
+            "description": "查看 AI 偵測臉部病灶的面診紀錄，資料由管理員協助上傳。",
             "status": f"已有 {face_records.count()} 筆紀錄" if latest_face else "尚無紀錄",
             "latest": latest_face.diagnosis_date if latest_face else None,
             "primary_label": "上傳面診照片",
@@ -92,7 +93,7 @@ def start_analysis_view(request):
         {
             "eyebrow": FEATURES["bfs"]["eyebrow"],
             "label": FEATURES["bfs"]["label"],
-            "description": "上傳報告，或查看同一帳號過去的量測紀錄。",
+            "description": "查看同一帳號過去的量測紀錄，報告由管理員協助上傳。",
             "status": f"已有 {bfs_records.count()} 筆紀錄" if latest_bfs else "尚無紀錄",
             "latest": latest_bfs.test_date if latest_bfs else None,
             "primary_label": "上傳 BFS 報告",
@@ -103,7 +104,7 @@ def start_analysis_view(request):
         {
             "eyebrow": FEATURES["meridian"]["eyebrow"],
             "label": FEATURES["meridian"]["label"],
-            "description": "上傳報告，或查看同一帳號過去的檢測紀錄。",
+            "description": "查看同一帳號過去的檢測紀錄，報告由管理員協助上傳。",
             "status": f"已有 {meridian_records.count()} 筆紀錄" if latest_meridian else "尚無紀錄",
             "latest": latest_meridian.test_date if latest_meridian else None,
             "primary_label": "上傳經絡儀報告",
@@ -112,6 +113,13 @@ def start_analysis_view(request):
             "secondary_url": reverse("meridian_list"),
         },
     ]
+
+    # 一般使用者不能上傳面診／BFS／經絡儀，只保留「查看紀錄」
+    if not can_upload_records(request.user):
+        for module in modules:
+            if "secondary_url" in module:
+                module["primary_label"] = module.pop("secondary_label")
+                module["primary_url"] = module.pop("secondary_url")
 
     return render(
         request,

@@ -54,10 +54,10 @@
 .result-module-row strong { display: block; }
 .result-module-row small { display: block; color: #69757b; font-size: 12px; }
 .result-module-row p { margin-top: 3px; color: #69757b; font-size: 12px; }
-.result-state { min-width: 58px; padding: 4px 8px; border-radius: 5px; text-align: center; font-size: 13px; font-weight: 800; white-space: nowrap; }
-.result-state.is-yes { background: #f4e8d8; color: #926f29; }
-.result-state.is-no { background: #e8eeea; color: #48675a; }
-.result-state.is-pending { background: #eae8e3; color: #69757b; }
+.result-state { min-width: 58px; max-width: 16em; padding: 4px 0; background: none; text-align: right; font-size: 13px; font-weight: 800; line-height: 1.4; }
+.result-state.is-yes { color: #c0392b; }
+.result-state.is-no { color: #2f7d4f; }
+.result-state.is-pending { color: #69757b; }
 .result-history { margin-top: 55px; padding-top: 24px; border-top: 1px solid #dfd8ce; }
 .result-history-list { border-top: 1px solid #dfd8ce; }
 .result-history-row { display: flex; justify-content: space-between; gap: 16px; padding: 13px 4px; border-bottom: 1px solid #dfd8ce; color: #26353a; text-decoration: none; }

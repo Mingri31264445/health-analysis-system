@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from django.urls import reverse
 
 from ..services.subjects import get_subject_display_name
-from .permissions import can_view_all_records
+from .permissions import can_upload_records, can_view_all_records
 
 
 def workflow_navigation(request, subject_user=None, record_type=None, selected_ids=None):
@@ -37,6 +37,6 @@ def workflow_navigation(request, subject_user=None, record_type=None, selected_i
         context.update({
             "record_list_url": list_url,
             "record_return_url": f"{return_url}#records",
-            "record_upload_url": upload_url,
+            "record_upload_url": upload_url if can_upload_records(request.user) else "",
         })
     return context

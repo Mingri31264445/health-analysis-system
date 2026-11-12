@@ -30,9 +30,11 @@ class WorkflowNavigationTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "已有 1 筆紀錄", count=2)
-        self.assertContains(response, "面診影像自助上傳尚未開放")
-        self.assertContains(response, f'href="{reverse("upload_bfs_test")}"')
-        self.assertContains(response, f'href="{reverse("upload_meridian_result")}"')
+        self.assertContains(response, "由管理員協助上傳", count=3)
+        self.assertContains(response, f'href="{reverse("face_list")}"')
+        self.assertNotContains(response, reverse("upload_bfs_test"))
+        self.assertNotContains(response, reverse("upload_meridian_result"))
+        self.assertNotContains(response, reverse("upload_face_diagnosis"))
         self.assertContains(response, f'href="{reverse("bfs_list")}"')
         self.assertContains(response, f'href="{reverse("meridian_list")}"')
         self.assertContains(response, 'class="workflow-back"')
@@ -67,7 +69,7 @@ class WorkflowNavigationTests(TestCase):
         self.client.force_login(self.subject)
         detail = self.client.get(reverse("subject_detail", args=[self.subject.pk]))
         self.assertContains(detail, f'href="{reverse("start_analysis")}"')
-        self.assertContains(detail, "查看面診說明")
+        self.assertContains(detail, "待管理員上傳")
         self.assertNotContains(detail, "新增面診")
         self.assertContains(detail, f'href="{reverse("bfs_list")}"')
         self.assertContains(detail, f'href="{reverse("meridian_list")}"')
@@ -113,11 +115,9 @@ class WorkflowNavigationTests(TestCase):
         self.client.force_login(self.subject)
         workflow_url = reverse("start_analysis")
         for name, args in (
-            ("upload_bfs_test", []),
             ("bfs_list", []),
             ("bfs_detail", [self.bfs.pk]),
             ("bfs_update", [self.bfs.pk]),
-            ("upload_meridian_result", []),
             ("meridian_list", []),
             ("meridian_detail", [self.meridian.pk]),
             ("meridian_update", [self.meridian.pk]),
@@ -221,3 +221,63 @@ class WorkflowNavigationTests(TestCase):
                 response = self.client.get(url)
                 self.assertContains(response, f'href="{reverse("dashboard")}"')
                 self.assertContains(response, "返回管理後台")
+
+
+class UploadRestrictedToAdminTests(TestCase):
+    """面診、BFS、經絡儀的上傳頁與按鈕只開放給管理員。"""
+
+    UPLOAD_NAMES = ("upload_face_diagnosis", "upload_bfs_test", "upload_meridian_result")
+
+    def setUp(self):
+        User = get_user_model()
+        self.subject = User.objects.create_user(username="0911111111", password="pass")
+        self.admin = User.objects.create_user(
+            username="0922222222", password="pass", is_staff=True
+        )
+        self.bfs = BFSTest.objects.create(user=self.subject, patient_name="王小明")
+        self.meridian = MeridianTest.objects.create(user=self.subject, patient_name="王小明")
+
+    def test_normal_user_gets_403_on_every_upload_page(self):
+        self.client.force_login(self.subject)
+        for name in self.UPLOAD_NAMES:
+            with self.subTest(page=name, method="GET"):
+                self.assertEqual(self.client.get(reverse(name)).status_code, 403)
+            with self.subTest(page=name, method="POST"):
+                self.assertEqual(self.client.post(reverse(name), {}).status_code, 403)
+
+    def test_anonymous_is_redirected_to_login(self):
+        for name in self.UPLOAD_NAMES:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertEqual(response.status_code, 302)
+                self.assertIn(reverse("login"), response["Location"])
+
+    def test_admin_can_open_upload_pages(self):
+        self.client.force_login(self.admin)
+        for name in self.UPLOAD_NAMES:
+            with self.subTest(page=name):
+                self.assertEqual(self.client.get(reverse(name)).status_code, 200)
+
+    def test_normal_user_pages_hide_upload_buttons(self):
+        self.client.force_login(self.subject)
+        for name, args in (
+            ("bfs_list", []),
+            ("bfs_detail", [self.bfs.pk]),
+            ("meridian_list", []),
+            ("meridian_detail", [self.meridian.pk]),
+            ("face_list", []),
+            ("subject_detail", [self.subject.pk]),
+        ):
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name, args=args))
+                self.assertEqual(response.status_code, 200)
+                for upload in self.UPLOAD_NAMES:
+                    self.assertNotContains(response, reverse(upload))
+
+    def test_admin_subject_workspace_links_to_frontend_upload_pages(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("subject_detail", args=[self.subject.pk]))
+        self.assertEqual(response.status_code, 200)
+        for upload in self.UPLOAD_NAMES:
+            self.assertContains(response, reverse(upload))
+        self.assertNotContains(response, "/admin/core/facediagnosis/add/")
