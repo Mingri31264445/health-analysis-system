@@ -101,6 +101,7 @@ def analysis_report_view(request, subject_id):
         "rows": rows,
         "system_rows": results.get("systems", []),
         "overall": overall,
+        "yes_count": sum(1 for row in rows if row["result"].get("state") == "yes"),
         "report": report,
         "reports": reports[:15],
         "can_save": can_save,

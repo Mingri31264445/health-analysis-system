@@ -44,6 +44,7 @@
 .result-light.is-green { background: #4f9670; }
 .result-light.is-yellow { background: #d3a638; }
 .result-light.is-red { background: #ba655e; }
+.result-light.is-pending { background: #c9c5bc; }
 .result-light-row strong { display: block; font-size: 16px; }
 .result-light-row p { margin-top: 3px; color: #69757b; font-size: 13px; }
 .result-outcome { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #dfd8ce; color: #52665e; font-weight: 700; }

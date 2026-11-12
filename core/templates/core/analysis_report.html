@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ subject_name }}｜綜合分析結果</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74">
-    <link rel="stylesheet" href="{% static 'css/analysis_report.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/analysis_report.css' %}?v=5">
 </head>
 <body>
     {% include "core/system_nav.html" %}
@@ -73,18 +73,27 @@
                         <div><span>02 / OVERVIEW</span><h2 id="light-title">綜合分析燈號</h2></div>
                     </div>
                     <p class="result-muted">四項都有「有」或「無」的有效判定，才會亮起燈號。</p>
-                    <div class="result-light-row {% if overall == 'green' %}is-active{% endif %}">
+                    {% if overall == 'green' %}
+                    <div class="result-light-row is-active">
                         <i class="result-light is-green" aria-hidden="true"></i>
-                        <div><strong>綠燈｜無異常項目</strong><p>四項皆為「無」，共 0 項。</p></div>
+                        <div><strong>綠燈｜無異常項目</strong><p>四項中有 0 項為「有」。</p></div>
                     </div>
-                    <div class="result-light-row {% if overall == 'yellow' %}is-active{% endif %}">
+                    {% elif overall == 'yellow' %}
+                    <div class="result-light-row is-active">
                         <i class="result-light is-yellow" aria-hidden="true"></i>
-                        <div><strong>黃燈｜部分項目需留意</strong><p>四項中有 1～2 項為「有」。</p></div>
+                        <div><strong>黃燈｜部分項目需留意</strong><p>四項中有 {{ yes_count }} 項為「有」。</p></div>
                     </div>
-                    <div class="result-light-row {% if overall == 'red' %}is-active{% endif %}">
+                    {% elif overall == 'red' %}
+                    <div class="result-light-row is-active">
                         <i class="result-light is-red" aria-hidden="true"></i>
-                        <div><strong>紅燈｜多項結果需留意</strong><p>四項中有 3～4 項為「有」。</p></div>
+                        <div><strong>紅燈｜多項結果需留意</strong><p>四項中有 {{ yes_count }} 項為「有」。</p></div>
                     </div>
+                    {% else %}
+                    <div class="result-light-row is-active">
+                        <i class="result-light is-pending" aria-hidden="true"></i>
+                        <div><strong>尚無分析結果</strong><p>有項目尚未完成判定，暫不顯示燈號。</p></div>
+                    </div>
+                    {% endif %}
                     <p class="result-outcome" role="status">
                         目前狀態：{% if overall == 'green' %}綠燈{% elif overall == 'yellow' %}黃燈{% elif overall == 'red' %}紅燈{% else %}尚無分析結果{% endif %}
                         {% if report %}<small>已儲存於 {{ report.created_at|date:"Y/m/d H:i" }}</small>{% else %}<small>尚未儲存</small>{% endif %}
