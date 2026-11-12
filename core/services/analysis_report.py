@@ -84,21 +84,31 @@ def bfs_result(bfs):
     )
 
 def _meridian_limits(meridian):
-    """回傳 (高線, 低線, 是否用過高／過低線, 12 筆讀數)；資料不完整時回傳 None。"""
-    # 5 線報告用「過高／過低」線；3 線報告沒有這兩條，退回用「高／低」線
-    uses_extreme_lines = (
-        meridian.threshold_toohigh is not None
-        and meridian.threshold_toolow is not None
-    )
-    high = meridian.threshold_toohigh if uses_extreme_lines else meridian.threshold_high
-    low = meridian.threshold_toolow if uses_extreme_lines else meridian.threshold_low
+    """回傳 (過高線, 過低線, 是否有過高／過低線, 12 筆讀數)；資料不完整時回傳 None。
+
+    紅色（有）的定義是讀數超出「過高／過低」線。3 線報告（只有高、均、低）
+    沒有這兩條線，讀數不可能超出，所以過高、過低線回傳 None，一律判「無」。
+    """
     readings = list(meridian.readings.all())
-    if high is None or low is None or high <= low or len(readings) != 12:
+    if len(readings) != 12:
         return None
-    return high, low, uses_extreme_lines, readings
+    toohigh = meridian.threshold_toohigh
+    toolow = meridian.threshold_toolow
+    if toohigh is not None and toolow is not None:
+        if toohigh <= toolow:
+            return None
+        return toohigh, toolow, True, readings
+    # 3 線報告：高、低線必須存在且合理，才算完整的報告
+    high = meridian.threshold_high
+    low = meridian.threshold_low
+    if high is None or low is None or high <= low:
+        return None
+    return None, None, False, readings
 
 
 def _reading_is_abnormal(reading, high, low):
+    if high is None or low is None:
+        return False
     return any(
         value is not None and (value > high or value < low)
         for value in (
@@ -115,13 +125,12 @@ def meridian_result(meridian):
     limits = _meridian_limits(meridian)
     if limits is None:
         return _result(reason="經絡儀門檻或讀數尚未完整")
-    high, low, uses_extreme_lines, readings = limits
+    high, low, _uses_extreme_lines, readings = limits
 
     positive = any(_reading_is_abnormal(reading, high, low) for reading in readings)
-    label = "過旺／過低" if uses_extreme_lines else "高／低"
     return _result(
         "yes" if positive else "no",
-        f"讀數出現在{label}的門檻值外" if positive else f"讀數皆落在{label}的門檻值內",
+        "讀數出現在過旺／過低的門檻值外" if positive else "讀數皆落在過旺／過低的門檻值內",
     )
 
 def overall_from_states(states):
@@ -234,8 +243,7 @@ def meridian_systems(meridian):
     if base["state"] == "pending":
         return _all_systems(base)
 
-    high, low, uses_extreme_lines, readings = _meridian_limits(meridian)
-    scope = "紅色警示範圍" if uses_extreme_lines else "高／低門檻外"
+    high, low, _uses_extreme_lines, readings = _meridian_limits(meridian)
     covered = set()
     positive = set()
     for reading in readings:
@@ -249,7 +257,7 @@ def meridian_systems(meridian):
         if key not in covered:
             cells[key] = _result(reason="沒有對應的經絡讀數")
         else:
-            cells[key] = _system_cell(key in positive, f"對應經絡讀數出現在{scope}", f"對應經絡讀數未進入{scope}")
+            cells[key] = _system_cell(key in positive, "對應經絡讀數出現在過旺／過低的門檻值外", "對應經絡讀數皆落在過旺／過低的門檻值內")
     return cells
 
 

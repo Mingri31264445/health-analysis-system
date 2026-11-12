@@ -168,6 +168,23 @@ class AnalysisReportTests(TestCase):
         reading.save()
         self.assertEqual(meridian_result(meridian)["state"], "yes")
 
+    def test_three_line_meridian_report_never_counts_as_yes(self):
+        """只有高、均、低三條線的報告沒有過高／過低線，讀數再極端也判「無」。"""
+        meridian = MeridianTest.objects.create(
+            user=self.subject, patient_name="王小明", result_pdf="meridian_tests/test.pdf",
+            threshold_high=70, threshold_average=50, threshold_low=30,
+        )
+        self.assertEqual(meridian_result(meridian)["state"], "pending")
+        MeridianReading.objects.bulk_create([
+            MeridianReading(
+                meridian_test=meridian, meridian=f"經絡{index}",
+                left_org=99, left_cmp=1, right_org=99, right_cmp=1,
+            ) for index in range(12)
+        ])
+        result = meridian_result(meridian)
+        self.assertEqual(result["state"], "no")
+        self.assertIn("過旺／過低的門檻值內", result["reason"])
+
     def test_trends_reject_records_without_verified_subject(self):
         bfs_a = BFSTest.objects.create(patient_name="舊資料 A")
         bfs_b = BFSTest.objects.create(patient_name="舊資料 B")
