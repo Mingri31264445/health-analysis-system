@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from ..forms import BFSTestForm, BFSTestUpdateForm
 from ..models import BFSTest, BFSTestFile, Questionnaire
+from ..services.bfs.labels import template_title
 from ..services.subjects import get_subject_display_name, get_user_identity_name
 from .permissions import (
     admin_upload_required,
@@ -267,6 +268,7 @@ def bfs_detail(request, pk):
     for bfs_file in bfs_test.files.all():
         files_display.append({
             'file': bfs_file,
+            'title': template_title(bfs_file.detected_template),
             'display': _build_display_rows(bfs_file.analysis_result),
         })
 

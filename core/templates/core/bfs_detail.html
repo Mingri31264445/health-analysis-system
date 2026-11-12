@@ -7,7 +7,7 @@
     <title>BFS測試結果 AI智慧面診健康平台</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bfs_result.css' %}?v=2" />
   </head>
   <body>
     <header class="navbar">
@@ -61,7 +61,7 @@
         {% for item in files_display %}
         <div class="bfs-file-block">
           <div class="bfs-file-header">
-            <h3>檔案 {{ item.file.file_number }}</h3>
+            <h3>{% if item.title %}{{ item.title }}<span class="bfs-file-no">檔案 {{ item.file.file_number }}</span>{% else %}檔案 {{ item.file.file_number }}{% endif %}</h3>
 
             <div class="bfs-file-header-right">
               {% if item.file.analysis_status == 'success' %}
