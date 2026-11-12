@@ -7,7 +7,7 @@
     <title>面診結果 AI智慧面診健康平台</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=74" />
     <link rel="stylesheet" href="{% static 'css/meridian_result.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/face_diagnosis.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/face_diagnosis.css' %}?v=2" />
   </head>
   <body>
     <header class="navbar">
@@ -87,25 +87,21 @@
           {% endif %}
         </div>
 
-        <!-- 偵測與影像處理 -->
-        <h3 class="face-heading">偵測與影像處理</h3>
-        <div class="face-grid-3">
+        <!-- 原始照片與病灶偵測 -->
+        <h3 class="face-heading">原始照片與病灶偵測</h3>
+        <div class="face-grid-2">
+          <figure class="face-card face-figure">
+            <a href="{% url 'face_file' record.pk 'front' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'front' %}" alt="原始照片" />
+            </a>
+            <figcaption>原始照片（點圖開大圖）</figcaption>
+          </figure>
           {% if result_images.spots_boxes %}
           <figure class="face-card face-figure">
-            <img src="{% url 'face_file' record.pk 'spots_boxes' %}" alt="病灶偵測框" />
+            <a href="{% url 'face_file' record.pk 'spots_boxes' %}" target="_blank">
+              <img src="{% url 'face_file' record.pk 'spots_boxes' %}" alt="病灶偵測框" />
+            </a>
             <figcaption>病灶偵測（方框）</figcaption>
-          </figure>
-          {% endif %}
-          {% if result_images.face_mesh %}
-          <figure class="face-card face-figure">
-            <img src="{% url 'face_file' record.pk 'face_mesh' %}" alt="臉部網格" />
-            <figcaption>臉部關鍵點網格</figcaption>
-          </figure>
-          {% endif %}
-          {% if result_images.skin_mask %}
-          <figure class="face-card face-figure">
-            <img src="{% url 'face_file' record.pk 'skin_mask' %}" alt="皮膚區域" />
-            <figcaption>皮膚區域遮罩</figcaption>
           </figure>
           {% endif %}
         </div>
@@ -190,34 +186,19 @@
         {% endif %}
         {% endif %}
 
-        {% endif %}
+        {% else %}
 
-        <!-- 原始照片 -->
-        <h3 class="face-heading">原始照片</h3>
+        <!-- 尚未完成分析時只顯示原始照片 -->
         <div class="face-grid-photos">
           <figure class="face-card face-figure">
             <a href="{% url 'face_file' record.pk 'front' %}" target="_blank">
-              <img src="{% url 'face_file' record.pk 'front' %}" alt="正面照" />
+              <img src="{% url 'face_file' record.pk 'front' %}" alt="原始照片" />
             </a>
-            <figcaption>正面（已分析）</figcaption>
+            <figcaption>原始照片</figcaption>
           </figure>
-          {% if record.right_image %}
-          <figure class="face-card face-figure">
-            <a href="{% url 'face_file' record.pk 'right' %}" target="_blank">
-              <img src="{% url 'face_file' record.pk 'right' %}" alt="右側照" />
-            </a>
-            <figcaption>右側（僅留存）</figcaption>
-          </figure>
-          {% endif %}
-          {% if record.left_image %}
-          <figure class="face-card face-figure">
-            <a href="{% url 'face_file' record.pk 'left' %}" target="_blank">
-              <img src="{% url 'face_file' record.pk 'left' %}" alt="左側照" />
-            </a>
-            <figcaption>左側（僅留存）</figcaption>
-          </figure>
-          {% endif %}
         </div>
+
+        {% endif %}
 
         <div class="bfs-actions">
           <a href="{{ record_return_url }}" class="btn btn-secondary">
