@@ -20,8 +20,7 @@ for commit history.
 
 My part: Django backend and BFS PDF parsing module.
 
-<details>
-<summary>Run locally</summary>
+## Run locally
 
 1. Clone this repository
 2. Create an environment: `conda create -n health-analysis python=3.11`
@@ -29,5 +28,3 @@ My part: Django backend and BFS PDF parsing module.
 4. Initialize the database: `python manage.py migrate`
 5. Create the upload folder: `mkdir media`
 6. Start the server: `python manage.py runserver`, then open http://localhost:8000
-
-</details>
