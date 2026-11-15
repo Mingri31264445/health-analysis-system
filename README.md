@@ -6,11 +6,11 @@ Integrated health analysis platform that combines traditional Chinese medicine f
 
 ## Features
 
-- **Subject accounts** with multiple test records per subject
+- **User accounts** with multiple test records per user
 - **Questionnaire** as the baseline health record
 - **BFS** and **meridian instrument** measurements, including PDF report parsing
 - **Face diagnosis** records with YOLO-based image analysis
-- **Role-based access:** subjects see only their own records, researchers can view all subjects' records without managing accounts, and admins have full control through Django Admin
+- **Role-based access:** separate user accounts and admin accounts
 
 ## Team & my part
 
